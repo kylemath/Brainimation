@@ -1,0 +1,41 @@
+# Netlify Configuration for BrainImation
+# This file controls how Netlify builds and deploys your site
+
+[build]
+  # Specify which directory to publish (only these files will be hosted)
+  # By default, publish the root directory but docs will be excluded via ignore pattern
+  publish = "."
+  
+  # No build command needed since this is a static site
+  command = "echo 'No build required for static site'"
+
+# Ignore patterns - exclude documentation from deployment
+[[redirects]]
+  from = "/docs/*"
+  to = "/404.html"
+  status = 404
+
+# Headers for better caching and security
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    
+# Optional: Custom 404 page redirect (not needed with index.html as main file)
+# [[redirects]]
+#   from = "/*"
+#   to = "/index.html"
+#   status = 200
+#   force = false
+
+# Ignore files and folders during deployment
+# Note: Netlify doesn't have direct file exclusion, so we use .gitignore
+# Create .gitignore if using Git deployment
+

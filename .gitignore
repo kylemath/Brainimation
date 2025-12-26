@@ -1,0 +1,26 @@
+# Exclude documentation from Git and Netlify deployments
+docs/
+
+# Exclude development files (optional - uncomment if you don't want these on Netlify)
+# package.json
+# package-lock.json
+# src/
+
+# Node modules (if you ever need them for development)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.log
+*.tmp
+
