@@ -1,5 +1,4 @@
-# Exclude documentation from Git and Netlify deployments
-docs/
+
 
 # Exclude development files (optional - uncomment if you don't want these on Netlify)
 # package.json
