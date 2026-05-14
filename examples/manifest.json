@@ -1,0 +1,238 @@
+{
+  "categoryOrder": [
+    "Getting Started",
+    "Brain Wave Visualizations",
+    "Attention & Meditation",
+    "Particle Systems",
+    "3D & Advanced",
+    "Drawing & Interaction",
+    "Raw EEG Data",
+    "Noise & Generative",
+    "Animation & Motion",
+    "Sound & Music"
+  ],
+  "examples": [
+    {
+      "id": "basic",
+      "file": "basic.js",
+      "title": "Basic Animation",
+      "category": "Getting Started"
+    },
+    {
+      "id": "basicShapes",
+      "file": "basicShapes.js",
+      "title": "Basic Shapes",
+      "category": "Getting Started"
+    },
+    {
+      "id": "functionExample",
+      "file": "functionExample.js",
+      "title": "Function Example",
+      "category": "Getting Started"
+    },
+    {
+      "id": "alpha",
+      "file": "alpha.js",
+      "title": "Alpha Waves",
+      "category": "Brain Wave Visualizations"
+    },
+    {
+      "id": "waves",
+      "file": "waves.js",
+      "title": "Wave Visualization",
+      "category": "Brain Wave Visualizations"
+    },
+    {
+      "id": "BasicFrequencyBands",
+      "file": "BasicFrequencyBands.js",
+      "title": "Basic Frequency Bands",
+      "category": "Brain Wave Visualizations"
+    },
+    {
+      "id": "bandOrbitz",
+      "file": "bandOrbitz.js",
+      "title": "Band Orbitz",
+      "category": "Brain Wave Visualizations"
+    },
+    {
+      "id": "piWedges",
+      "file": "piWedges.js",
+      "title": "Pi Wedges",
+      "category": "Brain Wave Visualizations"
+    },
+    {
+      "id": "spectra",
+      "file": "spectra.js",
+      "title": "Spectra",
+      "category": "Brain Wave Visualizations"
+    },
+    {
+      "id": "attention",
+      "file": "attention.js",
+      "title": "Attention Meter",
+      "category": "Attention & Meditation"
+    },
+    {
+      "id": "mandala",
+      "file": "mandala.js",
+      "title": "Neural Mandala",
+      "category": "Attention & Meditation"
+    },
+    {
+      "id": "mazeFocus",
+      "file": "mazeFocus.js",
+      "title": "Maze Focus (Navigator)",
+      "category": "Attention & Meditation"
+    },
+    {
+      "id": "particles",
+      "file": "particles.js",
+      "title": "Brain Particles",
+      "category": "Particle Systems"
+    },
+    {
+      "id": "ColourBalls",
+      "file": "ColourBalls.js",
+      "title": "Colour Balls",
+      "category": "Particle Systems"
+    },
+    {
+      "id": "MultipleBalls",
+      "file": "MultipleBalls.js",
+      "title": "Multiple Balls",
+      "category": "Particle Systems"
+    },
+    {
+      "id": "3dTorus",
+      "file": "3dTorus.js",
+      "title": "3D Torus",
+      "category": "3D & Advanced"
+    },
+    {
+      "id": "AlphaSnake",
+      "file": "AlphaSnake.js",
+      "title": "Alpha Snake",
+      "category": "3D & Advanced"
+    },
+    {
+      "id": "SplineBounce",
+      "file": "SplineBounce.js",
+      "title": "Spline Bounce",
+      "category": "3D & Advanced"
+    },
+    {
+      "id": "BrainDraw",
+      "file": "BrainDraw.js",
+      "title": "Brain Draw",
+      "category": "Drawing & Interaction"
+    },
+    {
+      "id": "bouncingLine",
+      "file": "bouncingLine.js",
+      "title": "Bouncing Line",
+      "category": "Drawing & Interaction"
+    },
+    {
+      "id": "ghostLines",
+      "file": "ghostLines.js",
+      "title": "Ghost Lines",
+      "category": "Drawing & Interaction"
+    },
+    {
+      "id": "eegtrace",
+      "file": "eegtrace.js",
+      "title": "EEG Trace",
+      "category": "Raw EEG Data"
+    },
+    {
+      "id": "multichannel",
+      "file": "multichannel.js",
+      "title": "Multi-Channel EEG",
+      "category": "Raw EEG Data"
+    },
+    {
+      "id": "epochs",
+      "file": "epochs.js",
+      "title": "Epoch View",
+      "category": "Raw EEG Data"
+    },
+    {
+      "id": "perlinNoise",
+      "file": "perlinNoise.js",
+      "title": "Perlin Noise",
+      "category": "Noise & Generative"
+    },
+    {
+      "id": "organicHeatmap",
+      "file": "organicHeatmap.js",
+      "title": "Organic Heatmap",
+      "category": "Noise & Generative"
+    },
+    {
+      "id": "noiseDetail",
+      "file": "noiseDetail.js",
+      "title": "Noise With Detail",
+      "category": "Noise & Generative"
+    },
+    {
+      "id": "discreteColors",
+      "file": "discreteColors.js",
+      "title": "Discrete Colors",
+      "category": "Noise & Generative"
+    },
+    {
+      "id": "smoothColors",
+      "file": "smoothColors.js",
+      "title": "Smooth Colors",
+      "category": "Noise & Generative"
+    },
+    {
+      "id": "animatingNoise",
+      "file": "animatingNoise.js",
+      "title": "Animating Noise",
+      "category": "Noise & Generative"
+    },
+    {
+      "id": "bouncingCircles",
+      "file": "bouncingCircles.js",
+      "title": "Bouncing Circles",
+      "category": "Animation & Motion"
+    },
+    {
+      "id": "waveAnimation",
+      "file": "waveAnimation.js",
+      "title": "Wave Animation",
+      "category": "Animation & Motion"
+    },
+    {
+      "id": "colorfulGrid",
+      "file": "colorfulGrid.js",
+      "title": "Animated Grid",
+      "category": "Animation & Motion"
+    },
+    {
+      "id": "webcamInput",
+      "file": "webcamInput.js",
+      "title": "Webcam Input",
+      "category": "Animation & Motion"
+    },
+    {
+      "id": "brainBeats",
+      "file": "brainBeats.js",
+      "title": "Brain Beats (Sound Test)",
+      "category": "Sound & Music"
+    },
+    {
+      "id": "alphaMusic",
+      "file": "alphaMusic.js",
+      "title": "Alpha Wave Music",
+      "category": "Sound & Music"
+    },
+    {
+      "id": "brainSynth",
+      "file": "brainSynth.js",
+      "title": "Brain Synthesizer",
+      "category": "Sound & Music"
+    }
+  ]
+}

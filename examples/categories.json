@@ -1,0 +1,15 @@
+{
+  "comment": "Desired category order for the example dropdown. Categories not listed here fall to the end in the order they're first discovered by tools/build_manifest.py.",
+  "categoryOrder": [
+    "Getting Started",
+    "Brain Wave Visualizations",
+    "Attention & Meditation",
+    "Particle Systems",
+    "3D & Advanced",
+    "Drawing & Interaction",
+    "Raw EEG Data",
+    "Noise & Generative",
+    "Animation & Motion",
+    "Sound & Music"
+  ]
+}
