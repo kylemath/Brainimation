@@ -4,6 +4,7 @@
 
 An interactive web platform that combines real-time EEG brain data from Muse headsets with P5.js creative coding, enabling anyone to create brain-controlled art and visualizations in real-time.
 
+[Try it live in the browser](https://kylemath.github.io/Brainimation/)
 ---
 
 ## 🎓 Provenance
