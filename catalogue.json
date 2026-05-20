@@ -2,7 +2,7 @@
   "id": "Brainimation",
   "title": "Brainimation",
   "oneLiner": "Live code editor hooked to brainwaves",
-  "demoUrl": "https://brainimation.netlify.app",
+  "demoUrl": "https://kylemath.github.io/brainimation",
   "screenshot": "https://raw.githubusercontent.com/kylemath/Brainimation/main/screenshot.png",
   "kind": "page",
   "categories": ["eeg", "coding", "web"],
