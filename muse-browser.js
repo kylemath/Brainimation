@@ -330,7 +330,12 @@
       if (!this.controlChar) {
         throw new Error('Muse Control characteristic (273e0001) is not connected.');
       }
-      await this.controlChar.writeValue(encodeCommand(cmd));
+      const payload = encodeCommand(cmd);
+      if (typeof this.controlChar.writeValueWithoutResponse === 'function') {
+        await this.controlChar.writeValueWithoutResponse(payload);
+      } else {
+        await this.controlChar.writeValue(payload);
+      }
     }
 
     /**
