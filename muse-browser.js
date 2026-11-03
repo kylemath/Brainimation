@@ -257,6 +257,8 @@
       this.lastIndex = null;
       this.lastTimestamp = null;
       this._controlBuffer = '';
+      this._gattQueue = Promise.resolve();
+      this._boundListeners = [];
 
       // Reactive streams
       this.connectionStatus = new BehaviorSubject(false);
@@ -274,10 +276,51 @@
     }
 
     /**
+     * Serialize GATT operations on the single-flight WebBluetooth peripheral queue
+     * and retry transient 'GATT operation already in progress' / discovery errors.
+     */
+    _enqueueGatt(fn, retries = 3, backoffMs = 120) {
+      const runWithRetry = async () => {
+        let lastErr;
+        for (let attempt = 0; attempt < retries; attempt++) {
+          try {
+            return await fn();
+          } catch (err) {
+            lastErr = err;
+            await this.delay(backoffMs * (attempt + 1));
+          }
+        }
+        throw lastErr;
+      };
+      const next = this._gattQueue.then(runWithRetry, runWithRetry);
+      this._gattQueue = next.catch(() => {});
+      return next;
+    }
+
+    _addCharListener(char, handler) {
+      char.addEventListener('characteristicvaluechanged', handler);
+      this._boundListeners.push({ char, handler });
+    }
+
+    _cleanupListeners() {
+      for (const { char, handler } of this._boundListeners) {
+        try {
+          char.removeEventListener('characteristicvaluechanged', handler);
+        } catch (_) {}
+      }
+      this._boundListeners = [];
+      this.eegCharacteristics = [];
+      this.ppgCharacteristics = [];
+      this.controlChar = null;
+      this._controlBuffer = '';
+    }
+
+    /**
      * Phase 1: Connect to GATT service 0xFE8D and bind ONLY the Control characteristic (273e0001).
      * Avoids eager querying of 273e0003..0006 before firmware preset commands are sent.
      */
     async connect(gatt) {
+      this._cleanupListeners();
       if (gatt) {
         this.gatt = gatt;
       } else {
@@ -288,11 +331,12 @@
       }
 
       this.deviceName = (this.gatt.device && this.gatt.device.name) || 'Muse';
-      this.service = await this.gatt.getPrimaryService(MUSE_SERVICE);
+      this.service = await this._enqueueGatt(() => this.gatt.getPrimaryService(MUSE_SERVICE));
 
       // Listen for unexpected GATT disconnection
       if (this.gatt.device) {
         this.gatt.device.addEventListener('gattserverdisconnected', () => {
+          this._cleanupListeners();
           this.gatt = null;
           this.service = null;
           this.connectionStatus.next(false);
@@ -300,16 +344,21 @@
       }
 
       // Phase 1: Bind ONLY Control characteristic (273e0001)
-      this.controlChar = await this.service.getCharacteristic(CONTROL_CHAR_UUID);
-      await this.controlChar.startNotifications();
-      this.controlChar.addEventListener('characteristicvaluechanged', (event) => {
-        const bytes = new Uint8Array(event.target.value.buffer);
+      this.controlChar = await this._enqueueGatt(() => this.service.getCharacteristic(CONTROL_CHAR_UUID));
+      await this._enqueueGatt(() => this.controlChar.startNotifications());
+      this._addCharListener(this.controlChar, (event) => {
+        const dv = event.target.value;
+        const bytes = new Uint8Array(dv.buffer, dv.byteOffset, dv.byteLength);
         const len = bytes[0];
         let str = '';
         for (let i = 1; i <= len && i < bytes.length; i++) {
           str += String.fromCharCode(bytes[i]);
         }
         this._controlBuffer += str;
+        // Prevent unbounded buffer growth if malformed text arrives
+        if (this._controlBuffer.length > 4096) {
+          this._controlBuffer = this._controlBuffer.slice(-1024);
+        }
         const startIdx = this._controlBuffer.indexOf('{');
         const endIdx = this._controlBuffer.indexOf('}');
         if (startIdx !== -1 && endIdx > startIdx) {
@@ -331,11 +380,13 @@
         throw new Error('Muse Control characteristic (273e0001) is not connected.');
       }
       const payload = encodeCommand(cmd);
-      if (typeof this.controlChar.writeValueWithoutResponse === 'function') {
-        await this.controlChar.writeValueWithoutResponse(payload);
-      } else {
-        await this.controlChar.writeValue(payload);
-      }
+      await this._enqueueGatt(async () => {
+        if (typeof this.controlChar.writeValueWithoutResponse === 'function') {
+          await this.controlChar.writeValueWithoutResponse(payload);
+        } else {
+          await this.controlChar.writeValue(payload);
+        }
+      });
     }
 
     /**
@@ -377,7 +428,7 @@
       let boundChars = [];
 
       try {
-        const allChars = await this.service.getCharacteristics();
+        const allChars = await this._enqueueGatt(() => this.service.getCharacteristics(), 2, 150);
         const byUuid = new Map(allChars.map((c) => [c.uuid.toLowerCase(), c]));
         for (let ch = 0; ch < channelCount; ch++) {
           const target = byUuid.get(EEG_UUIDS[ch]);
@@ -390,7 +441,7 @@
       if (boundChars.length === 0) {
         for (let ch = 0; ch < channelCount; ch++) {
           try {
-            const char = await this.service.getCharacteristic(EEG_UUIDS[ch]);
+            const char = await this._enqueueGatt(() => this.service.getCharacteristic(EEG_UUIDS[ch]), 3, 200);
             boundChars.push({ ch, char });
           } catch (err) {
             console.warn(`[muse-browser] EEG channel ${CHANNEL_NAMES[ch]} unavailable:`, err.message);
@@ -399,8 +450,8 @@
       }
 
       for (const { ch, char } of boundChars) {
-        await char.startNotifications();
-        char.addEventListener('characteristicvaluechanged', (event) => {
+        await this._enqueueGatt(() => char.startNotifications(), 3, 150);
+        this._addCharListener(char, (event) => {
           const dataView = event.target.value;
           const eventIndex = dataView.getUint16(0);
           const payload = new Uint8Array(dataView.buffer, dataView.byteOffset + 2, 18);
@@ -419,17 +470,17 @@
 
       // Optional non-fatal binding for Telemetry and Accelerometer (skipped gracefully on Muse 2016)
       try {
-        const telemChar = await this.service.getCharacteristic(TELEMETRY_CHAR_UUID);
-        await telemChar.startNotifications();
-        telemChar.addEventListener('characteristicvaluechanged', (event) => {
+        const telemChar = await this._enqueueGatt(() => this.service.getCharacteristic(TELEMETRY_CHAR_UUID), 1, 50);
+        await this._enqueueGatt(() => telemChar.startNotifications(), 2, 100);
+        this._addCharListener(telemChar, (event) => {
           this.telemetryData.next(decodeTelemetry(event.target.value));
         });
       } catch (_) {}
 
       try {
-        const accelChar = await this.service.getCharacteristic(ACCELEROMETER_CHAR_UUID);
-        await accelChar.startNotifications();
-        accelChar.addEventListener('characteristicvaluechanged', (event) => {
+        const accelChar = await this._enqueueGatt(() => this.service.getCharacteristic(ACCELEROMETER_CHAR_UUID), 1, 50);
+        await this._enqueueGatt(() => accelChar.startNotifications(), 2, 100);
+        this._addCharListener(accelChar, (event) => {
           this.accelerometerData.next(decodeImuPacket(event.target.value, 0.0000610352));
         });
       } catch (_) {}
@@ -438,9 +489,9 @@
         this.ppgCharacteristics = [];
         for (let p = 0; p < PPG_UUIDS.length; p++) {
           try {
-            const ppgChar = await this.service.getCharacteristic(PPG_UUIDS[p]);
-            await ppgChar.startNotifications();
-            ppgChar.addEventListener('characteristicvaluechanged', (event) => {
+            const ppgChar = await this._enqueueGatt(() => this.service.getCharacteristic(PPG_UUIDS[p]), 2, 100);
+            await this._enqueueGatt(() => ppgChar.startNotifications(), 2, 100);
+            this._addCharListener(ppgChar, (event) => {
               const dv = event.target.value;
               const idx = dv.getUint16(0);
               const bytes = new Uint8Array(dv.buffer, dv.byteOffset + 2, 18);
@@ -474,6 +525,7 @@
     }
 
     disconnect() {
+      this._cleanupListeners();
       if (this.gatt) {
         this.lastIndex = null;
         this.lastTimestamp = null;

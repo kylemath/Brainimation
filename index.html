@@ -1148,6 +1148,7 @@
             clearInterval(this.updateInterval);
             this.updateInterval = null;
           }
+          eegData.connected = false;
         }
 
         setAttention(value) {
@@ -1229,12 +1230,14 @@
               sample += erpWave;
 
               eegData.raw[i] = sample;
-              if (!eegData.rawHistory[channel]) {
-                eegData.rawHistory[channel] = [];
+              let hist = eegData.rawHistory[channel];
+              if (!hist) {
+                hist = [];
+                eegData.rawHistory[channel] = hist;
               }
-              eegData.rawHistory[channel].push(sample);
-              if (eegData.rawHistory[channel].length > eegData.historyLength) {
-                eegData.rawHistory[channel] = eegData.rawHistory[channel].slice(-eegData.historyLength);
+              hist.push(sample);
+              if (hist.length > eegData.historyLength) {
+                hist.splice(0, hist.length - eegData.historyLength);
               }
             }
           }
@@ -1264,12 +1267,15 @@
           this.muse = null;
           this.isConnected = false;
           this.dataBuffer = [];
+          this.packetCount = 0;
           this.samplingRate = 256;
           this.bufferSize = 256; // 1.0 s window at 256 Hz -> 1.0 Hz FFT bin resolution
           this.subscriptions = [];
-          // Precompute 256-point Hanning window w[n] = 0.5 * (1 - cos(2*pi*n/(N-1)))
+          // Precompute 256-point Hanning window and reusable FFT work buffers (zero GC churn)
           this.fftSize = 256;
           this.hanningWindow = new Float64Array(this.fftSize);
+          this.fftReal = new Float64Array(this.fftSize);
+          this.fftImag = new Float64Array(this.fftSize);
           for (let n = 0; n < this.fftSize; n++) {
             this.hanningWindow[n] = 0.5 * (1.0 - Math.cos((2.0 * Math.PI * n) / (this.fftSize - 1)));
           }
@@ -1327,6 +1333,18 @@
                 this.isConnected = false;
                 eegData.connected = false;
                 this.updateStatus('Connection lost', 'error');
+                if (typeof currentDataSource !== 'undefined' && currentDataSource === 'muse') {
+                  currentDataSource = null;
+                }
+                const connectBtn = document.getElementById('connect-btn');
+                const simBtn = document.getElementById('simulate-btn');
+                if (connectBtn) {
+                  connectBtn.textContent = 'Connect Muse';
+                  connectBtn.disabled = false;
+                }
+                if (simBtn) {
+                  simBtn.disabled = false;
+                }
               }
             });
             this.subscriptions.push(statusSubscription);
@@ -1370,22 +1388,23 @@
             : reading.electrode;
           if (!electrodeName) return;
 
-          if (this.dataBuffer.length < 5) {
+          this.packetCount++;
+
+          if (this.packetCount <= 4) {
             logger.log(`📊 EEG data received from ${electrodeName}: ${reading.samples.length} samples, first value: ${reading.samples[0]?.toFixed(2)} µV`, 'success');
           }
-          if (this.dataBuffer.length === 4) {
+          if (this.packetCount === 4) {
             logger.log('✅ All 4 EEG channels (TP9, AF7, AF8, TP10) are transmitting!', 'success');
           }
-          
+
           this.dataBuffer.push({
             electrode: electrodeName,
             index: reading.index,
             samples: reading.samples,
             timestamp: reading.timestamp || Date.now()
           });
-
-          if (this.dataBuffer.length > this.bufferSize * 4) {
-            this.dataBuffer = this.dataBuffer.slice(-this.bufferSize * 4);
+          if (this.dataBuffer.length > 64) {
+            this.dataBuffer.splice(0, this.dataBuffer.length - 64);
           }
 
           const electrodeIndex = electrodeMap.indexOf(electrodeName);
@@ -1393,22 +1412,24 @@
             eegData.raw[electrodeIndex] = reading.samples[reading.samples.length - 1];
           }
 
-          if (!eegData.rawHistory[electrodeName]) {
-            eegData.rawHistory[electrodeName] = [];
+          let hist = eegData.rawHistory[electrodeName];
+          if (!hist) {
+            hist = [];
+            eegData.rawHistory[electrodeName] = hist;
           }
-          eegData.rawHistory[electrodeName].push(...reading.samples);
-          if (eegData.rawHistory[electrodeName].length > eegData.historyLength) {
-            eegData.rawHistory[electrodeName] = eegData.rawHistory[electrodeName].slice(-eegData.historyLength);
+          hist.push(...reading.samples);
+          if (hist.length > eegData.historyLength) {
+            hist.splice(0, hist.length - eegData.historyLength);
           }
 
           // Recompute 256-sample Hanning-windowed FFT spectral bands every 16 packets (~187.5 ms)
-          if (this.dataBuffer.length % 16 === 0) {
+          if (this.packetCount % 16 === 0) {
             this.calculateFrequencyBands();
           }
           
-          if (this.dataBuffer.length % 100 === 0) {
-            const dataRate = (this.dataBuffer.length / 4).toFixed(0);
-            this.updateStatus(`Connected (${dataRate} pkts/ch)`, 'connected');
+          if (this.packetCount % 100 === 0) {
+            const pktsPerChannel = Math.round(this.packetCount / 4);
+            this.updateStatus(`Connected (${pktsPerChannel} pkts/ch)`, 'connected');
           }
         }
 
@@ -1472,8 +1493,8 @@
             mean /= N;
 
             let maxAbs = 0;
-            const real = new Float64Array(N);
-            const imag = new Float64Array(N);
+            const real = this.fftReal;
+            const imag = this.fftImag;
             for (let i = 0; i < N; i++) {
               const centered = windowSamples[i] - mean;
               if (Math.abs(centered) > maxAbs) maxAbs = Math.abs(centered);
@@ -2293,10 +2314,35 @@ function draw() {
         runCode() {
           console.log('🚀 Running code...');
           try {
+            // Stop and dispose any active p5.sound oscillators/synths/audio nodes from prior sketch
+            if (typeof p5 !== 'undefined' && p5.soundOut && Array.isArray(p5.soundOut.soundArray)) {
+              for (let i = p5.soundOut.soundArray.length - 1; i >= 0; i--) {
+                const s = p5.soundOut.soundArray[i];
+                if (s && (!soundTester || s !== soundTester.testOsc)) {
+                  try {
+                    if (typeof s.stop === 'function') s.stop();
+                    if (typeof s.dispose === 'function') s.dispose();
+                  } catch (_) {}
+                }
+              }
+            }
+
+            // Stop any active webcam MediaStream tracks created by p5 createCapture(VIDEO)
+            document.querySelectorAll('video').forEach((vid) => {
+              try {
+                if (vid.srcObject && typeof vid.srcObject.getTracks === 'function') {
+                  vid.srcObject.getTracks().forEach((track) => track.stop());
+                  vid.srcObject = null;
+                }
+                vid.remove();
+              } catch (_) {}
+            });
+
             // Clear any existing sketch
             if (this.currentSketch) {
               console.log('Removing existing sketch');
               this.currentSketch.remove();
+              this.currentSketch = null;
             }
 
             // Clear the canvas container
@@ -2485,7 +2531,7 @@ function draw() {
                 if (userTouchStarted) console.log('✅ User touchStarted function captured');
               } catch (error) {
                 console.error('Error in user code:', error);
-                showError('Error in user code: ' + error.message);
+                this.showError('Error in user code: ' + error.message);
                 return;
               }
 
@@ -3023,6 +3069,17 @@ function draw() {
         constructor() {
           this.currentTab = 'p5js';
           this.setupTabs();
+          // Attach outside-click handler once (avoids stacking duplicate listeners on tab switches)
+          const refContent = document.getElementById('reference-content');
+          if (refContent) {
+            refContent.addEventListener('click', (e) => {
+              if (!e.target.closest('.function-item')) {
+                document.querySelectorAll('.function-item.expanded').forEach(item => {
+                  item.classList.remove('expanded');
+                });
+              }
+            });
+          }
           this.loadContent('p5js');
         }
 
@@ -3127,15 +3184,6 @@ function draw() {
               e.preventDefault();
               toggleExpanded(e);
             });
-          });
-          
-          // Close expanded items when clicking outside
-          document.getElementById('reference-content').addEventListener('click', (e) => {
-            if (!e.target.closest('.function-item')) {
-              document.querySelectorAll('.function-item.expanded').forEach(item => {
-                item.classList.remove('expanded');
-              });
-            }
           });
         }
         
