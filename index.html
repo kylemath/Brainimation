@@ -1100,10 +1100,17 @@
             ]);
           }
           return epoch;
+        },
+
+        // Optional ERP trigger hook (used by EEGSimulator and online ERP paradigms)
+        triggerERP: function(type = 'target') {
+          if (window._activeEEGSimulator && window._activeEEGSimulator.isRunning) {
+            window._activeEEGSimulator.triggerSimulatedERP(type);
+          }
         }
       };
 
-      // EEG Data Simulator for demonstration purposes
+      // EEG Data Simulator for hardware-free 256 Hz 4-channel synthesis
       class EEGSimulator {
         constructor() {
           this.isRunning = false;
@@ -1112,16 +1119,27 @@
           this.baseAttention = 0.5;
           this.baseMeditation = 0.3;
           this.noiseLevel = 0.1;
+          this.sampleRate = 256;
+          this.sampleIndex = 0;
+          this.lastBlinkSample = -1000;
+          this.erpTriggers = [];
         }
 
         start() {
           this.isRunning = true;
           this.startTime = Date.now();
-          
-          // Update data every 50ms (20 Hz)
+          this.sampleIndex = 0;
+          this.lastBlinkSample = -1000;
+          this.erpTriggers = [];
+          window._activeEEGSimulator = this;
+
+          // Pre-populate 1.0 s (256 samples @ 256 Hz) so getRecentEpoch(256) is immediately valid
+          this.generateSamples(256);
+
+          // Advance 8 samples every 31.25 ms -> exact 256 Hz multi-channel streaming rate
           this.updateInterval = setInterval(() => {
-            this.generateData();
-          }, 50);
+            this.generateSamples(8);
+          }, 31.25);
         }
 
         stop() {
@@ -1140,98 +1158,96 @@
           this.baseMeditation = parseFloat(value);
         }
 
-        generateData() {
-          const time = (Date.now() - this.startTime) / 1000; // seconds
-          
-          // Generate realistic brain wave patterns with some natural variation
-          const noise = () => (Math.random() - 0.5) * this.noiseLevel;
-          
-          // Alpha waves (8-12 Hz) - stronger during meditation/relaxed attention
-          const alphaBase = this.baseMeditation * 0.8 + 0.1;
-          eegData.alpha = Math.max(0, Math.min(1, 
-            alphaBase + Math.sin(time * 10) * 0.1 + noise()
-          ));
-          
-          // Beta waves (13-30 Hz) - stronger during active attention/concentration
-          const betaBase = this.baseAttention * 0.7 + 0.2;
-          eegData.beta = Math.max(0, Math.min(1, 
-            betaBase + Math.sin(time * 20) * 0.15 + noise()
-          ));
-          
-          // Theta waves (4-8 Hz) - stronger during deep meditation/creativity
-          const thetaBase = this.baseMeditation * 0.6 + 0.1;
-          eegData.theta = Math.max(0, Math.min(1, 
-            thetaBase + Math.sin(time * 6) * 0.12 + noise()
-          ));
-          
-          // Delta waves (0.5-4 Hz) - low during awake states
-          eegData.delta = Math.max(0, Math.min(1, 
-            0.1 + Math.sin(time * 2) * 0.05 + noise()
-          ));
-          
-          // Gamma waves (30+ Hz) - bursts during high-level cognition
-          eegData.gamma = Math.max(0, Math.min(1, 
-            0.2 + Math.sin(time * 40) * this.baseAttention * 0.3 + noise()
-          ));
-          
-          // Generate realistic raw EEG samples for each channel
+        triggerSimulatedERP(type = 'target') {
+          this.erpTriggers.push({
+            onsetSample: this.sampleIndex,
+            type: type
+          });
+          if (this.erpTriggers.length > 10) {
+            this.erpTriggers.shift();
+          }
+        }
+
+        generateSamples(count = 8) {
           const channels = ['TP9', 'AF7', 'AF8', 'TP10'];
-          for (let i = 0; i < 4; i++) {
-            const channel = channels[i];
-            
-            // Create realistic EEG signal combining multiple frequency components
-            let sample = 0;
-            
-            // Alpha component (8-12 Hz)
-            sample += Math.sin(time * 2 * Math.PI * (9 + i * 0.5)) * eegData.alpha * 30;
-            
-            // Beta component (15-25 Hz)  
-            sample += Math.sin(time * 2 * Math.PI * (18 + i * 1.5)) * eegData.beta * 20;
-            
-            // Theta component (4-8 Hz)
-            sample += Math.sin(time * 2 * Math.PI * (6 + i * 0.3)) * eegData.theta * 25;
-            
-            // Delta component (1-4 Hz)
-            sample += Math.sin(time * 2 * Math.PI * (2 + i * 0.2)) * eegData.delta * 40;
-            
-            // Gamma component (30-40 Hz)
-            sample += Math.sin(time * 2 * Math.PI * (35 + i * 2)) * eegData.gamma * 10;
-            
-            // Add some 1/f noise and artifacts
-            sample += noise() * 15; // High-frequency noise
-            sample += Math.sin(time * 2 * Math.PI * 0.1) * 5; // Slow drift
-            
-            // Occasional "blink" artifacts (more prominent in frontal channels)
-            if (i >= 1 && i <= 2 && Math.random() < 0.001) { // AF7, AF8
-              sample += (Math.random() - 0.5) * 200;
+          const noise = () => (Math.random() - 0.5) * this.noiseLevel;
+
+          for (let s = 0; s < count; s++) {
+            const n = this.sampleIndex++;
+            const time = n / this.sampleRate; // exact seconds at 256 Hz
+
+            // Normalized oscillatory envelopes driven by Meditation (M_0) and Attention (A_0) sliders
+            const alphaBase = this.baseMeditation * 0.8 + 0.1;
+            eegData.alpha = Math.max(0, Math.min(1, alphaBase + Math.sin(time * 2.5) * 0.1 + noise() * 0.4));
+
+            const betaBase = this.baseAttention * 0.7 + 0.2;
+            eegData.beta = Math.max(0, Math.min(1, betaBase + Math.sin(time * 3.5) * 0.12 + noise() * 0.4));
+
+            const thetaBase = this.baseMeditation * 0.6 + 0.1;
+            eegData.theta = Math.max(0, Math.min(1, thetaBase + Math.sin(time * 1.8) * 0.10 + noise() * 0.4));
+
+            eegData.delta = Math.max(0, Math.min(1, 0.15 + Math.sin(time * 0.8) * 0.05 + noise() * 0.3));
+            eegData.gamma = Math.max(0, Math.min(1, 0.15 + this.baseAttention * 0.45 + Math.sin(time * 5.0) * 0.08 + noise() * 0.3));
+
+            // Stochastic bilateral ocular blink trigger (Bernoulli p = 0.001 per 256 Hz sample, min 400 ms refractory)
+            if (n - this.lastBlinkSample > 102 && Math.random() < 0.001) {
+              this.lastBlinkSample = n;
             }
-            
-            // Store current sample for compatibility
-            eegData.raw[i] = sample;
-            
-            // Add to history buffer
-            if (!eegData.rawHistory[channel]) {
-              eegData.rawHistory[channel] = [];
+            const dtBlink = (n - this.lastBlinkSample) / this.sampleRate - 0.06;
+            const blinkWave = Math.abs(dtBlink) < 0.12
+              ? 115.0 * Math.exp(-(dtBlink * dtBlink) / (2 * 0.025 * 0.025))
+              : 0.0;
+
+            // Optional time-locked N170 (-6.5 uV at 170 ms) and P300 (+9.5 uV at 340 ms) evoked response
+            let erpWave = 0.0;
+            for (let k = 0; k < this.erpTriggers.length; k++) {
+              const dtErp = ((n - this.erpTriggers[k].onsetSample) / this.sampleRate) * 1000.0; // ms post-stimulus
+              if (dtErp >= 0 && dtErp <= 800) {
+                const n170 = -6.5 * Math.exp(-Math.pow(dtErp - 170.0, 2) / (2 * 26.0 * 26.0));
+                const p300Amp = this.erpTriggers[k].type === 'standard' ? 2.5 : 9.5;
+                const p300 = p300Amp * Math.exp(-Math.pow(dtErp - 340.0, 2) / (2 * 58.0 * 58.0));
+                erpWave += (n170 + p300);
+              }
             }
-            eegData.rawHistory[channel].push(sample);
-            
-            // Maintain buffer size
-            if (eegData.rawHistory[channel].length > eegData.historyLength) {
-              eegData.rawHistory[channel] = eegData.rawHistory[channel].slice(-eegData.historyLength);
+
+            // Synthesize 4-channel microvolt time series V_c(t) (Equation 2)
+            for (let i = 0; i < 4; i++) {
+              const channel = channels[i];
+              let sample = 0;
+              sample += 30.0 * eegData.alpha * Math.sin(2 * Math.PI * (9.0 + i * 0.5) * time);
+              sample += 20.0 * eegData.beta  * Math.sin(2 * Math.PI * (18.0 + i * 1.5) * time);
+              sample += 25.0 * eegData.theta * Math.sin(2 * Math.PI * (6.0 + i * 0.3) * time);
+              sample += 40.0 * eegData.delta * Math.sin(2 * Math.PI * (2.0 + i * 0.2) * time);
+              sample += 10.0 * eegData.gamma * Math.sin(2 * Math.PI * (35.0 + i * 2.0) * time);
+              sample += 5.0  * Math.sin(2 * Math.PI * 0.1 * time); // Slow baseline drift
+              sample += (Math.random() - 0.5) * 15.0;              // Broadband sensor noise U(-7.5, 7.5) uV
+
+              // Bilateral anterior frontal (AF7, AF8) blink deflection B(t)
+              if (i === 1 || i === 2) {
+                sample += blinkWave;
+              }
+              sample += erpWave;
+
+              eegData.raw[i] = sample;
+              if (!eegData.rawHistory[channel]) {
+                eegData.rawHistory[channel] = [];
+              }
+              eegData.rawHistory[channel].push(sample);
+              if (eegData.rawHistory[channel].length > eegData.historyLength) {
+                eegData.rawHistory[channel] = eegData.rawHistory[channel].slice(-eegData.historyLength);
+              }
             }
           }
-          
-          // Calculate derived metrics
-          eegData.attention = Math.max(0, Math.min(1, 
-            this.baseAttention + Math.sin(time * 0.5) * 0.1 + noise() * 0.05
-          ));
-          
-          eegData.meditation = Math.max(0, Math.min(1, 
-            this.baseMeditation + Math.cos(time * 0.3) * 0.1 + noise() * 0.05
-          ));
-          
+
+          // Composite cognitive state indices (consistent across Simulator and Hardware)
+          eegData.attention = Math.max(0, Math.min(1, (eegData.beta + eegData.gamma) / 2));
+          eegData.meditation = Math.max(0, Math.min(1, (eegData.alpha + eegData.theta) / 2));
           eegData.connected = true;
           this.updateDataDisplay();
+        }
+
+        generateData() {
+          this.generateSamples(8);
         }
 
         updateDataDisplay() {
@@ -1242,15 +1258,21 @@
         }
       }
 
-      // Muse connection and data processing
+      // Muse connection and real-time 256-sample FFT spectral processing
       class MuseEEGManager {
         constructor() {
           this.muse = null;
           this.isConnected = false;
           this.dataBuffer = [];
           this.samplingRate = 256;
-          this.bufferSize = 256; // 1 second of data
+          this.bufferSize = 256; // 1.0 s window at 256 Hz -> 1.0 Hz FFT bin resolution
           this.subscriptions = [];
+          // Precompute 256-point Hanning window w[n] = 0.5 * (1 - cos(2*pi*n/(N-1)))
+          this.fftSize = 256;
+          this.hanningWindow = new Float64Array(this.fftSize);
+          for (let n = 0; n < this.fftSize; n++) {
+            this.hanningWindow[n] = 0.5 * (1.0 - Math.cos((2.0 * Math.PI * n) / (this.fftSize - 1)));
+          }
         }
 
         async connect() {
@@ -1265,50 +1287,33 @@
             logger.log('✅ Web Bluetooth is supported', 'success');
             
             // Step 2: Verify the library is loaded
-            logger.log('Step 2: Checking if muse-js library is loaded...', 'info');
-            if (!window.muse) {
-              throw new Error('muse-js library not loaded! The script may have failed to load from CDN. Check your internet connection.');
+            logger.log('Step 2: Checking if muse-browser.js library is loaded...', 'info');
+            if (!window.muse || !window.muse.MuseClient) {
+              throw new Error('muse-browser.js library not loaded! Check script tag.');
             }
-            
-            if (!window.muse.MuseClient) {
-              throw new Error('MuseClient not found in muse-js library! The library may be corrupted or outdated.');
-            }
-            
-            logger.log('✅ muse-js library is loaded correctly', 'success');
+            logger.log('✅ muse-browser.js library is loaded correctly', 'success');
             
             // Step 3: Create MuseClient instance
             logger.log('Step 3: Creating MuseClient instance...', 'info');
             this.muse = new window.muse.MuseClient();
+            this.muse.enablePpg = false; // Safe EEG-first preset ('p21') for Muse 2016/2/S compatibility
             logger.log('✅ MuseClient created successfully', 'success');
             
-            // Don't enable PPG by default - it's only available on Muse 2 and Muse S
-            // Enabling it causes connection failures on Muse 2016 devices
-            // this.muse.enablePpg = false; // Default is already false
-            
-            // Step 4: Request device pairing
-            logger.log('Step 4: Opening Bluetooth device selector...', 'info');
-            logger.log('👉 Please select your Muse device from the popup', 'info');
-            
+            // Step 4: Phase 1 GATT Handshake (binds Control characteristic 273e0001 only)
+            logger.log('Step 4: Opening Bluetooth device selector (Phase 1 GATT Handshake)...', 'info');
             await this.muse.connect();
-            logger.log('✅ Device paired successfully', 'success');
+            logger.log('✅ Phase 1 complete: Control characteristic (273e0001) bound', 'success');
             
-            // Step 5: Set up data subscriptions
-            logger.log('Step 5: Setting up data subscriptions...', 'info');
-            
-            // EEG data subscription
+            // Step 5: Set up reactive data subscriptions
+            logger.log('Step 5: Setting up EEG & telemetry subscriptions...', 'info');
             const eegSubscription = this.muse.eegReadings.subscribe(reading => {
               this.processEEGReading(reading);
             });
             this.subscriptions.push(eegSubscription);
-            logger.log('✅ EEG data subscription active', 'success');
 
-            // Accelerometer subscription (optional)
-            const accelSubscription = this.muse.accelerometerData.subscribe(accel => {
-              // Movement detection could be added here
-            });
+            const accelSubscription = this.muse.accelerometerData.subscribe(() => {});
             this.subscriptions.push(accelSubscription);
 
-            // Telemetry subscription (battery, temperature, etc.)
             const telemetrySubscription = this.muse.telemetryData.subscribe(telemetry => {
               if (telemetry.batteryLevel !== undefined) {
                 logger.log(`🔋 Battery Level: ${telemetry.batteryLevel.toFixed(1)}%`, 'success');
@@ -1316,9 +1321,8 @@
             });
             this.subscriptions.push(telemetrySubscription);
 
-            // Connection status subscription
             const statusSubscription = this.muse.connectionStatus.subscribe(status => {
-              if (!status) {
+              if (!status && this.isConnected) {
                 logger.log('⚠️ Connection lost! Please check your device.', 'error');
                 this.isConnected = false;
                 eegData.connected = false;
@@ -1327,190 +1331,200 @@
             });
             this.subscriptions.push(statusSubscription);
             
-            logger.log('✅ All subscriptions configured', 'success');
-
-            // Step 6: Start the data stream
-            logger.log('Step 6: Starting EEG data stream...', 'info');
+            // Step 6: Phase 2 GATT Handshake (sends 'v1', 'p21', 's', settles 500 ms, binds 273e0003..0006)
+            logger.log('Step 6: Executing Phase 2 Lazy-GATT wake & starting 256 Hz EEG stream...', 'info');
             await this.muse.start();
             
             this.isConnected = true;
             eegData.connected = true;
             this.updateStatus('Connected to Muse', 'connected');
-
-            logger.log('🎉 SUCCESS! Muse is connected and streaming data', 'success');
-            logger.log('You should now see brain wave data updating above', 'success');
+            logger.log('🎉 SUCCESS! Muse is connected and streaming 4-channel 256 Hz EEG', 'success');
             
           } catch (error) {
             logger.log('❌ Connection failed: ' + error.message, 'error');
             this.isConnected = false;
             eegData.connected = false;
             
-            // Provide helpful error messages based on error type
             let errorMsg = 'Connection failed';
-            let helpText = '';
-            
+            let helpText = '💡 Try refreshing the page and attempting to connect again.';
             if (error.name === 'NotFoundError' || error.message.includes('cancelled')) {
               errorMsg = 'No device selected';
-              helpText = '💡 Tip: Make sure to select a Muse device from the Bluetooth pairing dialog.';
+              helpText = '💡 Tip: Select your Muse headband from the Bluetooth pairing dialog.';
             } else if (error.message.includes('Bluetooth') || error.message.includes('GATT')) {
               errorMsg = 'Bluetooth connection failed';
-              helpText = '💡 Troubleshooting steps:\n' +
-                        '1. Make sure your Muse device is charged and turned on\n' +
-                        '2. Ensure Bluetooth is enabled on your computer\n' +
-                        '3. Try turning the Muse device off and on again\n' +
-                        '4. Move closer to the device (within 10 feet)';
+              helpText = '💡 Ensure your Muse is charged, turned on, and within 10 feet.';
             } else if (error.message.includes('not supported')) {
               errorMsg = 'Browser not compatible';
-              helpText = '💡 Please use Chrome, Edge, or Opera browser to connect to Muse devices.';
-            } else if (error.message.includes('library')) {
-              errorMsg = 'Library loading error';
-              helpText = '💡 The muse-js library failed to load. Check your internet connection and refresh the page.';
-            } else {
-              errorMsg = `Connection error: ${error.message}`;
-              helpText = '💡 Try refreshing the page and attempting to connect again.';
+              helpText = '💡 Please use Chrome, Edge, or Opera for WebBluetooth hardware pairing.';
             }
-            
             this.updateStatus(errorMsg, 'error');
             logger.log(helpText, 'warning');
-            
             throw error;
           }
         }
 
         processEEGReading(reading) {
-          // Map numeric electrode indices to channel names
-          // Muse sends: 0 = TP9, 1 = AF7, 2 = AF8, 3 = TP10
           const electrodeMap = ['TP9', 'AF7', 'AF8', 'TP10'];
           const electrodeName = typeof reading.electrode === 'number' 
             ? electrodeMap[reading.electrode] 
             : reading.electrode;
-          
-          // Log first few readings to confirm data flow
+          if (!electrodeName) return;
+
           if (this.dataBuffer.length < 5) {
             logger.log(`📊 EEG data received from ${electrodeName}: ${reading.samples.length} samples, first value: ${reading.samples[0]?.toFixed(2)} µV`, 'success');
           }
-          
-          // Log when all channels have sent data
           if (this.dataBuffer.length === 4) {
-            logger.log('✅ All 4 EEG channels are transmitting data successfully!', 'success');
+            logger.log('✅ All 4 EEG channels (TP9, AF7, AF8, TP10) are transmitting!', 'success');
           }
           
-          // Add to buffer for frequency analysis (use mapped name)
           this.dataBuffer.push({
             electrode: electrodeName,
+            index: reading.index,
             samples: reading.samples,
-            timestamp: Date.now()
+            timestamp: reading.timestamp || Date.now()
           });
 
-          // Keep buffer size manageable
-          if (this.dataBuffer.length > this.bufferSize * 4) { // 4 electrodes
+          if (this.dataBuffer.length > this.bufferSize * 4) {
             this.dataBuffer = this.dataBuffer.slice(-this.bufferSize * 4);
           }
 
-          // Update raw values for immediate access (compatibility)
-          const electrodeIndex = typeof reading.electrode === 'number' 
-            ? reading.electrode 
-            : electrodeMap.indexOf(reading.electrode);
-          
+          const electrodeIndex = electrodeMap.indexOf(electrodeName);
           if (electrodeIndex !== -1 && reading.samples.length > 0) {
             eegData.raw[electrodeIndex] = reading.samples[reading.samples.length - 1];
           }
 
-          // NEW: Add ALL samples to raw history for time-series access
           if (!eegData.rawHistory[electrodeName]) {
             eegData.rawHistory[electrodeName] = [];
           }
-          
-          // Add all samples from this reading (usually 12 samples per packet)
           eegData.rawHistory[electrodeName].push(...reading.samples);
-          
-          // Maintain buffer size (keep last N samples)
           if (eegData.rawHistory[electrodeName].length > eegData.historyLength) {
             eegData.rawHistory[electrodeName] = eegData.rawHistory[electrodeName].slice(-eegData.historyLength);
           }
 
-          // Calculate frequency bands every few samples
-          if (this.dataBuffer.length % 32 === 0) {
+          // Recompute 256-sample Hanning-windowed FFT spectral bands every 16 packets (~187.5 ms)
+          if (this.dataBuffer.length % 16 === 0) {
             this.calculateFrequencyBands();
           }
           
-          // Update status to show data is flowing (every 100 packets)
           if (this.dataBuffer.length % 100 === 0) {
-            const dataRate = (this.dataBuffer.length / 4).toFixed(0); // packets per electrode
-            this.updateStatus(`Connected (${dataRate} packets/ch)`, 'connected');
+            const dataRate = (this.dataBuffer.length / 4).toFixed(0);
+            this.updateStatus(`Connected (${dataRate} pkts/ch)`, 'connected');
           }
         }
 
+        /**
+         * In-place radix-2 Cooley-Tukey FFT on length N = 256 Float64Arrays.
+         */
+        computeRadix2FFT(real, imag) {
+          const N = real.length;
+          let j = 0;
+          for (let i = 0; i < N; i++) {
+            if (i < j) {
+              const tr = real[i]; real[i] = real[j]; real[j] = tr;
+              const ti = imag[i]; imag[i] = imag[j]; imag[j] = ti;
+            }
+            let m = N >> 1;
+            while (m >= 1 && j >= m) {
+              j -= m;
+              m >>= 1;
+            }
+            j += m;
+          }
+          for (let size = 2; size <= N; size <<= 1) {
+            const half = size >> 1;
+            const angleStep = (-2.0 * Math.PI) / size;
+            for (let i = 0; i < N; i += size) {
+              for (let k = 0; k < half; k++) {
+                const theta = angleStep * k;
+                const wr = Math.cos(theta);
+                const wi = Math.sin(theta);
+                const evenIdx = i + k;
+                const oddIdx = i + k + half;
+                const tr = wr * real[oddIdx] - wi * imag[oddIdx];
+                const ti = wr * imag[oddIdx] + wi * real[oddIdx];
+                real[oddIdx] = real[evenIdx] - tr;
+                imag[oddIdx] = imag[evenIdx] - ti;
+                real[evenIdx] += tr;
+                imag[evenIdx] += ti;
+              }
+            }
+          }
+        }
+
+        /**
+         * Compute single-sided band powers over a 256-sample (1.0 s @ 256 Hz, df = 1.0 Hz)
+         * Hanning-windowed FFT across TP9, AF7, AF8, and TP10 with EOG/EMG artifact rejection.
+         */
         calculateFrequencyBands() {
-          // Simple frequency band calculation
-          // In a real implementation, you'd use FFT
-          const recentData = this.dataBuffer.slice(-64); // Last 64 samples per electrode
-          
-          if (recentData.length < 64) return;
+          const N = this.fftSize; // 256 samples = 1.0 s at 256 Hz (df = 1.0 Hz/bin)
+          const channels = ['TP9', 'AF7', 'AF8', 'TP10'];
+          const bandPowerSum = { delta: 0, theta: 0, alpha: 0, beta: 0, gamma: 0 };
+          let validChannels = 0;
 
-          // Group by electrode
-          const electrodeData = { TP9: [], AF7: [], AF8: [], TP10: [] };
-          recentData.forEach(reading => {
-            if (electrodeData[reading.electrode]) {
-              electrodeData[reading.electrode].push(...reading.samples);
-            }
-          });
+          for (const ch of channels) {
+            const history = eegData.rawHistory[ch] || [];
+            if (history.length < N) continue;
+            const windowSamples = history.slice(-N);
 
-          // Calculate power in different bands (simplified)
-          // Average across all electrodes for more stable estimates
-          let totalVariance = 0;
-          let totalMean = 0;
-          let electrodeCount = 0;
-          
-          Object.keys(electrodeData).forEach(electrode => {
-            const samples = electrodeData[electrode].slice(-64);
-            if (samples.length >= 64) {
-              // Simplified band power calculation
-              const variance = this.calculateVariance(samples);
-              const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
-              
-              totalVariance += variance;
-              totalMean += Math.abs(mean);
-              electrodeCount++;
+            // DC mean removal and amplitude artifact screening (reject > 150 uV EOG/EMG bursts)
+            let mean = 0;
+            for (let i = 0; i < N; i++) mean += windowSamples[i];
+            mean /= N;
+
+            let maxAbs = 0;
+            const real = new Float64Array(N);
+            const imag = new Float64Array(N);
+            for (let i = 0; i < N; i++) {
+              const centered = windowSamples[i] - mean;
+              if (Math.abs(centered) > maxAbs) maxAbs = Math.abs(centered);
+              real[i] = centered * this.hanningWindow[i];
+              imag[i] = 0.0;
             }
-          });
-          
-          if (electrodeCount > 0) {
-            // Average variance and mean across electrodes
-            const avgVariance = totalVariance / electrodeCount;
-            const avgMean = totalMean / electrodeCount;
-            
-            // Update frequency bands (this is a simplified approach)
-            // Scale factors adjusted based on typical EEG variance values
-            eegData.alpha = Math.max(0, Math.min(1, avgVariance * 0.001));
-            eegData.beta = Math.max(0, Math.min(1, avgVariance * 0.0008));
-            eegData.theta = Math.max(0, Math.min(1, avgVariance * 0.0012));
-            eegData.delta = Math.max(0, Math.min(1, avgVariance * 0.0015));
-            eegData.gamma = Math.max(0, Math.min(1, avgVariance * 0.0005));
-            
-            // Calculate attention and meditation (simplified)
-            eegData.attention = Math.max(0, Math.min(1, (eegData.beta + eegData.gamma) / 2));
+
+            // Skip channel window if contaminated by gross ocular blink or jaw clench (> 150 uV)
+            if (maxAbs > 150.0) continue;
+
+            this.computeRadix2FFT(real, imag);
+
+            // Single-sided PSD P[k] = (2 / N^2) * (Re[k]^2 + Im[k]^2), where bin k corresponds to k * 1.0 Hz
+            const scale = 2.0 / (N * N);
+            const sumBins = (kStart, kEnd) => {
+              let p = 0.0;
+              for (let k = kStart; k <= kEnd; k++) {
+                p += scale * (real[k] * real[k] + imag[k] * imag[k]);
+              }
+              return p / (kEnd - kStart + 1);
+            };
+
+            bandPowerSum.delta += sumBins(1, 4);    // 1–4 Hz
+            bandPowerSum.theta += sumBins(4, 8);    // 4–8 Hz
+            bandPowerSum.alpha += sumBins(8, 12);   // 8–12 Hz
+            bandPowerSum.beta  += sumBins(13, 30);  // 13–30 Hz
+            bandPowerSum.gamma += sumBins(30, 50);  // 30–50 Hz
+            validChannels++;
+          }
+
+          if (validChannels > 0) {
+            // Normalize 1/f-weighted relative spectral power into [0.0, 1.0]
+            const wDelta = (bandPowerSum.delta / validChannels) * 0.35;
+            const wTheta = (bandPowerSum.theta / validChannels) * 0.75;
+            const wAlpha = (bandPowerSum.alpha / validChannels) * 1.00;
+            const wBeta  = (bandPowerSum.beta  / validChannels) * 2.20;
+            const wGamma = (bandPowerSum.gamma / validChannels) * 4.00;
+            const totalWeighted = wDelta + wTheta + wAlpha + wBeta + wGamma + 1e-6;
+
+            eegData.delta = Math.max(0, Math.min(1, (wDelta / totalWeighted) * 2.2));
+            eegData.theta = Math.max(0, Math.min(1, (wTheta / totalWeighted) * 2.2));
+            eegData.alpha = Math.max(0, Math.min(1, (wAlpha / totalWeighted) * 2.2));
+            eegData.beta  = Math.max(0, Math.min(1, (wBeta  / totalWeighted) * 2.2));
+            eegData.gamma = Math.max(0, Math.min(1, (wGamma / totalWeighted) * 2.2));
+
+            eegData.attention  = Math.max(0, Math.min(1, (eegData.beta + eegData.gamma) / 2));
             eegData.meditation = Math.max(0, Math.min(1, (eegData.alpha + eegData.theta) / 2));
-            
-            // Debug log every 10 calculations
-            if (this.dataBuffer.length % 320 === 0) {
-              console.log('📊 Frequency bands updated:', {
-                alpha: eegData.alpha.toFixed(3),
-                beta: eegData.beta.toFixed(3),
-                theta: eegData.theta.toFixed(3),
-                variance: avgVariance.toFixed(2)
-              });
-            }
           }
 
           eegData.connected = this.isConnected;
           this.updateDataDisplay();
-        }
-
-        calculateVariance(samples) {
-          const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
-          const variance = samples.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / samples.length;
-          return Math.sqrt(variance);
         }
 
         updateStatus(text, status) {
@@ -1526,95 +1540,21 @@
           document.getElementById('delta-value').textContent = eegData.delta.toFixed(2);
         }
 
-        async setupEEGCharacteristics() {
-          // Set up EEG characteristics after device initialization
-          // They only appear after start() sends commands
-          try {
-            if (!this.muse._museService) {
-              logger.log('⚠️ No service reference available, EEG may already be set up', 'warning');
-              return;
-            }
-            
-            const EEG_CHARACTERISTICS = [
-              '273e0003-4c4d-454d-96be-f03bac821358', // TP9
-              '273e0004-4c4d-454d-96be-f03bac821358', // AF7
-              '273e0005-4c4d-454d-96be-f03bac821358', // AF8
-              '273e0006-4c4d-454d-96be-f03bac821358'  // TP10
-            ];
-            
-            // Wait a bit for characteristics to appear after start()
-            logger.log('Waiting for EEG characteristics to appear...', 'info');
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            logger.log('Fetching EEG characteristics...', 'info');
-            const eegObservables = [];
-            
-            for (let i = 0; i < 4; i++) {
-              try {
-                const characteristic = await this.muse._museService.getCharacteristic(EEG_CHARACTERISTICS[i]);
-                logger.log(`✅ Got EEG channel ${i}`, 'success');
-                
-                // Start notifications
-                await characteristic.startNotifications();
-                logger.log(`  ✓ Notifications started for channel ${i}`, 'info');
-                
-                // Add event listener directly and forward to eegReadings
-                const channelIndex = i;
-                characteristic.addEventListener('characteristicvaluechanged', (event) => {
-                  const data = event.target.value;
-                  const view = new DataView(data.buffer);
-                  const index = view.getUint16(0);
-                  const samples = this.decodeEEGSamples(new Uint8Array(data.buffer).subarray(2));
-                  
-                  const reading = {
-                    electrode: channelIndex,
-                    index: index,
-                    samples: samples,
-                    timestamp: Date.now()
-                  };
-                  
-                  // Forward directly to the existing processing
-                  this.processEEGReading(reading);
-                });
-                
-                eegObservables.push(characteristic); // Just track that we set it up
-              } catch (error) {
-                logger.log(`⚠️ Could not get EEG channel ${i}: ${error.message}`, 'warning');
-              }
-            }
-            
-            if (eegObservables.length > 0) {
-              logger.log(`✅ EEG characteristics set up successfully! (${eegObservables.length} channels)`, 'success');
-            } else {
-              logger.log('❌ No EEG characteristics could be set up', 'error');
-            }
-          } catch (error) {
-            logger.log(`❌ Error setting up EEG characteristics: ${error.message}`, 'error');
-          }
-        }
-        
         decodeEEGSamples(data) {
-          // Decode 12-bit EEG samples
+          if (window.muse && typeof window.muse.decodeEEGSamples === 'function') {
+            return window.muse.decodeEEGSamples(data);
+          }
           const samples = [];
           for (let i = 0; i < 12; i++) {
-            const byteIndex = i * 1.5;
-            let sample;
-            
+            const byteIndex = Math.floor(i * 1.5);
+            let raw12;
             if (i % 2 === 0) {
-              sample = (data[Math.floor(byteIndex)] << 4) | (data[Math.floor(byteIndex) + 1] >> 4);
+              raw12 = (data[byteIndex] << 4) | (data[byteIndex + 1] >> 4);
             } else {
-              sample = ((data[Math.floor(byteIndex)] & 0x0F) << 8) | data[Math.floor(byteIndex) + 1];
+              raw12 = ((data[byteIndex] & 0x0F) << 8) | data[byteIndex + 1];
             }
-            
-            // Convert to signed 12-bit
-            if (sample > 2047) {
-              sample -= 4096;
-            }
-            
-            // Convert to microvolts
-            samples.push(sample * 0.48828125);
+            samples.push(0.48828125 * (raw12 - 2048));
           }
-          
           return samples;
         }
 
