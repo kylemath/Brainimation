@@ -1060,6 +1060,20 @@
         // Configuration
         historyLength: 1000,  // ~4 seconds at 256Hz
         sampleRate: 256,      // Samples per second
+
+        // PPG / Optical channels (Muse 2, Muse S, Muse S Athena @ 64 Hz)
+        ppg: [0, 0, 0, 0],           // Current raw optical values: [ambient, infrared, red, optics4]
+        ppgNormalized: [0, 0, 0, 0], // AC-coupled 0.0-1.0 normalized pulse wave per channel
+        ppgPulse: 0,                 // 0.0-1.0 normalized heartbeat pulse wave (infrared channel)
+        heartRate: 0,                // Estimated heart rate in BPM (from PPG systolic peaks)
+        ppgSampleRate: 64,           // PPG sample rate in Hz
+        ppgHistoryLength: 256,       // ~4 seconds at 64Hz
+        ppgHistory: {
+          ambient: [],
+          infrared: [],
+          red: [],
+          optics4: []
+        },
         
         // Derived metrics (existing)
         attention: 0,
@@ -1083,6 +1097,32 @@
         
         getChannelNames: function() {
           return ['TP9', 'AF7', 'AF8', 'TP10'];
+        },
+
+        // Helper functions for accessing PPG / Optical sensor data in animations
+        getPPGChannel: function(channel = 'infrared', numSamples = 64) {
+          const aliasMap = {
+            0: 'ambient', '0': 'ambient', 'ambient': 'ambient', 'ppg1': 'ambient', 'li_730': 'ambient',
+            1: 'infrared', '1': 'infrared', 'infrared': 'infrared', 'ir': 'infrared', 'ppg2': 'infrared', 'ri_730': 'infrared',
+            2: 'red', '2': 'red', 'red': 'red', 'ppg3': 'red', 'li_850': 'red',
+            3: 'optics4', '3': 'optics4', 'optics4': 'optics4', 'ppg4': 'optics4', 'ri_850': 'optics4'
+          };
+          const key = aliasMap[typeof channel === 'string' ? channel.toLowerCase() : channel] || channel;
+          const channelData = (this.ppgHistory && this.ppgHistory[key]) || [];
+          return channelData.slice(-numSamples);
+        },
+
+        getAllPPGChannels: function(numSamples = 64) {
+          return {
+            ambient: this.getPPGChannel('ambient', numSamples),
+            infrared: this.getPPGChannel('infrared', numSamples),
+            red: this.getPPGChannel('red', numSamples),
+            optics4: this.getPPGChannel('optics4', numSamples)
+          };
+        },
+
+        getPPGChannelNames: function() {
+          return ['ambient', 'infrared', 'red', 'optics4'];
         },
         
         // Get the most recent N samples across all channels
@@ -1240,6 +1280,38 @@
                 hist.splice(0, hist.length - eegData.historyLength);
               }
             }
+
+            // Synthesize 64 Hz PPG / optical cardiac waveforms (1 PPG sample every 4 EEG samples)
+            if (n % 4 === 0) {
+              const bpm = 68.0 + this.baseAttention * 16.0 - this.baseMeditation * 8.0;
+              eegData.heartRate = Math.round(bpm);
+              const beatFreq = bpm / 60.0;
+              const phase = (time * beatFreq) % 1.0;
+              // Systolic peak + dicrotic notch morphology
+              const systolic = Math.exp(-Math.pow((phase - 0.22) / 0.08, 2));
+              const dicrotic = 0.38 * Math.exp(-Math.pow((phase - 0.48) / 0.11, 2));
+              const respMod = 0.08 * Math.sin(2 * Math.PI * 0.22 * time);
+              const pulse01 = Math.max(0, Math.min(1, (systolic + dicrotic) / 1.15));
+              eegData.ppgPulse = pulse01;
+
+              const ppgNames = ['ambient', 'infrared', 'red', 'optics4'];
+              const dcBaselines = [12000, 185000, 162000, 178000];
+              const acSwings = [40, 1400, 950, 1250];
+              for (let p = 0; p < 4; p++) {
+                const rawPpg = dcBaselines[p] + acSwings[p] * (pulse01 - 0.4 + respMod + (Math.random() - 0.5) * 0.04);
+                eegData.ppg[p] = rawPpg;
+                eegData.ppgNormalized[p] = p === 0
+                  ? Math.max(0, Math.min(1, 0.5 + respMod + (Math.random() - 0.5) * 0.1))
+                  : pulse01;
+                const pName = ppgNames[p];
+                if (!eegData.ppgHistory[pName]) eegData.ppgHistory[pName] = [];
+                const pHist = eegData.ppgHistory[pName];
+                pHist.push(rawPpg);
+                if (pHist.length > eegData.ppgHistoryLength) {
+                  pHist.splice(0, pHist.length - eegData.ppgHistoryLength);
+                }
+              }
+            }
           }
 
           // Composite cognitive state indices (consistent across Simulator and Hardware)
@@ -1268,6 +1340,7 @@
           this.isConnected = false;
           this.dataBuffer = [];
           this.packetCount = 0;
+          this.ppgPacketCount = 0;
           this.samplingRate = 256;
           this.bufferSize = 256; // 1.0 s window at 256 Hz -> 1.0 Hz FFT bin resolution
           this.subscriptions = [];
@@ -1302,8 +1375,9 @@
             // Step 3: Create MuseClient instance
             logger.log('Step 3: Creating MuseClient instance...', 'info');
             this.muse = new window.muse.MuseClient();
-            this.muse.enablePpg = false; // Safe EEG-first preset ('p21') for Muse 2016/2/S compatibility
-            logger.log('✅ MuseClient created successfully', 'success');
+            this.muse.enablePpg = true; // Enables PPG/optics on Muse 2, Muse S & Athena (auto-falls back to EEG-only on Muse 2016)
+            this.ppgPacketCount = 0;
+            logger.log('✅ MuseClient created successfully (EEG + PPG enabled)', 'success');
             
             // Step 4: Phase 1 GATT Handshake (binds Control characteristic 273e0001 only)
             logger.log('Step 4: Opening Bluetooth device selector (Phase 1 GATT Handshake)...', 'info');
@@ -1311,11 +1385,18 @@
             logger.log('✅ Phase 1 complete: Control characteristic (273e0001) bound', 'success');
             
             // Step 5: Set up reactive data subscriptions
-            logger.log('Step 5: Setting up EEG & telemetry subscriptions...', 'info');
+            logger.log('Step 5: Setting up EEG, PPG & telemetry subscriptions...', 'info');
             const eegSubscription = this.muse.eegReadings.subscribe(reading => {
               this.processEEGReading(reading);
             });
             this.subscriptions.push(eegSubscription);
+
+            if (this.muse.ppgReadings) {
+              const ppgSubscription = this.muse.ppgReadings.subscribe(reading => {
+                this.processPPGReading(reading);
+              });
+              this.subscriptions.push(ppgSubscription);
+            }
 
             const accelSubscription = this.muse.accelerometerData.subscribe(() => {});
             this.subscriptions.push(accelSubscription);
@@ -1431,6 +1512,106 @@
           if (this.packetCount % 100 === 0) {
             const pktsPerChannel = Math.round(this.packetCount / 4);
             this.updateStatus(`Connected (${pktsPerChannel} pkts/ch)`, 'connected');
+          }
+        }
+
+        processPPGReading(reading) {
+          const ppgNames = ['ambient', 'infrared', 'red', 'optics4'];
+          const chIndex = typeof reading.ppgChannel === 'number'
+            ? reading.ppgChannel
+            : ppgNames.indexOf(reading.channelName);
+          if (chIndex < 0 || chIndex >= 4 || !Array.isArray(reading.samples) || reading.samples.length === 0) {
+            return;
+          }
+
+          const chName = ppgNames[chIndex];
+          this.ppgPacketCount = (this.ppgPacketCount || 0) + 1;
+
+          if (this.ppgPacketCount <= 4) {
+            logger.log(`💓 PPG/Optics data received on ${chName} (ch${chIndex}): ${reading.samples.length} samples, value: ${Math.round(reading.samples[0])}`, 'success');
+          }
+
+          const latestSample = reading.samples[reading.samples.length - 1];
+          eegData.ppg[chIndex] = latestSample;
+
+          if (!eegData.ppgHistory[chName]) {
+            eegData.ppgHistory[chName] = [];
+          }
+          const hist = eegData.ppgHistory[chName];
+          hist.push(...reading.samples);
+          if (hist.length > eegData.ppgHistoryLength) {
+            hist.splice(0, hist.length - eegData.ppgHistoryLength);
+          }
+
+          // AC-couple & normalize over rolling 2-second window (128 samples @ 64 Hz)
+          const windowSamples = hist.slice(-128);
+          if (windowSamples.length >= 8) {
+            let minVal = Infinity;
+            let maxVal = -Infinity;
+            for (let i = 0; i < windowSamples.length; i++) {
+              const v = windowSamples[i];
+              if (v < minVal) minVal = v;
+              if (v > maxVal) maxVal = v;
+            }
+            const span = maxVal - minVal;
+            const norm = span > 1e-3 ? Math.max(0, Math.min(1, (latestSample - minVal) / span)) : 0.5;
+            eegData.ppgNormalized[chIndex] = norm;
+
+            // Use infrared (ch 1) or red (ch 2) as primary heartbeat pulse wave and BPM estimator
+            if (chIndex === 1 || (chIndex === 2 && (!eegData.ppgHistory.infrared || eegData.ppgHistory.infrared.length === 0))) {
+              eegData.ppgPulse = norm;
+              if (hist.length >= 128 && this.ppgPacketCount % 8 === 0) {
+                this.estimateHeartRateFromPPG(hist.slice(-192));
+              }
+            }
+          }
+        }
+
+        estimateHeartRateFromPPG(samples) {
+          const N = samples.length;
+          if (N < 96) return;
+          // Smooth with 5-point moving average and remove DC trend
+          let mean = 0;
+          for (let i = 0; i < N; i++) mean += samples[i];
+          mean /= N;
+          const smoothed = new Float64Array(N);
+          let maxAbs = 0;
+          for (let i = 2; i < N - 2; i++) {
+            const v = (samples[i - 2] + samples[i - 1] + samples[i] + samples[i + 1] + samples[i + 2]) / 5.0 - mean;
+            smoothed[i] = v;
+            if (Math.abs(v) > maxAbs) maxAbs = Math.abs(v);
+          }
+          if (maxAbs < 1e-3) return;
+          const threshold = maxAbs * 0.25;
+          const minPeakDist = Math.round(0.38 * eegData.ppgSampleRate); // Max ~158 BPM
+          const peaks = [];
+          for (let i = 3; i < N - 3; i++) {
+            if (
+              smoothed[i] > threshold &&
+              smoothed[i] >= smoothed[i - 1] &&
+              smoothed[i] >= smoothed[i + 1] &&
+              smoothed[i] >= smoothed[i - 2] &&
+              smoothed[i] >= smoothed[i + 2]
+            ) {
+              if (peaks.length === 0 || i - peaks[peaks.length - 1] >= minPeakDist) {
+                peaks.push(i);
+              }
+            }
+          }
+          if (peaks.length >= 2) {
+            let ibiSum = 0;
+            let validIntervals = 0;
+            for (let k = 1; k < peaks.length; k++) {
+              const ibiSec = (peaks[k] - peaks[k - 1]) / eegData.ppgSampleRate;
+              if (ibiSec >= 0.38 && ibiSec <= 1.5) {
+                ibiSum += ibiSec;
+                validIntervals++;
+              }
+            }
+            if (validIntervals > 0) {
+              const bpm = 60.0 / (ibiSum / validIntervals);
+              eegData.heartRate = Math.round(eegData.heartRate > 0 ? eegData.heartRate * 0.7 + bpm * 0.3 : bpm);
+            }
           }
         }
 
@@ -2022,6 +2203,10 @@
           }
         },
         'Raw Data Access': {
+          'eegData.raw': {
+            signature: 'eegData.raw [TP9, AF7, AF8, TP10]',
+            description: 'Array of the 4 most recent raw EEG values (µV) for TP9, AF7, AF8, and TP10.'
+          },
           'eegData.getRawChannel': {
             signature: 'eegData.getRawChannel(channel, numSamples)',
             description: 'Get recent raw EEG samples from a channel. Channels: "TP9", "AF7", "AF8", "TP10".'
@@ -2037,6 +2222,40 @@
           'eegData.getChannelNames': {
             signature: 'eegData.getChannelNames()',
             description: 'Returns array of channel names: ["TP9", "AF7", "AF8", "TP10"].'
+          }
+        },
+        'PPG / Optical Channels': {
+          'eegData.ppgPulse': {
+            signature: 'eegData.ppgPulse (0.0 - 1.0)',
+            description: 'Normalized real-time cardiac pulse wave (0.0 to 1.0) from the infrared PPG sensor. Peaks near 1.0 on each heartbeat.'
+          },
+          'eegData.heartRate': {
+            signature: 'eegData.heartRate (BPM)',
+            description: 'Estimated heart rate in beats per minute (BPM) derived from PPG systolic peaks (e.g., 60 - 100).'
+          },
+          'eegData.ppg': {
+            signature: 'eegData.ppg [ambient, infrared, red, optics4]',
+            description: 'Array of current raw PPG/optical sensor values (64 Hz) across channels: [0]=ambient, [1]=infrared, [2]=red, [3]=optics4 (Athena).'
+          },
+          'eegData.ppgNormalized': {
+            signature: 'eegData.ppgNormalized [0..3] (0.0 - 1.0)',
+            description: 'Array of AC-coupled, rolling min-max normalized (0.0 - 1.0) PPG values for each optical channel.'
+          },
+          'eegData.getPPGChannel': {
+            signature: 'eegData.getPPGChannel(channel, numSamples)',
+            description: 'Get recent 64 Hz PPG samples for a channel: "ambient" (0), "infrared" (1), "red" (2), or "optics4" (3).'
+          },
+          'eegData.getAllPPGChannels': {
+            signature: 'eegData.getAllPPGChannels(numSamples)',
+            description: 'Get recent PPG samples for all optical channels as an object: { ambient, infrared, red, optics4 }.'
+          },
+          'eegData.getPPGChannelNames': {
+            signature: 'eegData.getPPGChannelNames()',
+            description: 'Returns array of PPG optical channel names: ["ambient", "infrared", "red", "optics4"].'
+          },
+          'eegData.ppgSampleRate': {
+            signature: 'eegData.ppgSampleRate (64)',
+            description: 'PPG / optical sensor sample rate in Hz (64 samples per second).'
           }
         },
         'Connection Status': {
@@ -2140,10 +2359,11 @@
               const lineContent = model.getLineContent(position.lineNumber);
               const textBeforeCursor = lineContent.substring(0, position.column - 1);
               
-              if (textBeforeCursor.includes('eegData.')) {
+              if (/eegData\.\w*$/.test(textBeforeCursor)) {
                 return {
                   suggestions: eegCompletionItems.map(item => ({
                     ...item,
+                    insertText: item.label.replace(/^eegData\./, ''),
                     range: range
                   }))
                 };
@@ -3252,15 +3472,26 @@ function draw() {
         }
         
         createSnippet(funcName, signature) {
-          // Extract parameters from signature
-          // e.g., "ellipse(x, y, width, [height])" -> ["x", "y", "width", "[height]"]
+          // Extract parameters from signature only when signature represents a function call
+          // e.g., "ellipse(x, y, width, [height])" or "eegData.getPPGChannel(channel, numSamples)"
+          // Properties like "eegData.alpha (0.0 - 1.0)" or "mouseX" should insert the property name directly.
           
           if (!signature) {
-            return funcName + '()';
+            return funcName;
+          }
+
+          const trimmedSig = signature.trim();
+          const isFunctionSig =
+            trimmedSig.startsWith(funcName + '(') ||
+            trimmedSig.startsWith('new ' + funcName + '(') ||
+            trimmedSig.startsWith('function ' + funcName + '(');
+
+          if (!isFunctionSig) {
+            return funcName;
           }
           
           // Find the parameters part (between parentheses)
-          const paramsMatch = signature.match(/\(([^)]*)\)/);
+          const paramsMatch = trimmedSig.match(/\(([^)]*)\)/);
           if (!paramsMatch || !paramsMatch[1].trim()) {
             return funcName + '()';
           }
@@ -3369,10 +3600,13 @@ function draw() {
             const currentCode = codeEditor.editor.getValue();
             
             const systemPrompt = `You are a helpful p5.js coding assistant for BrainImation, an EEG-powered creative coding platform. 
-Help users create animations that respond to brain data available through the eegData object:
+Help users create animations that respond to brain and PPG optical data available through the eegData object:
 - eegData.alpha, beta, theta, delta, gamma (0.0-1.0)
 - eegData.attention, meditation (0.0-1.0)
-- eegData.getRawChannel(channel, numSamples) for raw EEG
+- eegData.getRawChannel(channel, numSamples) for raw EEG ("TP9", "AF7", "AF8", "TP10")
+- eegData.ppgPulse (0.0-1.0 normalized heartbeat pulse wave), eegData.heartRate (BPM)
+- eegData.ppg [ambient, infrared, red, optics4], eegData.ppgNormalized [0..3] (0.0-1.0)
+- eegData.getPPGChannel(channel, numSamples) for 64 Hz PPG ("ambient", "infrared", "red", "optics4")
 - eegData.connected (boolean)
 
 Respond ONLY with JavaScript code, no explanations or markdown. Include setup() and draw() functions.`;
@@ -4059,7 +4293,11 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         document.getElementById('muse-status').className = 'status-indicator';
         
         // Reset eegData
+        const preserveNumericKeys = new Set(['sampleRate', 'historyLength', 'ppgSampleRate', 'ppgHistoryLength']);
         Object.keys(eegData).forEach(key => {
+          if (preserveNumericKeys.has(key)) {
+            return;
+          }
           if (typeof eegData[key] === 'number') {
             eegData[key] = 0;
           } else if (Array.isArray(eegData[key])) {
@@ -4068,6 +4306,8 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
             eegData[key] = false;
           } else if (key === 'rawHistory') {
             eegData[key] = { TP9: [], AF7: [], AF8: [], TP10: [] };
+          } else if (key === 'ppgHistory') {
+            eegData[key] = { ambient: [], infrared: [], red: [], optics4: [] };
           }
         });
         

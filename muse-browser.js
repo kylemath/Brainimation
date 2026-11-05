@@ -38,7 +38,7 @@
   const PPG_FREQUENCY = 64;
   const PPG_SAMPLES_PER_READING = 6;
   const CHANNEL_NAMES = ['TP9', 'AF7', 'AF8', 'TP10', 'AUX'];
-  const PPG_CHANNEL_NAMES = ['ambient', 'infrared', 'red'];
+  const PPG_CHANNEL_NAMES = ['ambient', 'infrared', 'red', 'optics4'];
 
   // Muse S Athena constants
   const ATHENA_EEG_SCALE = 1450 / 16383;
@@ -615,15 +615,17 @@
       await this.sendCommand('v1');
       await this.delay(100);
 
-      let preset = 'p21';
+      const basePreset = this.enableAux ? 'p20' : 'p21';
+      await this.sendCommand(basePreset);
+      await this.delay(100);
+
+      let preset = basePreset;
       if (this.enablePpg) {
-        preset = 'p50';
-      } else if (this.enableAux) {
-        preset = 'p20';
+        preset = this.enableAux ? 'p51' : 'p50';
+        await this.sendCommand(preset);
+        await this.delay(100);
       }
       this.preset = preset;
-      await this.sendCommand(preset);
-      await this.delay(100);
 
       await this.sendCommand('s');
       await this.delay(100);
@@ -713,6 +715,7 @@
               this.ppgReadings.next({
                 index: idx,
                 ppgChannel: p,
+                channelName: PPG_CHANNEL_NAMES[p] || `ppg${p}`,
                 samples: decodePPGSamples(bytes),
                 timestamp: this.getTimestamp(idx, PPG_SAMPLES_PER_READING, PPG_FREQUENCY)
               });
@@ -745,11 +748,12 @@
           } else if (sub.type === 'optics') {
             const nSamples = sub.values[0] ? sub.values[0].length : 3;
             const tracked = this._trackAthenaSubpacket(sub.tag, sub.index, nSamples, PPG_FREQUENCY);
-            const maxPpg = Math.min(sub.values.length, 3);
+            const maxPpg = Math.min(sub.values.length, 4);
             for (let ch = 0; ch < maxPpg; ch++) {
               this.ppgReadings.next({
                 index: tracked.unwrappedCount,
                 ppgChannel: ch,
+                channelName: PPG_CHANNEL_NAMES[ch] || `optics${ch + 1}`,
                 samples: sub.values[ch],
                 timestamp: tracked.timestamp
               });
