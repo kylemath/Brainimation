@@ -1349,14 +1349,15 @@
             });
             this.subscriptions.push(statusSubscription);
             
-            // Step 6: Phase 2 GATT Handshake (sends 'v1', 'p21', 's', settles 500 ms, binds 273e0003..0006)
-            logger.log('Step 6: Executing Phase 2 Lazy-GATT wake & starting 256 Hz EEG stream...', 'info');
+            // Step 6: Phase 2 GATT Handshake (Athena 273e0013 or Classic 273e0003..0006)
+            logger.log('Step 6: Starting 256 Hz EEG stream (auto-detecting Athena vs Classic firmware)...', 'info');
             await this.muse.start();
             
             this.isConnected = true;
             eegData.connected = true;
-            this.updateStatus('Connected to Muse', 'connected');
-            logger.log('🎉 SUCCESS! Muse is connected and streaming 4-channel 256 Hz EEG', 'success');
+            const modeLabel = this.muse.isAthena ? `Athena (${this.muse.preset})` : 'Classic';
+            this.updateStatus(`Connected to ${this.muse.deviceName || 'Muse'} [${modeLabel}]`, 'connected');
+            logger.log(`🎉 SUCCESS! ${this.muse.deviceName || 'Muse'} (${modeLabel}) is connected and streaming 4-channel 256 Hz EEG`, 'success');
             
           } catch (error) {
             logger.log('❌ Connection failed: ' + error.message, 'error');

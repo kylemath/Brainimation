@@ -1,14 +1,12 @@
 /**
- * muse-browser.js — Zero-Dependency Two-Phase WebBluetooth GATT Client for InteraXon Muse (2016, Muse 2, Muse S)
+ * muse-browser.js — Zero-Dependency WebBluetooth GATT Client for InteraXon Muse
+ * Supports:
+ *   - Muse S Athena (Gen 3 / MS-03): Multiplexed universal sensor characteristic (273e0013)
+ *   - Muse 2 & Classic Muse S: Per-sensor characteristics (273e0003..0006, 0009..000b)
+ *   - Muse 2016 (MU-02): Two-Phase lazy GATT discovery (Control + 4 EEG characteristics)
  *
- * Resolves the Muse 2 / Muse S "lazy GATT characteristic advertisement" firmware race condition by:
- *   Phase 1 (connect): Attaching to GATT service 0xFE8D and binding ONLY the Control characteristic (273e0001).
- *   Phase 2 (start):   Sequencing firmware wake ('v1'), preset ('p21'), and stream-start ('s'/'d') commands
- *                      with a 500 ms settle window BEFORE discovering and binding the 256 Hz EEG notification
- *                      characteristics (273e0003..273e0006: TP9, AF7, AF8, TP10).
- *
- * Exposes a drop-in `window.muse = { MuseClient, zipSamples }` API with lightweight zero-dependency
- * Observable/Subject streams (replacing 473.0 KB legacy muse-js + RxJS bundles).
+ * Exposes a drop-in `window.muse = { MuseClient, zipSamples, ... }` API with lightweight
+ * zero-dependency Observable/Subject streams (including `.pipe()` support).
  */
 (function (global) {
   'use strict';
@@ -18,6 +16,8 @@
   const TELEMETRY_CHAR_UUID = '273e000b-4c4d-454d-96be-f03bac821358';
   const GYROSCOPE_CHAR_UUID = '273e0009-4c4d-454d-96be-f03bac821358';
   const ACCELEROMETER_CHAR_UUID = '273e000a-4c4d-454d-96be-f03bac821358';
+  const ATHENA_DATA_CHAR_UUID = '273e0013-4c4d-454d-96be-f03bac821358';
+  const ATHENA_DATA2_CHAR_UUID = '273e0014-4c4d-454d-96be-f03bac821358';
 
   const EEG_UUIDS = [
     '273e0003-4c4d-454d-96be-f03bac821358', // Channel 0: TP9 (Left Temporal)
@@ -39,6 +39,27 @@
   const PPG_SAMPLES_PER_READING = 6;
   const CHANNEL_NAMES = ['TP9', 'AF7', 'AF8', 'TP10', 'AUX'];
   const PPG_CHANNEL_NAMES = ['ambient', 'infrared', 'red'];
+
+  // Muse S Athena constants
+  const ATHENA_EEG_SCALE = 1450 / 16383;
+  const ATHENA_EEG_MIDPOINT = 8192;
+  const ATHENA_DEFAULT_PRESET = 'p1035';
+  const PACKET_HEADER_SIZE = 9;
+  const SUBPACKET_HEADER_SIZE = 5;
+  const ATHENA_ACCEL_SCALE = 1 / 16384;
+  const ATHENA_GYRO_SCALE = -0.0074768;
+
+  const ATHENA_TAGS = {
+    0x11: { type: 'eeg', channels: 4, samples: 4, bytes: 28 },
+    0x12: { type: 'eeg', channels: 8, samples: 2, bytes: 28 },
+    0x34: { type: 'optics', channels: 4, samples: 3, bytes: 30 },
+    0x35: { type: 'optics', channels: 8, samples: 2, bytes: 40 },
+    0x36: { type: 'optics', channels: 16, samples: 1, bytes: 40 },
+    0x47: { type: 'motion', channels: 6, samples: 3, bytes: 36 },
+    0x53: { type: 'drlref', channels: 2, samples: 6, bytes: 24 },
+    0x88: { type: 'battery', channels: 1, samples: 1, bytes: 20, variableLength: true },
+    0x98: { type: 'battery', channels: 1, samples: 1, bytes: 20 }
+  };
 
   /**
    * Minimal RxJS-compatible Subject for zero-dependency reactive streaming.
@@ -79,6 +100,10 @@
         }
       }
       this._listeners.clear();
+    }
+
+    pipe(...operations) {
+      return operations.reduce((prev, fn) => fn(prev), this);
     }
   }
 
@@ -131,7 +156,6 @@
   /**
    * Decode twelve packed 12-bit unsigned offset-binary EEG samples from an 18-byte payload (bytes 2..19).
    * Scale factor: 1000 / 2048 = 0.48828125 uV per LSB centered at 2048 (0x800).
-   * Equation (1): V_i = 0.48828125 * (s_i - 2048) uV
    */
   function decodeEEGSamples(bytes) {
     const samples = new Array(12);
@@ -192,7 +216,148 @@
   }
 
   /**
-   * Synchronize multi-channel 12-sample EEG readings across TP9, AF7, AF8, and TP10 by packet index.
+   * Unpack unsigned integers from a little-endian bitstream, LSB first (Muse S Athena).
+   */
+  function unpackLE(bytes, offset, count, bits) {
+    const values = new Array(count);
+    const mask = (1 << bits) - 1;
+    let acc = 0;
+    let accBits = 0;
+    let pos = offset;
+    for (let i = 0; i < count; i++) {
+      while (accBits < bits) {
+        acc |= bytes[pos++] << accBits;
+        accBits += 8;
+      }
+      values[i] = acc & mask;
+      acc >>>= bits;
+      accBits -= bits;
+    }
+    return values;
+  }
+
+  function athenaEegToMicrovolts(x) {
+    return (x - ATHENA_EEG_MIDPOINT) * ATHENA_EEG_SCALE;
+  }
+
+  function deinterleave(values, channels, samples) {
+    const out = [];
+    for (let ch = 0; ch < channels; ch++) {
+      const column = new Array(samples);
+      for (let s = 0; s < samples; s++) {
+        column[s] = values[s * channels + ch];
+      }
+      out.push(column);
+    }
+    return out;
+  }
+
+  function decodeAthenaPayload(spec, bytes, p) {
+    const n = spec.channels * spec.samples;
+    switch (spec.type) {
+      case 'eeg': {
+        const raw = deinterleave(unpackLE(bytes, p, n, 14), spec.channels, spec.samples);
+        return { raw, values: raw.map((ch) => ch.map(athenaEegToMicrovolts)) };
+      }
+      case 'optics': {
+        const raw = deinterleave(unpackLE(bytes, p, n, 20), spec.channels, spec.samples);
+        return { raw, values: raw };
+      }
+      case 'motion': {
+        const dv = new DataView(bytes.buffer, bytes.byteOffset + p, spec.bytes);
+        const values = [];
+        for (let i = 0; i < n; i++) {
+          const v = dv.getInt16(i * 2, true);
+          values.push(i % 6 < 3 ? v * ATHENA_ACCEL_SCALE : v * ATHENA_GYRO_SCALE);
+        }
+        return { raw: null, values: deinterleave(values, spec.channels, spec.samples) };
+      }
+      case 'drlref': {
+        const dv = new DataView(bytes.buffer, bytes.byteOffset + p, spec.bytes);
+        const values = [];
+        for (let i = 0; i < n; i++) {
+          values.push(dv.getUint16(i * 2, true));
+        }
+        return { raw: null, values: deinterleave(values, spec.channels, spec.samples) };
+      }
+      case 'battery': {
+        const percent = Math.min(100, Math.max(0, (bytes[p] | (bytes[p + 1] << 8)) / 256));
+        return { raw: null, values: [[percent]] };
+      }
+    }
+  }
+
+  /**
+   * Parse one notification from the Muse S Athena multiplexed data characteristic (273e0013).
+   */
+  function parseAthenaNotification(bytes, onSubpacket) {
+    let packets = 0;
+    let subpackets = 0;
+    let skippedBytes = 0;
+    let offset = 0;
+
+    while (offset < bytes.length) {
+      const length = bytes[offset];
+      if (length < PACKET_HEADER_SIZE + SUBPACKET_HEADER_SIZE || offset + length > bytes.length) {
+        skippedBytes += bytes.length - offset;
+        break;
+      }
+      const end = offset + length;
+      const packetCounter = bytes[offset + 1] | (bytes[offset + 2] << 8);
+      let i = offset + PACKET_HEADER_SIZE;
+
+      while (i + SUBPACKET_HEADER_SIZE <= end) {
+        const tag = bytes[i];
+        const spec = ATHENA_TAGS[tag];
+        if (!spec) break;
+        const p = i + SUBPACKET_HEADER_SIZE;
+
+        if (spec.variableLength) {
+          if (p + 2 > end) break;
+          const decoded = decodeAthenaPayload(spec, bytes, p);
+          onSubpacket({
+            type: spec.type,
+            tag,
+            index: bytes[i + 1],
+            packetCounter,
+            raw: decoded.raw,
+            values: decoded.values
+          });
+          subpackets++;
+          const fixedNext = p + spec.bytes;
+          if (fixedNext <= end && (fixedNext === end || ATHENA_TAGS[bytes[fixedNext]])) {
+            i = fixedNext;
+          } else {
+            i = end;
+          }
+          continue;
+        }
+
+        if (p + spec.bytes > end) break;
+        const decoded = decodeAthenaPayload(spec, bytes, p);
+        onSubpacket({
+          type: spec.type,
+          tag,
+          index: bytes[i + 1],
+          packetCounter,
+          raw: decoded.raw,
+          values: decoded.values
+        });
+        subpackets++;
+        i = p + spec.bytes;
+      }
+
+      skippedBytes += end - i;
+      packets++;
+      offset = end;
+    }
+
+    return { packets, subpackets, skippedBytes };
+  }
+
+  /**
+   * Synchronize multi-channel EEG readings across TP9, AF7, AF8, and TP10 by packet index.
+   * Supports both 12-sample Classic packets and 4/2-sample Muse S Athena subpackets.
    */
   function zipSamples(eegReadingsSubject) {
     const out = new SimpleSubject();
@@ -217,7 +382,8 @@
       if (entry.packets[0] && entry.packets[1] && entry.packets[2] && entry.packets[3]) {
         pendingByIndex.delete(idx);
         const dt = 1000.0 / EEG_FREQUENCY;
-        for (let s = 0; s < EEG_SAMPLES_PER_READING; s++) {
+        const numSamples = entry.packets[0].length;
+        for (let s = 0; s < numSamples; s++) {
           out.next({
             index: idx,
             timestamp: entry.timestamp + s * dt,
@@ -242,12 +408,14 @@
   }
 
   /**
-   * Two-Phase Lazy-GATT Muse WebBluetooth Client.
+   * Unified Muse WebBluetooth Client (Muse S Athena, Muse S, Muse 2, Muse 2016).
    */
   class MuseClient {
     constructor() {
       this.enableAux = false;
       this.enablePpg = false;
+      this.isAthena = false;
+      this.preset = null;
       this.deviceName = '';
       this.gatt = null;
       this.service = null;
@@ -259,6 +427,9 @@
       this._controlBuffer = '';
       this._gattQueue = Promise.resolve();
       this._boundListeners = [];
+      this._athenaSeqTracker = new Map();
+      this._athenaStartWallTime = null;
+      this._athenaReceivedEEG = false;
 
       // Reactive streams
       this.connectionStatus = new BehaviorSubject(false);
@@ -315,17 +486,39 @@
       this._controlBuffer = '';
     }
 
+    _trackAthenaSubpacket(tag, seqIndex, samplesPerSubpacket, sampleRate) {
+      if (this._athenaStartWallTime === null) {
+        this._athenaStartWallTime = Date.now();
+      }
+      const key = `tag_${tag}`;
+      const last = this._athenaSeqTracker.get(key);
+      let unwrappedCount = 0;
+      if (last) {
+        const step = (seqIndex - last.seq + 256) % 256 || 1;
+        unwrappedCount = last.count + step;
+      }
+      this._athenaSeqTracker.set(key, { seq: seqIndex, count: unwrappedCount });
+      const sampleIndex = unwrappedCount * samplesPerSubpacket;
+      const timestamp = this._athenaStartWallTime + (sampleIndex * 1000.0) / sampleRate;
+      return { unwrappedCount, timestamp };
+    }
+
     /**
-     * Phase 1: Connect to GATT service 0xFE8D and bind ONLY the Control characteristic (273e0001).
-     * Avoids eager querying of 273e0003..0006 before firmware preset commands are sent.
+     * Phase 1: Connect to GATT service 0xFE8D and bind the Control characteristic (273e0001).
      */
     async connect(gatt) {
       this._cleanupListeners();
+      this.isAthena = false;
+      this._athenaSeqTracker.clear();
+      this._athenaStartWallTime = null;
+      this._athenaReceivedEEG = false;
+
       if (gatt) {
         this.gatt = gatt;
       } else {
         const device = await navigator.bluetooth.requestDevice({
-          filters: [{ services: [MUSE_SERVICE] }]
+          filters: [{ services: [MUSE_SERVICE] }, { namePrefix: 'Muse' }],
+          optionalServices: [MUSE_SERVICE]
         });
         this.gatt = await device.gatt.connect();
       }
@@ -343,7 +536,7 @@
         }, { once: true });
       }
 
-      // Phase 1: Bind ONLY Control characteristic (273e0001)
+      // Bind Control characteristic (273e0001)
       this.controlChar = await this._enqueueGatt(() => this.service.getCharacteristic(CONTROL_CHAR_UUID));
       await this._enqueueGatt(() => this.controlChar.startNotifications());
       this._addCharListener(this.controlChar, (event) => {
@@ -355,7 +548,6 @@
           str += String.fromCharCode(bytes[i]);
         }
         this._controlBuffer += str;
-        // Prevent unbounded buffer growth if malformed text arrives
         if (this._controlBuffer.length > 4096) {
           this._controlBuffer = this._controlBuffer.slice(-1024);
         }
@@ -366,9 +558,7 @@
           this._controlBuffer = this._controlBuffer.slice(endIdx + 1);
           try {
             this.controlResponses.next(JSON.parse(jsonCandidate));
-          } catch (_) {
-            // Ignore partial JSON fragment
-          }
+          } catch (_) {}
         }
       });
 
@@ -390,53 +580,70 @@
     }
 
     /**
-     * Phase 2: Wake firmware with 'v1', select preset ('p21'), start stream ('s'),
-     * wait 500 ms for lazy GATT table update, and bind 256 Hz EEG characteristics (273e0003..0006).
+     * Phase 2: Detect Muse S Athena (273e0013) vs Classic Muse (273e0003..0006),
+     * subscribe to sensor notifications, and run the appropriate startup handshake.
      */
     async start() {
       if (!this.service || !this.controlChar) {
         throw new Error('Call connect() before start().');
       }
 
-      // Step 1: Halt any residual stream and query firmware version
+      // Check whether this headband is a Muse S Athena (exposes 273e0013)
+      let byUuid = new Map();
+      try {
+        const allChars = await this._enqueueGatt(() => this.service.getCharacteristics(), 2, 150);
+        byUuid = new Map(allChars.map((c) => [c.uuid.toLowerCase(), c]));
+      } catch (_) {}
+
+      let athenaDataChar = byUuid.get(ATHENA_DATA_CHAR_UUID) || null;
+      if (!athenaDataChar && !byUuid.has(EEG_UUIDS[0])) {
+        try {
+          athenaDataChar = await this._enqueueGatt(() => this.service.getCharacteristic(ATHENA_DATA_CHAR_UUID), 1, 50);
+        } catch (_) {}
+      }
+
+      if (athenaDataChar && !byUuid.has(EEG_UUIDS[0])) {
+        this.isAthena = true;
+        await this._startAthena(athenaDataChar, byUuid.get(ATHENA_DATA2_CHAR_UUID) || null);
+        return;
+      }
+
+      // Classic Muse (Muse 2016, Muse 2, Classic Muse S)
+      this.isAthena = false;
       await this.pause();
       await this.delay(100);
       await this.sendCommand('v1');
       await this.delay(100);
 
-      // Step 2: Select EEG preset ('p21' = 4-ch EEG without PPG; 'p50' = EEG + PPG; 'p20' = 5-ch w/ AUX)
       let preset = 'p21';
       if (this.enablePpg) {
         preset = 'p50';
       } else if (this.enableAux) {
         preset = 'p20';
       }
+      this.preset = preset;
       await this.sendCommand(preset);
       await this.delay(100);
 
-      // Step 3: Send stream-start ('s') and resume ('d') to trigger GATT characteristic advertisement
       await this.sendCommand('s');
       await this.delay(100);
       await this.resume();
 
-      // Step 4: Settle delay for Muse 2 / Muse S firmware to expose EEG UUIDs in GATT table
+      // Settle delay for Muse 2016 / Muse 2 / Muse S firmware to expose EEG UUIDs in GATT table
       await this.delay(500);
 
-      // Step 5: Discover and bind 256 Hz EEG characteristics (273e0003..273e0006)
       this.eegCharacteristics = [];
       const channelCount = this.enableAux ? 5 : 4;
       let boundChars = [];
 
       try {
         const allChars = await this._enqueueGatt(() => this.service.getCharacteristics(), 2, 150);
-        const byUuid = new Map(allChars.map((c) => [c.uuid.toLowerCase(), c]));
+        const charMap = new Map(allChars.map((c) => [c.uuid.toLowerCase(), c]));
         for (let ch = 0; ch < channelCount; ch++) {
-          const target = byUuid.get(EEG_UUIDS[ch]);
+          const target = charMap.get(EEG_UUIDS[ch]);
           if (target) boundChars.push({ ch, char: target });
         }
-      } catch (_) {
-        // Fallback to per-UUID lookup if getCharacteristics() is restricted
-      }
+      } catch (_) {}
 
       if (boundChars.length === 0) {
         for (let ch = 0; ch < channelCount; ch++) {
@@ -468,7 +675,7 @@
         this.eegCharacteristics.push(char);
       }
 
-      // Optional non-fatal binding for Telemetry and Accelerometer (skipped gracefully on Muse 2016)
+      // Optional non-fatal binding for Telemetry, Accelerometer, and Gyroscope
       try {
         const telemChar = await this._enqueueGatt(() => this.service.getCharacteristic(TELEMETRY_CHAR_UUID), 1, 50);
         await this._enqueueGatt(() => telemChar.startNotifications(), 2, 100);
@@ -482,6 +689,14 @@
         await this._enqueueGatt(() => accelChar.startNotifications(), 2, 100);
         this._addCharListener(accelChar, (event) => {
           this.accelerometerData.next(decodeImuPacket(event.target.value, 0.0000610352));
+        });
+      } catch (_) {}
+
+      try {
+        const gyroChar = await this._enqueueGatt(() => this.service.getCharacteristic(GYROSCOPE_CHAR_UUID), 1, 50);
+        await this._enqueueGatt(() => gyroChar.startNotifications(), 2, 100);
+        this._addCharListener(gyroChar, (event) => {
+          this.gyroscopeData.next(decodeImuPacket(event.target.value, 0.0074768));
         });
       } catch (_) {}
 
@@ -508,11 +723,117 @@
       }
     }
 
+    async _startAthena(dataChar, data2Char) {
+      const handleAthenaEvent = (event) => {
+        const dv = event.target.value;
+        const bytes = new Uint8Array(dv.buffer, dv.byteOffset, dv.byteLength);
+        parseAthenaNotification(bytes, (sub) => {
+          if (sub.type === 'eeg') {
+            this._athenaReceivedEEG = true;
+            const nSamples = sub.values[0] ? sub.values[0].length : 4;
+            const tracked = this._trackAthenaSubpacket(sub.tag, sub.index, nSamples, EEG_FREQUENCY);
+            const maxCh = this.enableAux ? Math.min(sub.values.length, 5) : Math.min(sub.values.length, 4);
+            for (let ch = 0; ch < maxCh; ch++) {
+              this.eegReadings.next({
+                electrode: ch,
+                channelName: CHANNEL_NAMES[ch],
+                index: tracked.unwrappedCount,
+                samples: sub.values[ch],
+                timestamp: tracked.timestamp
+              });
+            }
+          } else if (sub.type === 'optics') {
+            const nSamples = sub.values[0] ? sub.values[0].length : 3;
+            const tracked = this._trackAthenaSubpacket(sub.tag, sub.index, nSamples, PPG_FREQUENCY);
+            const maxPpg = Math.min(sub.values.length, 3);
+            for (let ch = 0; ch < maxPpg; ch++) {
+              this.ppgReadings.next({
+                index: tracked.unwrappedCount,
+                ppgChannel: ch,
+                samples: sub.values[ch],
+                timestamp: tracked.timestamp
+              });
+            }
+          } else if (sub.type === 'motion') {
+            this.accelerometerData.next({
+              sequenceId: sub.index,
+              samples: [0, 1, 2].map((i) => ({
+                x: sub.values[0][i],
+                y: sub.values[1][i],
+                z: sub.values[2][i]
+              }))
+            });
+            this.gyroscopeData.next({
+              sequenceId: sub.index,
+              samples: [0, 1, 2].map((i) => ({
+                x: sub.values[3][i],
+                y: sub.values[4][i],
+                z: sub.values[5][i]
+              }))
+            });
+          } else if (sub.type === 'battery') {
+            this.telemetryData.next({
+              sequenceId: sub.index,
+              batteryLevel: sub.values[0][0],
+              fuelGaugeVoltage: 0,
+              adcVoltage: 0,
+              temperature: 0
+            });
+          }
+        });
+      };
+
+      await this._enqueueGatt(() => dataChar.startNotifications(), 3, 150);
+      this._addCharListener(dataChar, handleAthenaEvent);
+      this.eegCharacteristics = [dataChar];
+
+      if (data2Char) {
+        try {
+          await this._enqueueGatt(() => data2Char.startNotifications(), 2, 100);
+          this._addCharListener(data2Char, handleAthenaEvent);
+        } catch (_) {}
+      }
+
+      const preset = this.preset || (this.enableAux ? 'p1045' : ATHENA_DEFAULT_PRESET);
+      this.preset = preset;
+      const sequence = [
+        ['v6', 200],
+        ['s', 200],
+        ['h', 200],
+        [preset, 200],
+        ['s', 200],
+        ['dc001', 50],
+        ['dc001', 100],
+        ['L1', 300],
+        ['s', 200]
+      ];
+      for (const [cmd, delayMs] of sequence) {
+        await this.sendCommand(cmd);
+        await this.delay(delayMs);
+      }
+
+      for (let waited = 0; waited < 1500 && !this._athenaReceivedEEG; waited += 100) {
+        await this.delay(100);
+      }
+      if (!this._athenaReceivedEEG) {
+        await this.sendCommand('d');
+        for (let waited = 0; waited < 1500 && !this._athenaReceivedEEG; waited += 100) {
+          await this.delay(100);
+        }
+      }
+    }
+
     async pause() {
       await this.sendCommand('h');
     }
 
     async resume() {
+      if (this.isAthena) {
+        await this.sendCommand('dc001');
+        await this.delay(50);
+        await this.sendCommand('dc001');
+        return;
+      }
       await this.sendCommand('d');
     }
 
@@ -525,10 +846,15 @@
     }
 
     disconnect() {
+      if (this.isAthena && this.controlChar && this.gatt && this.gatt.connected) {
+        this.sendCommand('h').catch(() => {});
+      }
       this._cleanupListeners();
       if (this.gatt) {
         this.lastIndex = null;
         this.lastTimestamp = null;
+        this._athenaSeqTracker.clear();
+        this._athenaStartWallTime = null;
         try {
           this.gatt.disconnect();
         } catch (_) {}
@@ -564,6 +890,11 @@
     zipSamples: zipSamples,
     decodeEEGSamples: decodeEEGSamples,
     encodeCommand: encodeCommand,
+    parseAthenaNotification: parseAthenaNotification,
+    unpackLE: unpackLE,
+    athenaEegToMicrovolts: athenaEegToMicrovolts,
+    ATHENA_DATA_CHARACTERISTIC: ATHENA_DATA_CHAR_UUID,
+    ATHENA_EEG_SCALE: ATHENA_EEG_SCALE,
     MUSE_SERVICE: MUSE_SERVICE,
     EEG_FREQUENCY: EEG_FREQUENCY,
     EEG_SAMPLES_PER_READING: EEG_SAMPLES_PER_READING,
@@ -571,5 +902,5 @@
     ppgChannelNames: PPG_CHANNEL_NAMES
   };
 
-  console.log('✅ Zero-dependency Two-Phase Muse WebBluetooth client (muse-browser.js) loaded!');
+  console.log('✅ Zero-dependency Muse WebBluetooth client (muse-browser.js) loaded [Muse 2016 / Muse 2 / Muse S / Muse S Athena]!');
 })(typeof window !== 'undefined' ? window : globalThis);
