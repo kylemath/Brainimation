@@ -1076,7 +1076,7 @@
         ppgPulse: 0,                 // 0.0-1.0 normalized heartbeat pulse wave (infrared channel)
         heartRate: 0,                // Estimated heart rate in BPM (from PPG systolic peaks)
         ppgSampleRate: 64,           // PPG sample rate in Hz
-        ppgHistoryLength: 256,       // ~4 seconds at 64Hz
+        ppgHistoryLength: 512,       // ~8 seconds at 64Hz
         ppgHistory: {
           ambient: [],
           infrared: [],
@@ -1112,9 +1112,9 @@
         getPPGChannel: function(channel = 'infrared', numSamples = 64) {
           const aliasMap = {
             0: 'ambient', '0': 'ambient', 'ambient': 'ambient', 'ppg1': 'ambient', 'li_730': 'ambient',
-            1: 'infrared', '1': 'infrared', 'infrared': 'infrared', 'ir': 'infrared', 'ppg2': 'infrared', 'ri_730': 'infrared',
-            2: 'red', '2': 'red', 'red': 'red', 'ppg3': 'red', 'li_850': 'red',
-            3: 'optics4', '3': 'optics4', 'optics4': 'optics4', 'ppg4': 'optics4', 'ri_850': 'optics4'
+            1: 'infrared', '1': 'infrared', 'infrared': 'infrared', 'ir': 'infrared', '850': 'infrared', '850nm': 'infrared', 'ppg2': 'infrared', 'ri_730': 'infrared',
+            2: 'red', '2': 'red', 'red': 'red', '660': 'red', '660nm': 'red', 'ppg3': 'red', 'li_850': 'red',
+            3: 'optics4', '3': 'optics4', 'optics4': 'optics4', 'nir': 'optics4', '730': 'optics4', '730nm': 'optics4', 'ppg4': 'optics4', 'ri_850': 'optics4'
           };
           const key = aliasMap[typeof channel === 'string' ? channel.toLowerCase() : channel] || channel;
           const channelData = (this.ppgHistory && this.ppgHistory[key]) || [];
@@ -1290,7 +1290,7 @@
               }
             }
 
-            // Synthesize 64 Hz PPG / optical cardiac waveforms (1 PPG sample every 4 EEG samples)
+            // Synthesize 64 Hz PPG / optical waveforms via forward Modified Beer-Lambert Law (1 PPG sample every 4 EEG samples)
             if (n % 4 === 0) {
               const bpm = 68.0 + this.baseAttention * 16.0 - this.baseMeditation * 8.0;
               eegData.heartRate = Math.round(bpm);
@@ -1303,11 +1303,30 @@
               const pulse01 = Math.max(0, Math.min(1, (systolic + dicrotic) / 1.15));
               eegData.ppgPulse = pulse01;
 
+              // Forward Modified Beer-Lambert Law (MBLL):
+              // Neurovascular coupling (attention raises HbO2 & lowers HHb) + Mayer wave (0.1 Hz) + arterial pulsation (97.5% SpO2)
+              const slowHemo = Math.sin(2 * Math.PI * 0.08 * time) + 0.4 * Math.sin(2 * Math.PI * 0.03 * time);
+              const dHbO2_mM = (this.baseAttention - 0.35) * 0.0022 + 0.0012 * slowHemo + 0.00055 * (pulse01 - 0.4) + 0.00012 * respMod;
+              const dHHb_mM  = -(this.baseAttention - 0.35) * 0.00085 - 0.00048 * Math.sin(2 * Math.PI * 0.08 * time - 0.4) + 0.00002 * (pulse01 - 0.4);
+
+              // Extinction coefficients (mM^-1 cm^-1) & effective optical pathlength L_eff = d * DPF (cm), d = 2.0 cm:
+              //   850nm (IR):  eps_HbO2 = 1.0580, eps_HHb = 0.6913, DPF = 5.8 -> L = 11.6 cm
+              //   660nm (Red): eps_HbO2 = 0.3196, eps_HHb = 3.2266, DPF = 6.5 -> L = 13.0 cm
+              //   730nm (NIR): eps_HbO2 = 0.3900, eps_HHb = 1.1022, DPF = 6.2 -> L = 12.4 cm
+              const dOD_850 = (1.0580 * dHbO2_mM + 0.6913 * dHHb_mM) * 11.6 + (Math.random() - 0.5) * 0.0004;
+              const dOD_660 = (0.3196 * dHbO2_mM + 3.2266 * dHHb_mM) * 13.0 + (Math.random() - 0.5) * 0.0004;
+              const dOD_730 = (0.3900 * dHbO2_mM + 1.1022 * dHHb_mM) * 12.4 + (Math.random() - 0.5) * 0.0004;
+
+              // Transmitted optical intensity I(lambda, t) = I0(lambda) * exp(-dOD(lambda, t))
+              const rawAmb = 12000 + 35 * Math.sin(2 * Math.PI * 0.15 * time) + (Math.random() - 0.5) * 12;
+              const rawIR  = 185000 * Math.exp(-dOD_850); // 850nm Infrared
+              const rawRed = 162000 * Math.exp(-dOD_660); // 660nm Red
+              const rawNIR = 178000 * Math.exp(-dOD_730); // 730nm Near-Infrared
+              const rawValues = [rawAmb, rawIR, rawRed, rawNIR];
+
               const ppgNames = ['ambient', 'infrared', 'red', 'optics4'];
-              const dcBaselines = [12000, 185000, 162000, 178000];
-              const acSwings = [40, 1400, 950, 1250];
               for (let p = 0; p < 4; p++) {
-                const rawPpg = dcBaselines[p] + acSwings[p] * (pulse01 - 0.4 + respMod + (Math.random() - 0.5) * 0.04);
+                const rawPpg = rawValues[p];
                 eegData.ppg[p] = rawPpg;
                 eegData.ppgNormalized[p] = p === 0
                   ? Math.max(0, Math.min(1, 0.5 + respMod + (Math.random() - 0.5) * 0.1))

@@ -7,6 +7,7 @@
     "3D & Advanced",
     "Drawing & Interaction",
     "Raw EEG Data",
+    "PPG & Optical (fNIRS)",
     "Noise & Generative",
     "Animation & Motion",
     "Sound & Music"
@@ -79,12 +80,6 @@
       "category": "Attention & Meditation"
     },
     {
-      "id": "mazeFocus",
-      "file": "mazeFocus.js",
-      "title": "Maze Focus (Navigator)",
-      "category": "Attention & Meditation"
-    },
-    {
       "id": "particles",
       "file": "particles.js",
       "title": "Brain Particles",
@@ -153,8 +148,26 @@
     {
       "id": "epochs",
       "file": "epochs.js",
-      "title": "Epoch View",
+      "title": "Epoch View (Online ERP Averager)",
       "category": "Raw EEG Data"
+    },
+    {
+      "id": "ppgThreeChannels",
+      "file": "ppgThreeChannels.js",
+      "title": "3-Channel PPG Time Series",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "fNIRSBeerLambert",
+      "file": "fNIRSBeerLambert.js",
+      "title": "Modified Beer-Lambert (HbO2 & Hb)",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "cerebralOxygenationSpO2",
+      "file": "cerebralOxygenationSpO2.js",
+      "title": "Cerebral Oxygenation (SpO2 & HbO2/Hb Phase)",
+      "category": "PPG & Optical (fNIRS)"
     },
     {
       "id": "perlinNoise",
