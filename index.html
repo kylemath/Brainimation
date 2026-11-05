@@ -735,6 +735,7 @@
             <span id="status-text">Disconnected</span>
           </div>
           <button class="btn btn-primary" id="connect-btn">Connect Muse</button>
+          <button class="btn btn-secondary" id="ppg-mode-btn" title="Toggle PPG / Optical Red LED Mode (p1041 Bright Red vs p1035 Dim on Athena)">💓 PPG: ON</button>
           <button class="btn btn-secondary" id="simulate-btn">Simulate Data</button>
           <button class="btn btn-success" id="run-btn">Run Code</button>
           <button class="btn btn-secondary" id="save-btn">💾 Save</button>
@@ -832,6 +833,14 @@
           <div class="data-item">
             <div class="data-label">Delta</div>
             <div class="data-value" id="delta-value">0.0</div>
+          </div>
+          <div class="data-item">
+            <div class="data-label">💓 PPG Pulse</div>
+            <div class="data-value" id="ppg-value">0.00</div>
+          </div>
+          <div class="data-item">
+            <div class="data-label">Heart Rate</div>
+            <div class="data-value" id="hr-value">--</div>
           </div>
           <div class="wave-viz" id="wave-viz"></div>
         </div>
@@ -1330,6 +1339,10 @@
           document.getElementById('beta-value').textContent = eegData.beta.toFixed(2);
           document.getElementById('theta-value').textContent = eegData.theta.toFixed(2);
           document.getElementById('delta-value').textContent = eegData.delta.toFixed(2);
+          const ppgEl = document.getElementById('ppg-value');
+          const hrEl = document.getElementById('hr-value');
+          if (ppgEl) ppgEl.textContent = (eegData.ppgPulse || 0).toFixed(2);
+          if (hrEl) hrEl.textContent = eegData.heartRate > 0 ? `${eegData.heartRate} BPM` : '--';
         }
       }
 
@@ -1338,6 +1351,7 @@
         constructor() {
           this.muse = null;
           this.isConnected = false;
+          this.enablePpg = true;
           this.dataBuffer = [];
           this.packetCount = 0;
           this.ppgPacketCount = 0;
@@ -1375,9 +1389,9 @@
             // Step 3: Create MuseClient instance
             logger.log('Step 3: Creating MuseClient instance...', 'info');
             this.muse = new window.muse.MuseClient();
-            this.muse.enablePpg = true; // Enables PPG/optics on Muse 2, Muse S & Athena (auto-falls back to EEG-only on Muse 2016)
+            this.muse.enablePpg = this.enablePpg; // 'p1041' (Bright Red LED + 16-ch optics) on Athena, 'p50' on Classic
             this.ppgPacketCount = 0;
-            logger.log('✅ MuseClient created successfully (EEG + PPG enabled)', 'success');
+            logger.log(`✅ MuseClient created successfully (PPG Optical Mode: ${this.enablePpg ? 'ON [Bright Red LED]' : 'OFF [Dim]'})`, 'success');
             
             // Step 4: Phase 1 GATT Handshake (binds Control characteristic 273e0001 only)
             logger.log('Step 4: Opening Bluetooth device selector (Phase 1 GATT Handshake)...', 'info');
@@ -1563,6 +1577,10 @@
               if (hist.length >= 128 && this.ppgPacketCount % 8 === 0) {
                 this.estimateHeartRateFromPPG(hist.slice(-192));
               }
+              const ppgEl = document.getElementById('ppg-value');
+              const hrEl = document.getElementById('hr-value');
+              if (ppgEl) ppgEl.textContent = eegData.ppgPulse.toFixed(2);
+              if (hrEl) hrEl.textContent = eegData.heartRate > 0 ? `${eegData.heartRate} BPM` : '--';
             }
           }
         }
@@ -1741,6 +1759,24 @@
           document.getElementById('beta-value').textContent = eegData.beta.toFixed(2);
           document.getElementById('theta-value').textContent = eegData.theta.toFixed(2);
           document.getElementById('delta-value').textContent = eegData.delta.toFixed(2);
+          const ppgEl = document.getElementById('ppg-value');
+          const hrEl = document.getElementById('hr-value');
+          if (ppgEl) ppgEl.textContent = (eegData.ppgPulse || 0).toFixed(2);
+          if (hrEl) hrEl.textContent = eegData.heartRate > 0 ? `${eegData.heartRate} BPM` : '--';
+        }
+
+        async togglePPGMode() {
+          this.enablePpg = !this.enablePpg;
+          if (this.muse && this.isConnected && typeof this.muse.setPPGMode === 'function') {
+            logger.log(`💓 Switching Muse PPG / Optical Red LED mode to ${this.enablePpg ? 'ON (Bright Red LED - p1041/p50)' : 'OFF (Dim/EEG-only - p1035/p21)'}...`, 'info');
+            await this.muse.setPPGMode(this.enablePpg);
+            const modeLabel = this.muse.isAthena ? `Athena (${this.muse.preset})` : `Classic (${this.muse.preset})`;
+            this.updateStatus(`Connected to ${this.muse.deviceName || 'Muse'} [${modeLabel}]`, 'connected');
+            logger.log(`✅ PPG Optical Mode is now ${this.enablePpg ? 'ON' : 'OFF'} [${modeLabel}]`, 'success');
+          } else {
+            logger.log(`💓 PPG Optical Mode set to ${this.enablePpg ? 'ON (p1041/p50)' : 'OFF (p1035/p21)'} for next connection`, 'info');
+          }
+          return this.enablePpg;
         }
 
         decodeEEGSamples(data) {
@@ -3962,6 +3998,18 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
 
         // Event listeners
         const connectBtn = document.getElementById('connect-btn');
+        const ppgModeBtn = document.getElementById('ppg-mode-btn');
+        if (ppgModeBtn) {
+          ppgModeBtn.addEventListener('click', async () => {
+            ppgModeBtn.disabled = true;
+            try {
+              const enabled = await museManager.togglePPGMode();
+              ppgModeBtn.textContent = enabled ? '💓 PPG: ON' : '💓 PPG: OFF';
+            } finally {
+              ppgModeBtn.disabled = false;
+            }
+          });
+        }
         
         connectBtn.addEventListener('click', async () => {
           // If already connected, disconnect
@@ -4316,6 +4364,10 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         document.getElementById('beta-value').textContent = '0.0';
         document.getElementById('theta-value').textContent = '0.0';
         document.getElementById('delta-value').textContent = '0.0';
+        const ppgEl = document.getElementById('ppg-value');
+        const hrEl = document.getElementById('hr-value');
+        if (ppgEl) ppgEl.textContent = '0.00';
+        if (hrEl) hrEl.textContent = '--';
         
         logger.log('✅ Simulation stopped', 'success');
       }
