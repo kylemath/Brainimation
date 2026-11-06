@@ -50,8 +50,10 @@
       }
 
       .main-container {
+        --catalogue-width: 300px;
+        --reference-width: 360px;
         display: grid;
-        grid-template-columns: 1fr 1000px 500px;
+        grid-template-columns: minmax(340px, 1.3fr) minmax(320px, 1fr) var(--catalogue-width) var(--reference-width);
         grid-template-rows: 60px 1fr auto;
         height: 100vh;
         gap: 2px;
@@ -60,7 +62,394 @@
       }
       
       .main-container.hide-reference {
-        grid-template-columns: 1fr 200px;
+        grid-template-columns: minmax(340px, 1.3fr) minmax(320px, 1fr) var(--catalogue-width);
+      }
+
+      .main-container.hide-catalogue {
+        grid-template-columns: minmax(340px, 1.3fr) minmax(320px, 1fr) var(--reference-width);
+      }
+
+      .main-container.hide-catalogue.hide-reference {
+        grid-template-columns: minmax(340px, 1.3fr) minmax(320px, 1fr);
+      }
+
+      /* Modern Resizable Grid Catalogue Window (Right of Code Editor) */
+      .catalogue-panel {
+        grid-row: 2 / 4;
+        grid-column: 3;
+        background: #111116;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-left: 1px solid #2b2b36;
+        border-right: 1px solid #2b2b36;
+        min-width: 140px;
+        max-width: 820px;
+        width: 100%;
+        container-type: inline-size;
+        position: relative;
+      }
+
+      .catalogue-resizer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        cursor: col-resize;
+        z-index: 12;
+        background: transparent;
+        transition: background 0.15s ease;
+      }
+
+      .catalogue-resizer::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 2px;
+        transform: translateY(-50%);
+        width: 2px;
+        height: 36px;
+        border-radius: 1px;
+        background: rgba(78, 205, 196, 0.35);
+        transition: background 0.15s ease, height 0.15s ease;
+      }
+
+      .catalogue-resizer:hover,
+      .catalogue-resizer.dragging {
+        background: rgba(78, 205, 196, 0.3);
+      }
+
+      .catalogue-resizer:hover::after,
+      .catalogue-resizer.dragging::after {
+        background: var(--accent-2);
+        height: 56px;
+      }
+
+      .main-container.hide-catalogue .catalogue-panel {
+        display: none;
+      }
+
+      .catalogue-header {
+        background: var(--bg);
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border-bottom: 1px solid #2b2b36;
+        flex-shrink: 0;
+      }
+
+      .catalogue-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+      }
+
+      .catalogue-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent-2);
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .catalogue-count-badge {
+        background: rgba(78, 205, 196, 0.15);
+        color: var(--accent-2);
+        border: 1px solid rgba(78, 205, 196, 0.35);
+        border-radius: 10px;
+        padding: 2px 7px;
+        font-size: 10px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .catalogue-controls-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .catalogue-search {
+        flex: 1 1 110px;
+        min-width: 0;
+        background: var(--bg-2);
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: var(--text);
+        padding: 6px 8px;
+        font-family: inherit;
+        font-size: 11px;
+        transition: border-color 0.2s;
+      }
+
+      .catalogue-search:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      .catalogue-filter {
+        flex: 1 1 110px;
+        min-width: 0;
+        background: var(--bg-2);
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: var(--text);
+        padding: 5px 6px;
+        font-family: inherit;
+        font-size: 10px;
+        cursor: pointer;
+      }
+
+      .catalogue-filter:focus {
+        outline: none;
+        border-color: var(--accent-2);
+      }
+
+      .catalogue-scroll {
+        flex: 1 1 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 10px;
+        min-height: 0;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-2) var(--bg);
+      }
+
+      .catalogue-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .catalogue-scroll::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+
+      .catalogue-scroll::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 4px;
+      }
+
+      .catalogue-scroll::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-2);
+      }
+
+      .catalogue-section {
+        margin-bottom: 22px;
+      }
+
+      .catalogue-section-header {
+        position: sticky;
+        top: -10px;
+        z-index: 4;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0 -4px 10px -4px;
+        padding: 8px 10px;
+        border-radius: 7px;
+        border-left: 4px solid var(--cat-color, var(--accent-2));
+        background: linear-gradient(90deg, var(--cat-bg, rgba(78, 205, 196, 0.22)) 0%, rgba(19, 19, 26, 0.96) 100%);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        backdrop-filter: blur(6px);
+      }
+
+      .catalogue-section-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        min-width: 0;
+      }
+
+      .catalogue-section-icon {
+        font-size: 14px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 0 6px var(--cat-color, rgba(78, 205, 196, 0.5)));
+      }
+
+      .catalogue-section-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .catalogue-section-count {
+        font-size: 10px;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.45);
+        border: 1px solid var(--cat-color, rgba(255, 255, 255, 0.25));
+        border-radius: 999px;
+        padding: 1px 7px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      /* Responsive Grid that smoothly collapses down to 1 column when narrow */
+      .catalogue-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+        gap: 10px;
+      }
+
+      .catalogue-card {
+        background: #191922;
+        border: 1px solid #2a2a38;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.18s ease, box-shadow 0.18s ease;
+        position: relative;
+        user-select: none;
+      }
+
+      .catalogue-card:hover {
+        transform: translateY(-3px) scale(1.02);
+        border-color: var(--accent-2);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55), 0 0 12px rgba(78, 205, 196, 0.22);
+        z-index: 2;
+      }
+
+      .catalogue-card.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.35), 0 6px 16px rgba(0, 0, 0, 0.5);
+      }
+
+      .catalogue-thumb {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #0d0d12;
+      }
+
+      .catalogue-thumb svg,
+      .catalogue-thumb img.catalogue-thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.25s ease;
+      }
+
+      .catalogue-card:hover .catalogue-thumb svg,
+      .catalogue-card:hover .catalogue-thumb img.catalogue-thumb-img {
+        transform: scale(1.08);
+      }
+
+      .catalogue-play-badge {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(10, 10, 16, 0.45);
+        opacity: 0;
+        transition: opacity 0.18s ease;
+      }
+
+      .catalogue-card:hover .catalogue-play-badge,
+      .catalogue-card.active .catalogue-play-badge {
+        opacity: 1;
+      }
+
+      .catalogue-play-pill {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      }
+
+      .catalogue-tag-badge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        background: rgba(10, 10, 14, 0.78);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      .catalogue-card-body {
+        padding: 7px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .catalogue-card-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: #f2f2f7;
+        line-height: 1.25;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .catalogue-card-sub {
+        font-size: 9px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .catalogue-width-Presets {
+        display: flex;
+        gap: 3px;
+      }
+
+      .catalogue-size-btn {
+        background: var(--bg-2);
+        border: 1px solid #333;
+        color: var(--muted);
+        border-radius: 4px;
+        padding: 2px 5px;
+        font-size: 9px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+
+      .catalogue-size-btn:hover,
+      .catalogue-size-btn.active {
+        border-color: var(--accent-2);
+        color: var(--accent-2);
+      }
+
+      .active-sketch-pill {
+        color: var(--accent-2);
+        font-weight: 600;
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .header {
@@ -145,41 +534,110 @@
       }
 
       .canvas-container {
+        grid-column: 1;
+        grid-row: 2 / 4;
         background: #000;
         position: relative;
         overflow: hidden;
       }
 
-      /* Fullscreen mode styling */
-      .canvas-container:fullscreen {
+      /* Floating Zoom-style Canvas HUD (Status badge + One-Tap Fullscreen/Expand button) */
+      .canvas-hud {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 18;
+      }
+
+      .canvas-status-pill {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        pointer-events: auto;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(14, 14, 22, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(8px);
+        color: #f0f0f8;
+        font-size: 11px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+        user-select: none;
+      }
+
+      .canvas-zoom-btn {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        pointer-events: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(14, 14, 22, 0.82);
+        border: 1px solid rgba(78, 205, 196, 0.45);
+        backdrop-filter: blur(8px);
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 11.5px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+        transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+        user-select: none;
+      }
+
+      .canvas-zoom-btn:hover {
+        transform: scale(1.04);
+        background: rgba(25, 25, 38, 0.94);
+        border-color: var(--accent);
+      }
+
+      .canvas-zoom-icon {
+        font-size: 13px;
+        line-height: 1;
+        color: var(--accent-2);
+      }
+
+      /* Fullscreen & iOS/Android Pseudo-Fullscreen ("Zoom") mode styling */
+      .canvas-container:fullscreen,
+      .canvas-container:-webkit-full-screen,
+      .canvas-container:-moz-full-screen,
+      .canvas-container:-ms-fullscreen,
+      .canvas-container.pseudo-fullscreen {
         display: flex;
         align-items: center;
         justify-content: center;
         background: #000;
       }
 
-      .canvas-container:-webkit-full-screen {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #000;
+      .canvas-container.pseudo-fullscreen {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100dvh !important;
+        z-index: 9999 !important;
       }
 
-      .canvas-container:-moz-full-screen {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #000;
+      .canvas-container:fullscreen .canvas-status-pill,
+      .canvas-container:-webkit-full-screen .canvas-status-pill,
+      .canvas-container.pseudo-fullscreen .canvas-status-pill {
+        display: inline-flex;
       }
 
-      .canvas-container:-ms-fullscreen {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #000;
+      /* Mobile Bottom Navigation Bar (hidden on desktop) */
+      .mobile-bottom-nav {
+        display: none;
       }
 
       .code-panel {
+        grid-column: 2;
+        grid-row: 2 / 4;
         background: var(--bg-2);
         display: flex;
         flex-direction: column;
@@ -251,9 +709,10 @@
       }
 
       .eeg-data {
+        flex-shrink: 0;
         background: var(--bg);
-        border-top: 1px solid var(--muted);
-        max-height: 250px;
+        border-top: 2px solid #2b2b36;
+        max-height: 46%;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
@@ -261,34 +720,42 @@
 
       .data-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
-        padding: 12px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        padding: 8px 10px;
       }
 
       .data-item {
         background: var(--bg-2);
-        padding: 8px;
+        padding: 6px 4px;
         border-radius: 4px;
         text-align: center;
-        font-size: 11px;
+        font-size: 10px;
+        min-width: 0;
       }
 
       .data-label {
         color: var(--muted);
         text-transform: uppercase;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
+        font-size: 9px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .data-value {
-        font-size: 16px;
+        font-size: 13px;
         font-weight: bold;
         color: var(--accent-2);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .wave-viz {
         grid-column: 1 / -1;
-        height: 60px;
+        height: 48px;
         background: var(--bg-2);
         border-radius: 4px;
         position: relative;
@@ -484,6 +951,52 @@
         flex-direction: column;
         overflow: hidden;
         grid-row: 2 / 4;
+        grid-column: 4;
+        min-width: 190px;
+        max-width: 820px;
+        width: 100%;
+        position: relative;
+        border-left: 1px solid #2b2b36;
+      }
+
+      .reference-resizer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        cursor: col-resize;
+        z-index: 12;
+        background: transparent;
+        transition: background 0.15s ease;
+      }
+
+      .reference-resizer::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 2px;
+        transform: translateY(-50%);
+        width: 2px;
+        height: 36px;
+        border-radius: 1px;
+        background: rgba(78, 205, 196, 0.35);
+        transition: background 0.15s ease, height 0.15s ease;
+      }
+
+      .reference-resizer:hover,
+      .reference-resizer.dragging {
+        background: rgba(78, 205, 196, 0.3);
+      }
+
+      .reference-resizer:hover::after,
+      .reference-resizer.dragging::after {
+        background: var(--accent-2);
+        height: 56px;
+      }
+
+      .main-container.hide-catalogue .reference-panel {
+        grid-column: 3;
       }
       
       .main-container.hide-reference .reference-panel {
@@ -693,33 +1206,490 @@
         color: var(--bg);
       }
 
+      /* About BrainImation Window (confined to the animation window area) */
+      .about-modal-overlay {
+        grid-column: 1;
+        grid-row: 2 / 4;
+        position: relative;
+        z-index: 25;
+        width: 100%;
+        height: 100%;
+        background: rgba(10, 10, 16, 0.92);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: 12px;
+        opacity: 1;
+        transition: opacity 0.22s ease;
+        overflow: hidden;
+      }
+
+      .about-modal-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .about-modal {
+        width: 100%;
+        height: 100%;
+        background: #14141d;
+        border: 1px solid rgba(78, 205, 196, 0.45);
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 24px rgba(78, 205, 196, 0.14);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Monaco', sans-serif;
+      }
+
+      .about-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: linear-gradient(90deg, rgba(255, 107, 157, 0.16) 0%, rgba(78, 205, 196, 0.16) 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+        gap: 8px;
+      }
+
+      .about-modal-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        min-width: 0;
+      }
+
+      .about-modal-brand-title {
+        font-size: 17px;
+        font-weight: 800;
+        background: linear-gradient(45deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .about-modal-badge {
+        font-size: 9.5px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: rgba(78, 205, 196, 0.18);
+        color: var(--accent-2);
+        border: 1px solid rgba(78, 205, 196, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+
+      .about-modal-close {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: var(--text);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+
+      .about-modal-close:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+
+      .about-modal-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding: 18px 20px;
+        color: #e6e6f0;
+        line-height: 1.6;
+        font-size: 13px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-2) #14141d;
+      }
+
+      .about-hero {
+        text-align: center;
+        padding: 4px 6px 18px 6px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 18px;
+      }
+
+      .about-hero-headline {
+        font-size: 19px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 8px;
+        line-height: 1.3;
+      }
+
+      .about-hero-sub {
+        font-size: 12.5px;
+        color: #b8b8cc;
+        max-width: 560px;
+        margin: 0 auto 14px auto;
+      }
+
+      .about-quick-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin: 12px 0 14px 0;
+        text-align: left;
+      }
+
+      .about-step-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+
+      .about-step-num {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--accent-2);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+
+      .about-step-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 4px;
+      }
+
+      .about-step-desc {
+        font-size: 11.5px;
+        color: #a6a6bd;
+        line-height: 1.45;
+      }
+
+      .about-cta-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
+
+      .about-scroll-cue {
+        margin-top: 16px;
+        font-size: 11.5px;
+        color: var(--accent-2);
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0.9;
+      }
+
+      .about-scroll-cue:hover {
+        opacity: 1;
+        text-decoration: underline;
+      }
+
+      .about-section {
+        margin-bottom: 22px;
+        padding: 16px 18px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-left: 3px solid var(--accent-2);
+        border-radius: 8px;
+      }
+
+      .about-section h3 {
+        font-size: 14.5px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .about-section p {
+        margin-bottom: 10px;
+        color: #cfd0e0;
+        font-size: 13px;
+      }
+
+      .about-section p:last-child {
+        margin-bottom: 0;
+      }
+
+      .about-section ul {
+        margin: 6px 0 4px 18px;
+        color: #cfd0e0;
+        font-size: 12.5px;
+      }
+
+      .about-section li {
+        margin-bottom: 6px;
+      }
+
+      .about-section code {
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 11.5px;
+        background: rgba(78, 205, 196, 0.14);
+        color: var(--accent-2);
+        padding: 1px 5px;
+        border-radius: 4px;
+      }
+
+      .about-modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 22px;
+        background: #101018;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 11.5px;
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+
       @media (max-width: 1200px) {
         .main-container {
-          grid-template-columns: 1fr 400px;
+          grid-template-columns: minmax(280px, 1.2fr) minmax(260px, 1fr) var(--catalogue-width);
         }
         .reference-panel {
           display: none;
         }
       }
 
-      @media (max-width: 768px) {
+      @media (max-width: 900px) {
+        body {
+          height: 100dvh;
+          overflow: hidden;
+        }
+
         .main-container {
-          grid-template-columns: 1fr;
-          grid-template-rows: 60px 300px 1fr auto;
-          overflow-y: auto;
+          display: grid;
+          grid-template-columns: 1fr !important;
+          grid-template-rows: auto minmax(230px, 44dvh) 1fr 54px;
+          height: 100dvh;
+          gap: 1px;
+          overflow: hidden;
         }
-        .code-panel {
-          grid-row: 3;
-          min-height: 200px;
+
+        /* Header: 2-row mobile layout with prominent Connection Status + Connect/Simulate + Scrollable Actions */
+        .header {
+          grid-column: 1;
+          grid-row: 1;
+          flex-direction: column;
+          align-items: stretch;
+          justify-content: center;
+          padding: 6px 10px;
+          gap: 6px;
         }
-        .canvas-container {
-          grid-row: 2;
+
+        .logo {
+          font-size: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
         }
-        .eeg-data {
-          max-height: 200px;
+
+        .controls {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          overflow-x: auto;
+          padding-bottom: 2px;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
         }
-        .reference-panel {
+
+        .controls::-webkit-scrollbar {
           display: none;
+        }
+
+        .status {
+          background: var(--bg);
+          border: 1px solid rgba(78, 205, 196, 0.35);
+          padding: 5px 10px;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 600;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        .btn,
+        .toggle-reference {
+          padding: 6px 10px;
+          font-size: 11.5px;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        /* Top Stage: Animation Window + About Overlay always visible in Row 2 */
+        .canvas-container,
+        .about-modal-overlay {
+          grid-column: 1 !important;
+          grid-row: 2 !important;
+          width: 100%;
+          height: 100%;
+          min-height: 220px;
+        }
+
+        /* Always show floating connection pill on mobile canvas for instant feedback */
+        .canvas-status-pill {
+          display: inline-flex;
+        }
+
+        .about-modal-overlay {
+          padding: 6px;
+        }
+
+        .about-modal-header {
+          padding: 8px 12px;
+        }
+
+        .about-modal-brand-title {
+          font-size: 14px;
+        }
+
+        .about-modal-badge {
+          font-size: 8.5px;
+        }
+
+        .about-modal-body {
+          padding: 12px 14px;
+          font-size: 12px;
+        }
+
+        .about-hero-headline {
+          font-size: 15px;
+        }
+
+        .about-hero-sub {
+          font-size: 11.5px;
+          margin-bottom: 10px;
+        }
+
+        .about-quick-steps {
+          grid-template-columns: 1fr;
+          gap: 6px;
+          margin: 8px 0 10px 0;
+        }
+
+        .about-step-card {
+          padding: 8px 10px;
+        }
+
+        .about-modal-footer {
+          padding: 8px 12px;
+          font-size: 10px;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+
+        /* Row 3: Tabbed Workspace Drawer (Catalogue default, Code Editor, or Live Data & Docs) */
+        .catalogue-panel,
+        .code-panel,
+        .reference-panel {
+          grid-column: 1 !important;
+          grid-row: 3 !important;
+          width: 100% !important;
+          max-width: none !important;
+          min-width: 0 !important;
+          height: 100% !important;
+          min-height: 0 !important;
+          border-left: none;
+          border-right: none;
+          display: none !important;
+        }
+
+        .catalogue-resizer,
+        .reference-resizer,
+        .catalogue-width-Presets {
+          display: none !important;
+        }
+
+        /* Active mobile drawer switching (Defaults to Catalogue if none set) */
+        .main-container:not([data-mobile-view]) .catalogue-panel,
+        .main-container[data-mobile-view="catalogue"] .catalogue-panel {
+          display: flex !important;
+        }
+
+        .main-container[data-mobile-view="code"] .code-panel {
+          display: flex !important;
+        }
+
+        .main-container[data-mobile-view="data"] .reference-panel {
+          display: flex !important;
+        }
+
+        /* In mobile Data & Docs view, make Live EEG Data prominent at top of drawer */
+        .main-container[data-mobile-view="data"] .reference-panel {
+          flex-direction: column;
+        }
+
+        .main-container[data-mobile-view="data"] .eeg-data {
+          order: -1;
+          max-height: 55%;
+          border-top: none;
+          border-bottom: 2px solid #2b2b36;
+        }
+
+        .catalogue-grid {
+          grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+          gap: 8px;
+        }
+
+        /* Row 4: Mobile Bottom Navigation Bar */
+        .mobile-bottom-nav {
+          grid-column: 1;
+          grid-row: 4;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          background: #0d0d14;
+          border-top: 1px solid #2b2b36;
+          z-index: 40;
+        }
+
+        .mobile-nav-btn {
+          background: transparent;
+          border: none;
+          border-top: 2px solid transparent;
+          color: var(--muted);
+          font-family: inherit;
+          font-size: 10.5px;
+          font-weight: 700;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 2px;
+          padding: 4px 2px;
+          cursor: pointer;
+          transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .mobile-nav-btn .mobile-nav-icon {
+          font-size: 15px;
+          line-height: 1.1;
+        }
+
+        .mobile-nav-btn.active {
+          color: var(--accent-2);
+          border-top-color: var(--accent);
+          background: rgba(78, 205, 196, 0.08);
         }
       }
     </style>
@@ -743,7 +1713,9 @@
           <button class="btn btn-secondary" id="reload-btn" disabled>🔄 Reload</button>
           <button class="btn btn-secondary" id="fullscreen-btn">Fullscreen</button>
           <button class="btn btn-secondary" id="test-sound-btn">🔊 Test Sound</button>
+          <button class="toggle-reference" id="toggle-catalogue-btn" title="Show/Hide Animation & Student Catalogue Window">🎬 Catalogue</button>
           <button class="toggle-reference" id="toggle-reference-btn">📖 Reference</button>
+          <button class="toggle-reference" id="about-btn" title="About BrainImation — Goal, Purpose, Architecture & Research Plan">ℹ️ About</button>
           <input type="file" id="file-input" accept=".js" style="display: none;">
         </div>
       </div>
@@ -761,8 +1733,9 @@
           <!-- Code Editor View -->
           <div class="code-panel-view active" id="code-view">
             <div class="examples-bar">
-              <label for="example-selector" class="examples-label">Example Animations:</label>
-              <select id="example-selector" class="example-selector" disabled>
+              <label for="example-selector" class="examples-label">Active Sketch:</label>
+              <span class="active-sketch-pill" id="active-sketch-title">Default Neural Particles</span>
+              <select id="example-selector" class="example-selector" disabled style="max-width: 240px; margin-left: auto;" title="Quick-jump dropdown (or browse the visual Catalogue window to the right)">
                 <option value="">Loading examples…</option>
               </select>
             </div>
@@ -788,13 +1761,42 @@
         </div>
       </div>
 
+      <!-- Modern Resizable Animation & Student Catalogue Window (Right of Code Editor) -->
+      <div class="catalogue-panel" id="catalogue-panel">
+        <div class="catalogue-resizer" id="catalogue-resizer" title="Drag left edge to resize catalogue window (can be as narrow as 1 item)"></div>
+        <div class="catalogue-header">
+          <div class="catalogue-title-row">
+            <div class="catalogue-title" title="Animations, Games, Classic p5.eegedu & 2022 NeuroArt Student Gallery">🎬 Catalogue</div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div class="catalogue-width-Presets" title="Resize catalogue window (1 column, 2 columns, or 3 columns)">
+                <button class="catalogue-size-btn" data-cols="1" data-width="160">1×</button>
+                <button class="catalogue-size-btn active" data-cols="2" data-width="320">2×</button>
+                <button class="catalogue-size-btn" data-cols="3" data-width="460">3×</button>
+              </div>
+              <span class="catalogue-count-badge" id="catalogue-count">0</span>
+            </div>
+          </div>
+          <div class="catalogue-controls-row">
+            <input type="text" id="catalogue-search" class="catalogue-search" placeholder="🔍 Search sketches or students..." autocomplete="off">
+            <select id="catalogue-category-filter" class="catalogue-filter" title="Filter by category">
+              <option value="all">All Categories</option>
+            </select>
+          </div>
+        </div>
+        <div class="catalogue-scroll" id="catalogue-scroll">
+          <div style="padding: 20px; text-align: center; color: var(--muted); font-size: 11px;">Loading catalogue…</div>
+        </div>
+      </div>
+
       <!-- Reference Panel -->
       <div class="reference-panel" id="reference-panel">
+        <div class="reference-resizer" id="reference-resizer" title="Drag boundary to resize between Catalogue and Reference Docs"></div>
         <div class="reference-tabs">
           <div class="reference-tab active" data-tab="p5js">P5.js</div>
           <div class="reference-tab" data-tab="sound">Sound</div>
           <div class="reference-tab" data-tab="input">Input</div>
           <div class="reference-tab" data-tab="eeg">EEG Data</div>
+          <div class="reference-tab" data-tab="sensors">Sensors / IMU</div>
           <div class="reference-tab" data-tab="ai">AI Helper</div>
         </div>
         
@@ -812,58 +1814,186 @@
           </div>
           <div class="ai-status" id="ai-status">Configure API key to use AI features</div>
         </div>
+
+        <!-- EEG Data Display (docked in the lower part of the Reference/Docs panel) -->
+        <div class="eeg-data">
+          <div class="panel-header">Real-time Brain Data</div>
+          <div class="data-grid">
+            <div class="data-item">
+              <div class="data-label">Alpha</div>
+              <div class="data-value" id="alpha-value">0.0</div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Beta</div>
+              <div class="data-value" id="beta-value">0.0</div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Theta</div>
+              <div class="data-value" id="theta-value">0.0</div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Delta</div>
+              <div class="data-value" id="delta-value">0.0</div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">💓 PPG Pulse</div>
+              <div class="data-value" id="ppg-value">0.00</div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Heart Rate</div>
+              <div class="data-value" id="hr-value">--</div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">🧭 Pitch / Roll</div>
+              <div class="data-value" id="imu-value" style="font-size: 12px;">0° / 0°</div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">🔋 Bat / Temp</div>
+              <div class="data-value" id="telemetry-value" style="font-size: 12px;">--</div>
+            </div>
+            <div class="wave-viz" id="wave-viz"></div>
+          </div>
+          
+          <!-- Simulation Controls -->
+          <div id="sim-controls" style="display: none; padding: 8px 10px; border-top: 1px solid var(--muted); background: var(--bg-2);">
+            <div style="font-size: 10px; color: var(--accent-2); margin-bottom: 6px; font-weight: 600;">🎛️ SIMULATION CONTROLS</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 10px;">
+              <div>
+                <label style="color: var(--muted);">Attention:</label>
+                <input type="range" id="sim-attention" min="0" max="1" step="0.1" value="0.5" 
+                       style="width: 100%; margin-top: 2px;">
+                <span id="sim-attention-val" style="color: var(--accent-2);">0.5</span>
+              </div>
+              <div>
+                <label style="color: var(--muted);">Meditation:</label>
+                <input type="range" id="sim-meditation" min="0" max="1" step="0.1" value="0.3" 
+                       style="width: 100%; margin-top: 2px;">
+                <span id="sim-meditation-val" style="color: var(--accent-2);">0.3</span>
+              </div>
+              <div>
+                <label style="color: var(--muted);">Head Motion:</label>
+                <input type="range" id="sim-motion" min="0" max="1" step="0.1" value="0.4" 
+                       style="width: 100%; margin-top: 2px;">
+                <span id="sim-motion-val" style="color: var(--accent-2);">0.4</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- EEG Data Display -->
-      <div class="eeg-data">
-        <div class="panel-header">Real-time Brain Data</div>
-        <div class="data-grid">
-          <div class="data-item">
-            <div class="data-label">Alpha</div>
-            <div class="data-value" id="alpha-value">0.0</div>
-          </div>
-          <div class="data-item">
-            <div class="data-label">Beta</div>
-            <div class="data-value" id="beta-value">0.0</div>
-          </div>
-          <div class="data-item">
-            <div class="data-label">Theta</div>
-            <div class="data-value" id="theta-value">0.0</div>
-          </div>
-          <div class="data-item">
-            <div class="data-label">Delta</div>
-            <div class="data-value" id="delta-value">0.0</div>
-          </div>
-          <div class="data-item">
-            <div class="data-label">💓 PPG Pulse</div>
-            <div class="data-value" id="ppg-value">0.00</div>
-          </div>
-          <div class="data-item">
-            <div class="data-label">Heart Rate</div>
-            <div class="data-value" id="hr-value">--</div>
-          </div>
-          <div class="wave-viz" id="wave-viz"></div>
-        </div>
-        
-        <!-- Simulation Controls -->
-        <div id="sim-controls" style="display: none; padding: 12px; border-top: 1px solid var(--muted); background: var(--bg-2);">
-          <div style="font-size: 11px; color: var(--accent-2); margin-bottom: 8px; font-weight: 600;">🎛️ SIMULATION CONTROLS</div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
-            <div>
-              <label style="color: var(--muted);">Attention:</label>
-              <input type="range" id="sim-attention" min="0" max="1" step="0.1" value="0.5" 
-                     style="width: 100%; margin-top: 2px;">
-              <span id="sim-attention-val" style="color: var(--accent-2);">0.5</span>
+      <!-- About BrainImation Startup Window (Inside Animation Area) -->
+      <div class="about-modal-overlay" id="about-modal-overlay" role="dialog" aria-modal="false" aria-labelledby="about-modal-title">
+        <div class="about-modal">
+          <div class="about-modal-header">
+            <div class="about-modal-brand">
+              <span class="about-modal-brand-title" id="about-modal-title">🧠 BrainImation</span>
+              <span class="about-modal-badge">Zero-Install WebBluetooth BCI + Creative Coding IDE</span>
             </div>
-            <div>
-              <label style="color: var(--muted);">Meditation:</label>
-              <input type="range" id="sim-meditation" min="0" max="1" step="0.1" value="0.3" 
-                     style="width: 100%; margin-top: 2px;">
-              <span id="sim-meditation-val" style="color: var(--accent-2);">0.3</span>
+            <button class="about-modal-close" id="about-close-btn" title="Show Animation (Esc)">✕</button>
+          </div>
+
+          <div class="about-modal-body" id="about-modal-body">
+            <!-- Simple Top Welcome View -->
+            <div class="about-hero">
+              <div class="about-hero-headline">Live Brain, Heart &amp; Motion Data Meets Creative Coding</div>
+              <div class="about-hero-sub">
+                An interactive, zero-install browser studio that connects real-time <strong>EEG</strong>, <strong>fNIRS / PPG optical hemodynamics</strong>, and <strong>IMU motion</strong> from Muse headsets directly to <code>p5.js</code> and <code>p5.sound</code>.
+              </div>
+
+              <div class="about-quick-steps">
+                <div class="about-step-card">
+                  <div class="about-step-num">Step 1 · Stream</div>
+                  <div class="about-step-title">🔌 Connect or Simulate</div>
+                  <div class="about-step-desc">Pair a Muse 2016, Muse 2, Muse S, or Muse S Athena via WebBluetooth—or click <strong>Simulate Data</strong> to stream hardware-free 256 Hz EEG + 64 Hz PPG + 52 Hz IMU.</div>
+                </div>
+                <div class="about-step-card">
+                  <div class="about-step-num">Step 2 · Explore</div>
+                  <div class="about-step-title">🎬 Browse the Catalogue</div>
+                  <div class="about-step-desc">Click any visual card in the <strong>Catalogue</strong> window to load brainwave art, stacked HbO₂/HHb derivations, 3D head diagrams, closed-loop games, or student galleries.</div>
+                </div>
+                <div class="about-step-card">
+                  <div class="about-step-num">Step 3 · Create</div>
+                  <div class="about-step-title">💻 Live-Code &amp; Share</div>
+                  <div class="about-step-desc">Edit JavaScript in the Monaco editor with live <code>eegData.</code> autocomplete, insert snippets from the <strong>Reference</strong> drawer, and share via URL or file export.</div>
+                </div>
+              </div>
+
+              <div class="about-cta-row">
+                <button class="btn btn-primary" id="about-start-sim-btn">▶ Start with Simulated Brain Data</button>
+                <button class="btn btn-secondary" id="about-explore-btn">🚀 View Live Animation</button>
+              </div>
+
+              <div>
+                <span class="about-scroll-cue" id="about-scroll-more-btn">↓ Scroll down for the full Goal, Purpose, Architecture &amp; Research Plan</span>
+              </div>
             </div>
+
+            <!-- Scrollable Deep-Dive Sections from EEGEDUPaper/Brainimation -->
+            <div id="about-deep-dive">
+              <div class="about-section">
+                <h3>🎯 Goal &amp; Pedagogical Purpose</h3>
+                <p>
+                  While browser-based electrophysiology dashboards such as <strong>EEGEdu</strong> (<a href="https://eegedu.com" target="_blank" rel="noopener" style="color: var(--accent-2);">eegedu.com</a>) allow students to inspect live waveforms, power spectra, and frequency bands through pre-built charts, a fundamental pedagogical bottleneck remains at the end of any guided curriculum: <em>how can students, artists, and novice researchers transition from passively observing pre-configured charts to actively programming their own closed-loop neurofeedback environments, audio synthesizers, and cognitive neuroscience experiments?</em>
+                </p>
+                <p>
+                  Rooted in Seymour Papert's constructionism and the creative-coding pedagogy of <code>Processing</code> and <code>p5.js</code>, <strong>BrainImation</strong> provides a <strong>low floor</strong> (author a working closed-loop brain visualization in 11 lines of code with zero software installation), a <strong>high ceiling</strong> (online 4-channel ERP ensemble averaging, Modified Beer–Lambert Law fNIRS hemodynamics, Chowning FM audio synthesis, and 3D WebGL shaders), and <strong>wide walls</strong> spanning neuro-art, biofeedback gaming, sonification, and experimental psychology.
+                </p>
+              </div>
+
+              <div class="about-section">
+                <h3>⚡ Core Engineering &amp; Multimodal Signal Architecture</h3>
+                <p>
+                  Traditionally, modulating a visual shape or sound with live EEG required stitching together an OS-specific Bluetooth daemon, Lab Streaming Layer (LSL) sockets, a Python/C++ DSP backend, and a separate rendering engine. BrainImation replaces that entire multi-process stack inside a single browser tab:
+                </p>
+                <ul>
+                  <li><strong>Two-Phase Lazy-GATT WebBluetooth Client (<code>muse-browser.js</code>):</strong> A zero-dependency 19.2 KB WebBluetooth driver (24.6× smaller than legacy <code>muse-js</code>) that resolves the lazy characteristic advertisement deadlock on modern Muse 2, Muse S, and Muse S Athena firmware while supporting both classic and Athena multi-wavelength optical presets (<code>p21</code>, <code>p50</code>, <code>p1035</code>, <code>p1041</code>).</li>
+                  <li><strong>256 Hz 4-Channel EEG + Artifact-Rejected Hanning FFT:</strong> Streams microvolt time series across <code>TP9</code>, <code>AF7</code>, <code>AF8</code>, and <code>TP10</code>, screens 1.0 s (256-sample) windows for &gt;150 μV EOG/EMG blink or muscle bursts, and computes 1/f-compensated relative band powers (<code>delta</code>, <code>theta</code>, <code>alpha</code>, <code>beta</code>, <code>gamma</code>) and composite <code>attention</code> and <code>meditation</code> indices.</li>
+                  <li><strong>64 Hz Multi-Wavelength PPG / fNIRS &amp; Cerebral Oxygenation:</strong> Streams Red (660 nm), Near-Infrared (730 nm), Infrared (850 nm), and Ambient optical channels to derive arterial pulse waves (<code>eegData.ppgPulse</code>), systolic Heart Rate (<code>eegData.heartRate</code> BPM), SpO₂ ratio-of-ratios, and Modified Beer–Lambert Law oxyhemoglobin ($\Delta[\text{HbO}_2]$), deoxyhemoglobin ($\Delta[\text{HHb}]$), and total hemoglobin ($\Delta[\text{HbT}]$).</li>
+                  <li><strong>52 Hz 6-Axis IMU &amp; Device Telemetry:</strong> Exposes 3-axis accelerometer and gyroscope kinematics, complementary-filtered head <code>pitch</code> and <code>roll</code> angles, and battery/temperature telemetry.</li>
+                  <li><strong>Hardware-Free Physiological Simulator (<code>EEGSimulator</code>):</strong> Synthesizes coupled 256 Hz 4-channel EEG (with realistic frontal blinks and N170/P300 evoked potentials), 64 Hz forward Beer–Lambert optical PPG waveforms, and 52 Hz IMU head motion so every sketch runs identically with or without a physical headset.</li>
+                </ul>
+              </div>
+
+              <div class="about-section">
+                <h3>📊 Classroom Validation &amp; Research Plan</h3>
+                <p>
+                  Developed by <strong>Kyle E. Mathewson</strong> at the <em>Department of Psychology</em> and <em>Neuroscience and Mental Health Institute, University of Alberta</em>, BrainImation serves as the hands-on creative-coding and BCI studio following the guided EEGEdu curriculum.
+                </p>
+                <ul>
+                  <li><strong>Empirical Classroom Evaluation:</strong> Across $N = 69$ verified programs authored by $N = 30$ undergraduate learners in <code>PSYCH 403</code>, students expanded the concise 32-LOC starter scaffolds fivefold (median 155–164 LOC, $p &lt; 10^{-11}$) to create custom closed-loop neurofeedback games, multi-band Web Audio synthesizers, and online 4-channel ERP oddball paradigms.</li>
+                  <li><strong>Unified Catalogue &amp; Living Curriculum:</strong> BrainImation now unites over 90 interactive sketches across 14 categories—including progressive starter tutorials, stacked PPG/fNIRS hemodynamic derivations, 3D Muse S Athena / Muse 2 optode anatomy diagrams, multimodal Brain–Heart–Motion games, classic <code>p5.eegedu</code> sketches, and the <em>2022 NeuroArt Class Gallery</em>.</li>
+                  <li><strong>Ongoing Roadmap:</strong> Expanding multimodal neurovascular coupling (EEG + fNIRS + HRV + kinematics), serverless URL &amp; Data-URI portfolio sharing (<code>?sketch=</code>), and open-access classroom modules for reproducible neuroscience education.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="about-modal-footer">
+            <span>Kyle E. Mathewson · University of Alberta (<a href="https://github.com/kylemath/Brainimation" target="_blank" rel="noopener" style="color: var(--accent-2);">github.com/kylemath/Brainimation</a>)</span>
+            <span>Toggle anytime via <strong>ℹ️ About</strong></span>
           </div>
         </div>
       </div>
+
+      <!-- Mobile Bottom Navigation Bar (Catalogue / Code / Live Data & Docs / Zoom Fullscreen) -->
+      <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile Workspace Navigation">
+        <button type="button" class="mobile-nav-btn active" data-mobile-tab="catalogue">
+          <span class="mobile-nav-icon">🎬</span>
+          <span>Catalogue</span>
+        </button>
+        <button type="button" class="mobile-nav-btn" data-mobile-tab="code">
+          <span class="mobile-nav-icon">💻</span>
+          <span>Code</span>
+        </button>
+        <button type="button" class="mobile-nav-btn" data-mobile-tab="data">
+          <span class="mobile-nav-icon">📊</span>
+          <span>Data &amp; Docs</span>
+        </button>
+        <button type="button" class="mobile-nav-btn" id="mobile-zoom-btn">
+          <span class="mobile-nav-icon" id="mobile-zoom-icon">⛶</span>
+          <span id="mobile-zoom-label">Zoom</span>
+        </button>
+      </nav>
     </div>
 
     <script>
@@ -1049,21 +2179,43 @@
       // Global variables for EEG data access in p5 sketches
       let eegData = {
         // Frequency bands (existing)
-        alpha: 0,
-        beta: 0,
-        theta: 0,
-        delta: 0,
-        gamma: 0,
+        alpha: 0.35,
+        beta: 0.35,
+        theta: 0.30,
+        delta: 0.20,
+        gamma: 0.25,
+        
+        // Per-electrode frequency bands [TP9, AF7, AF8, TP10] (0.0 - 1.0)
+        channels: {
+          delta: [0.20, 0.22, 0.21, 0.19],
+          theta: [0.30, 0.28, 0.32, 0.29],
+          alpha: [0.35, 0.32, 0.36, 0.38],
+          beta:  [0.35, 0.38, 0.36, 0.33],
+          gamma: [0.25, 0.27, 0.26, 0.24]
+        },
+
+        // Power spectral density (PSD) and frequency bins (1..60 Hz) per electrode
+        spectra: {
+          freqs: Array.from({ length: 60 }, (_, k) => k + 1),
+          psd: [
+            new Array(60).fill(0),
+            new Array(60).fill(0),
+            new Array(60).fill(0),
+            new Array(60).fill(0)
+          ]
+        },
         
         // Current samples (existing - keep for compatibility)
         raw: [0, 0, 0, 0], // TP9, AF7, AF8, TP10 current values
+        aux: 0,            // 5th auxiliary EEG channel (µV)
         
         // Enhanced raw data access (NEW)
         rawHistory: {
           TP9: [],    // Array of recent samples
           AF7: [],    // Array of recent samples  
           AF8: [],    // Array of recent samples
-          TP10: []    // Array of recent samples
+          TP10: [],   // Array of recent samples
+          AUX: []     // Auxiliary electrode samples
         },
         
         // Configuration
@@ -1083,16 +2235,331 @@
           red: [],
           optics4: []
         },
+
+        // 6-DOF IMU Broadcast Sensors (Accelerometer & Gyroscope @ 52 Hz)
+        imuSampleRate: 52,
+        imuHistoryLength: 260,       // ~5 seconds at 52 Hz
+        accel: { x: 0, y: 0, z: 1.0, magnitude: 1.0 },     // 3-axis accelerometer in g (1g ≈ 9.81 m/s²)
+        gyro:  { x: 0, y: 0, z: 0,   magnitude: 0 },       // 3-axis gyroscope angular velocity in deg/s (°/s)
+        orientation: { pitch: 0, roll: 0, yaw: 0 },        // 1st-order fused head orientation in degrees
+        pitch: 0,                                          // Shortcut: Head pitch angle in degrees (+nod up / -nod down)
+        roll: 0,                                           // Shortcut: Head roll tilt in degrees (+tilt right / -tilt left)
+        yaw: 0,                                            // Shortcut: Head yaw turn in degrees (+turn right / -turn left)
+        linearAccel: { x: 0, y: 0, z: 0, magnitude: 0 },   // Gravity-compensated linear acceleration in m/s²
+        velocity:    { x: 0, y: 0, z: 0, magnitude: 0 },   // 1st-order integrated linear head velocity in cm/s
+        position:    { x: 0, y: 0, z: 0, magnitude: 0 },   // 2nd-order double-integrated 3D head displacement in cm
+        _accelBias:  { x: 0, y: 0, z: 0 },
+        accelHistory: { x: [], y: [], z: [], magnitude: [] },
+        gyroHistory:  { x: [], y: [], z: [], magnitude: [] },
+        orientationHistory: { pitch: [], roll: [], yaw: [] },
+        kinematicsHistory: {
+          linAccX: [], linAccY: [], linAccZ: [],
+          velX: [], velY: [], velZ: [],
+          posX: [], posY: [], posZ: []
+        },
+
+        // Broadcast Telemetry, DRL/REF Ground Reference & Contact Quality (Horseshoe)
+        telemetry: {
+          batteryLevel: 100,
+          fuelGaugeVoltage: 4050,
+          adcVoltage: 0,
+          temperature: 33.5,
+          sequenceId: 0
+        },
+        batteryLevel: 100,
+        temperature: 33.5,
+        telemetryHistory: {
+          batteryLevel: [],
+          fuelGaugeVoltage: [],
+          temperature: []
+        },
+        drlRef: { drl: 8192, ref: 8192 },
+        drlRefHistory: { drl: [], ref: [] },
+        contactQuality: { TP9: 1, AF7: 1, AF8: 1, TP10: 1 }, // 1.0 = good, 0.5 = ok, 0.0 = poor
         
         // Derived metrics (existing)
-        attention: 0,
-        meditation: 0,
+        attention: 0.30,
+        meditation: 0.32,
         connected: false,
         
         // Helper functions for accessing raw data in animations
         getRawChannel: function(channel, numSamples = 100) {
-          const channelData = this.rawHistory[channel] || [];
-          return channelData.slice(-numSamples);
+          const channelMap = { 0: 'TP9', 1: 'AF7', 2: 'AF8', 3: 'TP10', 4: 'AUX', 'aux': 'AUX' };
+          const key = channelMap[channel] !== undefined ? channelMap[channel] : channel;
+          const channelData = this.rawHistory[key] || [];
+          if (channelData.length >= numSamples) {
+            return channelData.slice(-numSamples);
+          }
+          // Gentle procedural fallback when disconnected or buffer warming up so sketches render immediately
+          const out = new Array(numSamples);
+          const chIdx = ['TP9', 'AF7', 'AF8', 'TP10', 'AUX'].indexOf(key);
+          const idx = chIdx >= 0 ? chIdx : 0;
+          const now = Date.now() * 0.001;
+          for (let i = 0; i < numSamples; i++) {
+            if (i < channelData.length) {
+              out[i] = channelData[i];
+            } else {
+              const t = now + (i - numSamples) / 256.0;
+              out[i] = 22 * Math.sin(2 * Math.PI * (9.5 + idx * 0.6) * t)
+                     + 12 * Math.sin(2 * Math.PI * (18.0 + idx * 1.3) * t)
+                     + 15 * Math.cos(2 * Math.PI * (5.5 + idx * 0.4) * t);
+            }
+          }
+          return out;
+        },
+
+        // Step 6-DOF IMU sensor fusion: Raw Accel (g) & Gyro (deg/s) -> Orientation (deg) -> Linear Accel (m/s²) -> 1st-Order Velocity (cm/s) -> 2nd-Order Position (cm)
+        updateIMUKinematics: function(ax, ay, az, gx, gy, gz, dt = 1.0 / 52.0) {
+          const accMag = Math.sqrt(ax * ax + ay * ay + az * az);
+          const gyroMag = Math.sqrt(gx * gx + gy * gy + gz * gz);
+          this.accel = { x: ax, y: ay, z: az, magnitude: accMag };
+          this.gyro  = { x: gx, y: gy, z: gz, magnitude: gyroMag };
+
+          // 1. Complementary Filter: fuse Gyro angular rate integration (high-freq) with Accel gravity tilt vector (low-freq)
+          const pitchAcc = Math.atan2(ax, Math.sqrt(ay * ay + az * az + 1e-6)) * (180 / Math.PI);
+          const rollAcc  = Math.atan2(ay, (az >= 0 ? 1 : -1) * Math.sqrt(az * az + 0.01 * ax * ax + 1e-6)) * (180 / Math.PI);
+          const alphaCF = 0.95;
+          const prevPitch = this.orientation.pitch || 0;
+          const prevRoll  = this.orientation.roll  || 0;
+          const prevYaw   = this.orientation.yaw   || 0;
+
+          const pitch = alphaCF * (prevPitch + gy * dt) + (1 - alphaCF) * pitchAcc;
+          const roll  = alphaCF * (prevRoll  + gx * dt) + (1 - alphaCF) * rollAcc;
+          const yaw   = 0.992 * prevYaw + gz * dt; // Leaky gyro integration prevents unbounded yaw drift
+
+          this.orientation = { pitch, roll, yaw };
+          this.pitch = pitch;
+          this.roll  = roll;
+          this.yaw   = yaw;
+
+          // 2. Gravity Vector Subtraction: project 1g gravity onto tilted sensor axes & convert residual to m/s²
+          const pRad = pitch * (Math.PI / 180);
+          const rRad = roll  * (Math.PI / 180);
+          const gxEst = Math.sin(pRad);
+          const gyEst = Math.cos(pRad) * Math.sin(rRad);
+          const gzEst = Math.cos(pRad) * Math.cos(rRad);
+
+          const rawResX = ax - gxEst;
+          const rawResY = ay - gyEst;
+          const rawResZ = az - gzEst;
+
+          // High-pass DC bias tracking so static sensor offset does not double-integrate into runaway drift
+          if (!this._accelBias) this._accelBias = { x: 0, y: 0, z: 0 };
+          this._accelBias.x = 0.96 * this._accelBias.x + 0.04 * rawResX;
+          this._accelBias.y = 0.96 * this._accelBias.y + 0.04 * rawResY;
+          this._accelBias.z = 0.96 * this._accelBias.z + 0.04 * rawResZ;
+
+          const linX = (rawResX - this._accelBias.x) * 9.80665;
+          const linY = (rawResY - this._accelBias.y) * 9.80665;
+          const linZ = (rawResZ - this._accelBias.z) * 9.80665;
+          const linMag = Math.sqrt(linX * linX + linY * linY + linZ * linZ);
+          this.linearAccel = { x: linX, y: linY, z: linZ, magnitude: linMag };
+
+          // 3. 1st-Order Integration: Linear Acceleration (m/s²) -> Linear Velocity (cm/s) with Zero-Velocity Update (ZUPT) damping
+          const dampV = linMag < 0.06 ? 0.86 : 0.935;
+          const vx = dampV * (this.velocity.x || 0) + (linX * 100.0) * dt;
+          const vy = dampV * (this.velocity.y || 0) + (linY * 100.0) * dt;
+          const vz = dampV * (this.velocity.z || 0) + (linZ * 100.0) * dt;
+          const vMag = Math.sqrt(vx * vx + vy * vy + vz * vz);
+          this.velocity = { x: vx, y: vy, z: vz, magnitude: vMag };
+
+          // 4. 2nd-Order Integration: Linear Velocity (cm/s) -> 3D Head Displacement Position (cm)
+          const dampP = 0.955;
+          const px = Math.max(-35, Math.min(35, dampP * (this.position.x || 0) + vx * dt));
+          const py = Math.max(-35, Math.min(35, dampP * (this.position.y || 0) + vy * dt));
+          const pz = Math.max(-35, Math.min(35, dampP * (this.position.z || 0) + vz * dt));
+          const pMag = Math.sqrt(px * px + py * py + pz * pz);
+          this.position = { x: px, y: py, z: pz, magnitude: pMag };
+
+          // 5. Append to bounded rolling IMU & Kinematics history buffers (260 samples = 5.0 s @ 52 Hz)
+          const maxLen = this.imuHistoryLength || 260;
+          const pushBounded = (arr, val) => {
+            arr.push(val);
+            if (arr.length > maxLen) arr.splice(0, arr.length - maxLen);
+          };
+          pushBounded(this.accelHistory.x, ax);
+          pushBounded(this.accelHistory.y, ay);
+          pushBounded(this.accelHistory.z, az);
+          pushBounded(this.accelHistory.magnitude, accMag);
+
+          pushBounded(this.gyroHistory.x, gx);
+          pushBounded(this.gyroHistory.y, gy);
+          pushBounded(this.gyroHistory.z, gz);
+          pushBounded(this.gyroHistory.magnitude, gyroMag);
+
+          pushBounded(this.orientationHistory.pitch, pitch);
+          pushBounded(this.orientationHistory.roll, roll);
+          pushBounded(this.orientationHistory.yaw, yaw);
+
+          pushBounded(this.kinematicsHistory.linAccX, linX);
+          pushBounded(this.kinematicsHistory.linAccY, linY);
+          pushBounded(this.kinematicsHistory.linAccZ, linZ);
+          pushBounded(this.kinematicsHistory.velX, vx);
+          pushBounded(this.kinematicsHistory.velY, vy);
+          pushBounded(this.kinematicsHistory.velZ, vz);
+          pushBounded(this.kinematicsHistory.posX, px);
+          pushBounded(this.kinematicsHistory.posY, py);
+          pushBounded(this.kinematicsHistory.posZ, pz);
+        },
+
+        resetKinematics: function() {
+          this.orientation = { pitch: 0, roll: 0, yaw: 0 };
+          this.pitch = 0; this.roll = 0; this.yaw = 0;
+          this.linearAccel = { x: 0, y: 0, z: 0, magnitude: 0 };
+          this.velocity = { x: 0, y: 0, z: 0, magnitude: 0 };
+          this.position = { x: 0, y: 0, z: 0, magnitude: 0 };
+          this._accelBias = { x: 0, y: 0, z: 0 };
+          this.kinematicsHistory = {
+            linAccX: [], linAccY: [], linAccZ: [],
+            velX: [], velY: [], velZ: [],
+            posX: [], posY: [], posZ: []
+          };
+        },
+
+        // Helper functions for accessing Accelerometer, Gyroscope & Orientation history
+        getAccelChannel: function(axis = 'x', numSamples = 128) {
+          const mapAxis = { 0: 'x', 1: 'y', 2: 'z', 3: 'magnitude', x: 'x', y: 'y', z: 'z', mag: 'magnitude', magnitude: 'magnitude' };
+          const key = mapAxis[typeof axis === 'string' ? axis.toLowerCase() : axis] || 'x';
+          const hist = (this.accelHistory && this.accelHistory[key]) || [];
+          if (hist.length >= numSamples) return hist.slice(-numSamples);
+          const out = new Array(numSamples);
+          const now = Date.now() * 0.001;
+          for (let i = 0; i < numSamples; i++) {
+            if (i < hist.length) {
+              out[i] = hist[i];
+            } else {
+              const t = now + (i - numSamples) / 52.0;
+              const ax = 0.18 * Math.sin(t * 1.4) + 0.06 * Math.sin(t * 4.2);
+              const ay = 0.15 * Math.cos(t * 1.1) + 0.05 * Math.cos(t * 3.6);
+              const az = 0.97 + 0.08 * Math.sin(t * 2.8);
+              out[i] = key === 'x' ? ax : key === 'y' ? ay : key === 'z' ? az : Math.sqrt(ax * ax + ay * ay + az * az);
+            }
+          }
+          return out;
+        },
+
+        getAllAccelChannels: function(numSamples = 128) {
+          return {
+            x: this.getAccelChannel('x', numSamples),
+            y: this.getAccelChannel('y', numSamples),
+            z: this.getAccelChannel('z', numSamples),
+            magnitude: this.getAccelChannel('magnitude', numSamples)
+          };
+        },
+
+        getGyroChannel: function(axis = 'x', numSamples = 128) {
+          const mapAxis = { 0: 'x', 1: 'y', 2: 'z', 3: 'magnitude', x: 'x', y: 'y', z: 'z', roll: 'x', pitch: 'y', yaw: 'z', mag: 'magnitude', magnitude: 'magnitude' };
+          const key = mapAxis[typeof axis === 'string' ? axis.toLowerCase() : axis] || 'x';
+          const hist = (this.gyroHistory && this.gyroHistory[key]) || [];
+          if (hist.length >= numSamples) return hist.slice(-numSamples);
+          const out = new Array(numSamples);
+          const now = Date.now() * 0.001;
+          for (let i = 0; i < numSamples; i++) {
+            if (i < hist.length) {
+              out[i] = hist[i];
+            } else {
+              const t = now + (i - numSamples) / 52.0;
+              const gx = 16.0 * Math.sin(t * 1.1) + 6.0 * Math.cos(t * 3.6);
+              const gy = 22.0 * Math.cos(t * 1.4) + 8.0 * Math.sin(t * 4.2);
+              const gz = 14.0 * Math.sin(t * 0.85);
+              out[i] = key === 'x' ? gx : key === 'y' ? gy : key === 'z' ? gz : Math.sqrt(gx * gx + gy * gy + gz * gz);
+            }
+          }
+          return out;
+        },
+
+        getAllGyroChannels: function(numSamples = 128) {
+          return {
+            x: this.getGyroChannel('x', numSamples),
+            y: this.getGyroChannel('y', numSamples),
+            z: this.getGyroChannel('z', numSamples),
+            magnitude: this.getGyroChannel('magnitude', numSamples)
+          };
+        },
+
+        getOrientationChannel: function(axis = 'pitch', numSamples = 128) {
+          const mapAxis = { 0: 'pitch', 1: 'roll', 2: 'yaw', pitch: 'pitch', roll: 'roll', yaw: 'yaw' };
+          const key = mapAxis[typeof axis === 'string' ? axis.toLowerCase() : axis] || 'pitch';
+          const hist = (this.orientationHistory && this.orientationHistory[key]) || [];
+          if (hist.length >= numSamples) return hist.slice(-numSamples);
+          const out = new Array(numSamples);
+          const now = Date.now() * 0.001;
+          for (let i = 0; i < numSamples; i++) {
+            if (i < hist.length) {
+              out[i] = hist[i];
+            } else {
+              const t = now + (i - numSamples) / 52.0;
+              out[i] = key === 'pitch'
+                ? 11.0 * Math.sin(t * 1.4)
+                : key === 'roll'
+                  ? 9.0 * Math.cos(t * 1.1)
+                  : 15.0 * Math.sin(t * 0.85);
+            }
+          }
+          return out;
+        },
+
+        getKinematicsHistory: function(numSamples = 128) {
+          return {
+            accel: this.getAllAccelChannels(numSamples),
+            gyro: this.getAllGyroChannels(numSamples),
+            pitch: this.getOrientationChannel('pitch', numSamples),
+            roll: this.getOrientationChannel('roll', numSamples),
+            yaw: this.getOrientationChannel('yaw', numSamples),
+            linAccX: (this.kinematicsHistory.linAccX || []).slice(-numSamples),
+            linAccY: (this.kinematicsHistory.linAccY || []).slice(-numSamples),
+            linAccZ: (this.kinematicsHistory.linAccZ || []).slice(-numSamples),
+            velX: (this.kinematicsHistory.velX || []).slice(-numSamples),
+            velY: (this.kinematicsHistory.velY || []).slice(-numSamples),
+            velZ: (this.kinematicsHistory.velZ || []).slice(-numSamples),
+            posX: (this.kinematicsHistory.posX || []).slice(-numSamples),
+            posY: (this.kinematicsHistory.posY || []).slice(-numSamples),
+            posZ: (this.kinematicsHistory.posZ || []).slice(-numSamples)
+          };
+        },
+
+        // Get per-electrode band power (0.0 - 1.0) for band ('delta','theta','alpha','beta','gamma') and channel (0..3 or 'TP9'..'TP10')
+        getChannelBand: function(band = 'alpha', channel = 0) {
+          const b = String(band).toLowerCase();
+          const chIdx = typeof channel === 'number'
+            ? Math.max(0, Math.min(3, channel | 0))
+            : Math.max(0, ['tp9', 'af7', 'af8', 'tp10'].indexOf(String(channel).toLowerCase()));
+          if (this.connected && this.channels && this.channels[b] && typeof this.channels[b][chIdx] === 'number') {
+            return this.channels[b][chIdx];
+          }
+          // Smooth animated per-channel wave when disconnected so p5.eegedu sketches animate on load
+          const base = typeof this[b] === 'number' && this[b] > 0 ? this[b] : 0.35;
+          const t = Date.now() * 0.0018;
+          const freqOffset = { delta: 0.7, theta: 1.2, alpha: 1.8, beta: 2.6, gamma: 3.4 }[b] || 1.5;
+          return Math.max(0.05, Math.min(0.95, base + 0.18 * Math.sin(t * freqOffset + chIdx * 1.35)));
+        },
+
+        // Get FFT power spectrum array (length 60, 1..60 Hz) for a specific electrode (0..3 or 'TP9'..'TP10')
+        getSpectrum: function(channel = 0) {
+          const chIdx = typeof channel === 'number'
+            ? Math.max(0, Math.min(3, channel | 0))
+            : Math.max(0, ['tp9', 'af7', 'af8', 'tp10'].indexOf(String(channel).toLowerCase()));
+          if (this.connected && this.spectra && this.spectra.psd && this.spectra.psd[chIdx] && this.spectra.psd[chIdx].some(v => v > 0)) {
+            return this.spectra.psd[chIdx];
+          }
+          const t = Date.now() * 0.002;
+          const alphaP = this.getChannelBand('alpha', chIdx);
+          const betaP  = this.getChannelBand('beta', chIdx);
+          const thetaP = this.getChannelBand('theta', chIdx);
+          const deltaP = this.getChannelBand('delta', chIdx);
+          const gammaP = this.getChannelBand('gamma', chIdx);
+          const psd = new Array(60);
+          for (let f = 1; f <= 60; f++) {
+            const oneOverF = 18.0 / Math.pow(f, 0.75);
+            const aPeak = 28.0 * alphaP * Math.exp(-Math.pow((f - 10.0) / 2.2, 2));
+            const tPeak = 18.0 * thetaP * Math.exp(-Math.pow((f - 6.0) / 2.0, 2));
+            const bPeak = 14.0 * betaP  * Math.exp(-Math.pow((f - 20.0) / 4.5, 2));
+            const dPeak = 20.0 * deltaP * Math.exp(-Math.pow((f - 2.5) / 1.8, 2));
+            const gPeak = 8.0  * gammaP * Math.exp(-Math.pow((f - 38.0) / 6.0, 2));
+            const shimmer = 1.0 + 0.12 * Math.sin(t * 2.5 + f * 0.35 + chIdx);
+            psd[f - 1] = Math.max(0.1, (oneOverF + aPeak + tPeak + bPeak + dPeak + gPeak) * shimmer);
+          }
+          return psd;
         },
         
         getAllChannels: function(numSamples = 100) {
@@ -1151,15 +2618,466 @@
           return epoch;
         },
 
-        // Optional ERP trigger hook (used by EEGSimulator and online ERP paradigms)
-        triggerERP: function(type = 'target') {
-          if (window._activeEEGSimulator && window._activeEEGSimulator.isRunning) {
-            window._activeEEGSimulator.triggerSimulatedERP(type);
+          // Optional ERP trigger hook (used by EEGSimulator and online ERP paradigms)
+          triggerERP: function(type = 'target') {
+            if (window._activeEEGSimulator && window._activeEEGSimulator.isRunning) {
+              window._activeEEGSimulator.triggerSimulatedERP(type);
+            }
+          },
+
+          // Download a CSV string as a browser .csv file (matches EEGEdu's saveAs(blob, filename))
+          downloadCSV: function(csvText, filename) {
+            const safeName = filename || ('EEGEdu_Recording_' + Date.now() + '.csv');
+            const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = safeName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            console.log(`💾 Downloaded CSV: ${safeName}`);
+            return safeName;
           }
+        };
+      window.eegData = eegData;
+      window.downloadEEGEduCSV = function(csvText, filename) {
+        return eegData.downloadCSV(csvText, filename);
+      };
+
+      // BrainGames shared helper library (window.BGShared) for retro arcade HUD, smoothing & CRT styling
+      (function() {
+        const PALETTE = {
+          deepPurple: '#3b1f5a',
+          acidYellow: '#f7d51d',
+          neonPink:   '#ff4aa0',
+          crtGreen:   '#6cff83',
+          chromeGrey: '#c0c0c0',
+          ink:        '#0a0614',
+          shadow:     '#1a0f2e',
+          highlight:  '#ffffff',
+          dim:        '#8a7ba8'
+        };
+        function toColor(c) {
+          if (c && typeof c === 'object' && typeof c.levels !== 'undefined') return c;
+          if (typeof c === 'string') return color(c);
+          return color(255);
+        }
+        function drawPixelBorder(x, y, w, h, col1, col2) {
+          const c1 = toColor(col1 || PALETTE.chromeGrey);
+          const c2 = toColor(col2 || PALETTE.deepPurple);
+          noFill();
+          strokeWeight(2);
+          stroke(c1);
+          rect(x, y, w, h);
+          stroke(c2);
+          rect(x + 2, y + 2, w - 4, h - 4);
+          noStroke();
+          strokeWeight(1);
+        }
+        function drawScanlineOverlay(opts) {
+          opts = opts || {};
+          const a = opts.alpha != null ? opts.alpha : 34;
+          const sp = opts.spacing != null ? opts.spacing : 3;
+          const tint = toColor(opts.tint || '#000000');
+          const lv = tint.levels || [0, 0, 0, 255];
+          stroke(lv[0], lv[1], lv[2], a);
+          strokeWeight(1);
+          for (let y = 0; y < height; y += sp) {
+            line(0, y, width, y);
+          }
+          noStroke();
+        }
+        function drawChromeText(txt, x, y, size) {
+          size = size || 24;
+          textSize(size);
+          fill(0, 0, 0, 110);
+          text(txt, x + 2, y + 2);
+          fill(PALETTE.neonPink);
+          text(txt, x, y + 1);
+          fill(PALETTE.acidYellow);
+          text(txt, x, y);
+        }
+        function blinker(rate) {
+          rate = rate || 30;
+          if (typeof frameCount === 'undefined') return 1;
+          return (Math.floor(frameCount / rate) % 2 === 0) ? 1 : 0;
+        }
+        function fillVerticalGradient(x, y, w, h, top, bottom) {
+          const ct = toColor(top);
+          const cb = toColor(bottom);
+          for (let i = 0; i < h; i++) {
+            const t = h > 1 ? (i / (h - 1)) : 0;
+            stroke(lerpColor(ct, cb, t));
+            line(x, y + i, x + w, y + i);
+          }
+          noStroke();
+        }
+        function drawCrtPanel(x, y, w, h, opts) {
+          opts = opts || {};
+          const bgCol = toColor(opts.bg || PALETTE.ink);
+          const borderA = toColor(opts.borderA || PALETTE.neonPink);
+          const borderB = toColor(opts.borderB || PALETTE.acidYellow);
+          const radius = opts.radius != null ? opts.radius : 10;
+          noStroke();
+          fill(0, 0, 0, 170);
+          rect(x + 4, y + 5, w, h, radius);
+          fill(bgCol);
+          rect(x, y, w, h, radius);
+          noFill();
+          strokeWeight(3);
+          stroke(borderA);
+          rect(x, y, w, h, radius);
+          strokeWeight(1);
+          stroke(borderB);
+          rect(x + 4, y + 4, w - 8, h - 8, Math.max(0, radius - 3));
+          noStroke();
+          strokeWeight(1);
+        }
+        function makeSmoother(n) {
+          const size = Math.max(1, n | 0);
+          const buf = [];
+          return {
+            push(v) {
+              const num = (typeof v === 'number' && isFinite(v)) ? v : 0;
+              buf.push(num);
+              if (buf.length > size) buf.shift();
+              return this.value();
+            },
+            value() {
+              if (!buf.length) return 0;
+              let s = 0;
+              for (let i = 0; i < buf.length; i++) s += buf[i];
+              return s / buf.length;
+            },
+            history() { return buf.slice(); },
+            clear() { buf.length = 0; },
+            size() { return size; }
+          };
+        }
+        function makeGraceBuffer(opts) {
+          opts = opts || {};
+          const win = Math.max(2, opts.window || 30);
+          const thr = opts.threshold != null ? opts.threshold : 0.6;
+          const buf = [];
+          function median(arr) {
+            if (!arr.length) return 0;
+            const sorted = arr.slice().sort((a, b) => a - b);
+            const mid = sorted.length >> 1;
+            return (sorted.length % 2 === 1) ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) * 0.5;
+          }
+          return {
+            push(v) {
+              const num = (typeof v === 'number' && isFinite(v)) ? v : 0;
+              buf.push(num);
+              if (buf.length > win) buf.shift();
+              return this.ok();
+            },
+            ok() {
+              if (buf.length < win) return false;
+              const m = median(buf);
+              let hits = 0;
+              for (let i = 0; i < buf.length; i++) if (buf[i] >= m) hits++;
+              return (hits / buf.length) >= thr;
+            },
+            fraction() {
+              if (!buf.length) return 0;
+              const m = median(buf);
+              let hits = 0;
+              for (let i = 0; i < buf.length; i++) if (buf[i] >= m) hits++;
+              return hits / buf.length;
+            },
+            clear() { buf.length = 0; },
+            length() { return buf.length; },
+            windowSize() { return win; },
+            threshold() { return thr; }
+          };
+        }
+        function readEEG(opts) {
+          opts = opts || {};
+          const defaults = {
+            attention: 0.35, meditation: 0.35, delta: 0.20, theta: 0.30,
+            alpha: 0.35, beta: 0.35, gamma: 0.25, connected: false
+          };
+          if (opts.defaults) Object.assign(defaults, opts.defaults);
+          const src = eegData || window.eegData;
+          if (!src) return defaults;
+          const out = {};
+          for (const key in defaults) {
+            const v = src[key];
+            if (key === 'connected') out[key] = (v === true);
+            else if (typeof v === 'number' && isFinite(v)) out[key] = v;
+            else out[key] = defaults[key];
+          }
+          return out;
+        }
+        function drawBar(x, y, w, h, val, label, col) {
+          const fillCol = toColor(col || PALETTE.acidYellow);
+          const v = Math.max(0, Math.min(1, typeof val === 'number' ? val : 0));
+          noStroke();
+          fill(PALETTE.shadow);
+          rect(x, y, w, h, 2);
+          fill(fillCol);
+          rect(x, y, w * v, h, 2);
+          noFill();
+          stroke(PALETTE.chromeGrey);
+          strokeWeight(1);
+          rect(x, y, w, h, 2);
+          noStroke();
+          if (label) {
+            fill('#ffffff');
+            textAlign(LEFT, TOP);
+            textSize(9);
+            text(label + ' ' + v.toFixed(2), x, y + h + 2);
+          }
+        }
+        function drawStatBox(x, y, label, val, col) {
+          const accent = toColor(col || PALETTE.acidYellow);
+          const bw = 88, bh = 52;
+          noStroke();
+          fill(PALETTE.ink);
+          rect(x - bw / 2, y, bw, bh, 6);
+          fill(accent);
+          rect(x - bw / 2, y, bw, 4, 3);
+          noFill();
+          stroke(PALETTE.chromeGrey);
+          strokeWeight(1);
+          rect(x - bw / 2, y, bw, bh, 6);
+          noStroke();
+          fill(accent);
+          textAlign(CENTER, CENTER);
+          textSize(14);
+          text(String(val), x, y + 22);
+          fill(PALETTE.dim);
+          textSize(9);
+          text(String(label), x, y + 40);
+        }
+        function drawMeter(x, y, w, h, val, label, col) {
+          const v = Math.max(0, Math.min(1, typeof val === 'number' ? val : 0));
+          noStroke();
+          fill(PALETTE.shadow);
+          rect(x + 28, y, w, h, 2);
+          fill(col);
+          rect(x + 28, y, w * v, h, 2);
+          noFill();
+          stroke(PALETTE.chromeGrey);
+          strokeWeight(1);
+          rect(x + 28, y, w, h, 2);
+          noStroke();
+          fill(col);
+          textAlign(LEFT, CENTER);
+          textSize(9);
+          text(label, x, y + h / 2 - 1);
+          fill('#ffffff');
+          textAlign(RIGHT, CENTER);
+          textSize(9);
+          text(v.toFixed(2), x + 28 + w - 4, y + h + 8);
+        }
+        function drawTopHud(opts) {
+          opts = opts || {};
+          const eeg = opts.eeg || {};
+          const score = opts.score != null ? opts.score : 0;
+          const seconds = typeof opts.time === 'number' ? opts.time : null;
+          const stripH = 34;
+          noStroke();
+          fill(0, 0, 0, 190);
+          rect(0, 0, width, stripH);
+          fill(PALETTE.neonPink);
+          rect(0, stripH, width, 2);
+          const att = typeof eeg.attention === 'number' ? eeg.attention : 0;
+          const med = typeof eeg.meditation === 'number' ? eeg.meditation : 0;
+          drawMeter(8, 8, 110, 8, att, 'ATT', PALETTE.acidYellow);
+          drawMeter(130, 8, 110, 8, med, 'MED', PALETTE.crtGreen);
+          fill(PALETTE.acidYellow);
+          textAlign(CENTER, CENTER);
+          textSize(15);
+          text(String(score), width / 2, stripH / 2 - 1);
+          fill(PALETTE.dim);
+          textSize(8);
+          text('SCORE', width / 2, stripH - 8);
+          if (seconds != null) {
+            fill(seconds <= 10 ? '#ff6b6b' : PALETTE.crtGreen);
+            textAlign(RIGHT, CENTER);
+            textSize(15);
+            text(Math.max(0, Math.ceil(seconds)) + 's', width - 10, stripH / 2 - 1);
+            fill(PALETTE.dim);
+            textSize(8);
+            text('TIME', width - 24, stripH - 8);
+          }
+        }
+        function wrapLines(str, maxChars) {
+          if (!str) return [];
+          const words = String(str).split(/\s+/);
+          const lines = [];
+          let line = '';
+          for (let i = 0; i < words.length; i++) {
+            const cand = line ? line + ' ' + words[i] : words[i];
+            if (cand.length > maxChars && line) {
+              lines.push(line);
+              line = words[i];
+            } else {
+              line = cand;
+            }
+          }
+          if (line) lines.push(line);
+          return lines;
+        }
+        function drawIntroPanel(opts) {
+          opts = opts || {};
+          const title = opts.title || 'Brainimation';
+          const blurb = opts.blurb || '';
+          const mappings = Array.isArray(opts.mappings) ? opts.mappings : [];
+          const timer = (opts.introTimer === null || opts.introTimer === undefined) ? null : opts.introTimer;
+          const hint = opts.startHint || 'PRESS SPACE TO START';
+          const px = width * 0.08, py = height * 0.06, pw = width * 0.84, ph = height * 0.88;
+          drawCrtPanel(px, py, pw, ph, {});
+          textAlign(CENTER, CENTER);
+          drawChromeText(title, width / 2, py + 44, 28);
+          stroke(PALETTE.neonPink);
+          strokeWeight(1);
+          line(px + 30, py + 72, px + pw - 30, py + 72);
+          noStroke();
+          fill('#ffffff');
+          textAlign(CENTER, TOP);
+          textSize(13);
+          const blurbLines = wrapLines(blurb, 68);
+          const blurbY = py + 86;
+          for (let i = 0; i < blurbLines.length; i++) {
+            text(blurbLines[i], width / 2, blurbY + i * 18);
+          }
+          let mapTop = blurbY + Math.max(blurbLines.length, 1) * 18 + 18;
+          fill(PALETTE.acidYellow);
+          textAlign(CENTER, TOP);
+          textSize(12);
+          text('EEG MAPPINGS', width / 2, mapTop);
+          mapTop += 22;
+          const rowH = 44;
+          for (let m = 0; m < mappings.length; m++) {
+            const item = mappings[m];
+            const accent = item.color || PALETTE.crtGreen;
+            const rowY = mapTop + m * rowH;
+            fill(accent);
+            noStroke();
+            ellipse(px + 34, rowY + 10, 8, 8);
+            textAlign(LEFT, TOP);
+            textSize(13);
+            text(String(item.label || ''), px + 48, rowY);
+            fill(PALETTE.chromeGrey);
+            textSize(11);
+            const descLines = wrapLines(String(item.desc || ''), 82);
+            for (let d = 0; d < descLines.length && d < 2; d++) {
+              text(descLines[d], px + 48, rowY + 18 + d * 14);
+            }
+          }
+          const footerY = py + ph - 58;
+          if (timer != null && timer > 0) {
+            const secs = Math.ceil(timer / 30);
+            const total = opts.introTotalFrames || 300;
+            const frac = Math.max(0, Math.min(1, timer / total));
+            const barW = pw * 0.55;
+            const barX = width / 2 - barW / 2;
+            noStroke();
+            fill(PALETTE.shadow);
+            rect(barX, footerY, barW, 10, 4);
+            fill(PALETTE.acidYellow);
+            rect(barX, footerY, barW * frac, 10, 4);
+            noFill();
+            stroke(PALETTE.chromeGrey);
+            strokeWeight(1);
+            rect(barX, footerY, barW, 10, 4);
+            noStroke();
+            fill(PALETTE.chromeGrey);
+            textAlign(CENTER, TOP);
+            textSize(11);
+            text('Reading... ' + secs + 's', width / 2, footerY + 18);
+          } else if (blinker(30)) {
+            fill(PALETTE.acidYellow);
+            textAlign(CENTER, CENTER);
+            textSize(14);
+            text(hint, width / 2, footerY + 12);
+          }
+        }
+        function drawSummaryPanel(opts) {
+          opts = opts || {};
+          const title = opts.title || 'GAME OVER';
+          const stats = Array.isArray(opts.stats) ? opts.stats : [];
+          const message = opts.message || '';
+          const restart = opts.restartHint || 'PRESS SPACE TO PLAY AGAIN';
+          const px = width * 0.06, py = height * 0.05, pw = width * 0.88, ph = height * 0.90;
+          drawCrtPanel(px, py, pw, ph, {});
+          textAlign(CENTER, CENTER);
+          drawChromeText(title, width / 2, py + 50, 32);
+          stroke(PALETTE.acidYellow);
+          strokeWeight(1);
+          line(px + 30, py + 86, px + pw - 30, py + 86);
+          noStroke();
+          const perRow = Math.min(stats.length || 1, 5);
+          const colW = pw / Math.max(1, perRow);
+          const rowY = py + 116;
+          for (let i = 0; i < stats.length; i++) {
+            const s = stats[i];
+            const colIdx = i % perRow;
+            const rowIdx = Math.floor(i / perRow);
+            const cx = px + colIdx * colW + colW / 2;
+            const cy = rowY + rowIdx * 72;
+            drawStatBox(cx, cy, s.label || '', s.value != null ? s.value : '', s.color || PALETTE.acidYellow);
+          }
+          const msgY = py + ph - 90;
+          fill(PALETTE.crtGreen);
+          textAlign(CENTER, CENTER);
+          textSize(12);
+          const msgLines = wrapLines(message, 72);
+          for (let m = 0; m < msgLines.length && m < 3; m++) {
+            text(msgLines[m], width / 2, msgY + m * 16);
+          }
+          if (blinker(30)) {
+            fill(PALETTE.acidYellow);
+            textAlign(CENTER, CENTER);
+            textSize(14);
+            text(restart, width / 2, py + ph - 32);
+          }
+        }
+        window.BGShared = {
+          PALETTE, toColor, drawPixelBorder, drawScanlineOverlay, drawChromeText,
+          blinker, fillVerticalGradient, drawCrtPanel, makeSmoother, makeGraceBuffer,
+          readEEG, drawBar, drawStatBox, drawTopHud, drawIntroPanel, drawSummaryPanel
+        };
+      })();
+
+      // Legacy p5.eegedu.com compatibility bridge (`brain.current.bands`, `brain.current.epochs`, `brain.current.spectra`)
+      window.brain = {
+        get current() {
+          const bandsData = {
+            delta: [0, 1, 2, 3].map(i => eegData.getChannelBand('delta', i) * 10),
+            theta: [0, 1, 2, 3].map(i => eegData.getChannelBand('theta', i) * 10),
+            alpha: [0, 1, 2, 3].map(i => eegData.getChannelBand('alpha', i) * 10),
+            beta:  [0, 1, 2, 3].map(i => eegData.getChannelBand('beta',  i) * 10),
+            gamma: [0, 1, 2, 3].map(i => eegData.getChannelBand('gamma', i) * 10),
+          };
+          return {
+            bands: { data: bandsData },
+            epochs: {
+              data: {
+                data: [
+                  eegData.getRawChannel('TP9', 256),
+                  eegData.getRawChannel('AF7', 256),
+                  eegData.getRawChannel('AF8', 256),
+                  eegData.getRawChannel('TP10', 256),
+                ]
+              }
+            },
+            spectra: {
+              data: {
+                psd: [0, 1, 2, 3].map(i => eegData.getSpectrum(i)),
+                freqs: eegData.spectra ? eegData.spectra.freqs : Array.from({ length: 60 }, (_, k) => k + 1),
+              }
+            }
+          };
         }
       };
 
-      // EEG Data Simulator for hardware-free 256 Hz 4-channel synthesis
+      // EEG Data Simulator for hardware-free 256 Hz 4-channel + 64 Hz PPG + 52 Hz 6-DOF IMU & Telemetry synthesis
       class EEGSimulator {
         constructor() {
           this.isRunning = false;
@@ -1167,6 +3085,7 @@
           this.updateInterval = null;
           this.baseAttention = 0.5;
           this.baseMeditation = 0.3;
+          this.baseMotion = 0.4;
           this.noiseLevel = 0.1;
           this.sampleRate = 256;
           this.sampleIndex = 0;
@@ -1180,9 +3099,10 @@
           this.sampleIndex = 0;
           this.lastBlinkSample = -1000;
           this.erpTriggers = [];
+          eegData.resetKinematics();
           window._activeEEGSimulator = this;
 
-          // Pre-populate 1.0 s (256 samples @ 256 Hz) so getRecentEpoch(256) is immediately valid
+          // Pre-populate 1.0 s (256 samples @ 256 Hz) so getRecentEpoch(256) and IMU history are immediately valid
           this.generateSamples(256);
 
           // Advance 8 samples every 31.25 ms -> exact 256 Hz multi-channel streaming rate
@@ -1206,6 +3126,10 @@
 
         setMeditation(value) {
           this.baseMeditation = parseFloat(value);
+        }
+
+        setMotion(value) {
+          this.baseMotion = parseFloat(value);
         }
 
         triggerSimulatedERP(type = 'target') {
@@ -1288,6 +3212,36 @@
               if (hist.length > eegData.historyLength) {
                 hist.splice(0, hist.length - eegData.historyLength);
               }
+
+              // Update per-electrode frequency bands with slight spatial phase/hemispheric variation
+              if (eegData.channels) {
+                eegData.channels.alpha[i] = Math.max(0, Math.min(1, eegData.alpha + Math.sin(time * 2.1 + i * 1.1) * 0.12));
+                eegData.channels.beta[i]  = Math.max(0, Math.min(1, eegData.beta  + Math.cos(time * 2.9 + i * 0.9) * 0.12));
+                eegData.channels.theta[i] = Math.max(0, Math.min(1, eegData.theta + Math.sin(time * 1.6 + i * 1.4) * 0.10));
+                eegData.channels.delta[i] = Math.max(0, Math.min(1, eegData.delta + Math.cos(time * 0.9 + i * 0.8) * 0.08));
+                eegData.channels.gamma[i] = Math.max(0, Math.min(1, eegData.gamma + Math.sin(time * 3.8 + i * 1.2) * 0.10));
+              }
+            }
+
+            // Periodically synthesize 1..60 Hz per-electrode power spectra (once per 8-sample tick)
+            if (n % 8 === 0 && eegData.spectra && eegData.spectra.psd) {
+              for (let i = 0; i < 4; i++) {
+                const aP = eegData.channels.alpha[i];
+                const bP = eegData.channels.beta[i];
+                const tP = eegData.channels.theta[i];
+                const dP = eegData.channels.delta[i];
+                const gP = eegData.channels.gamma[i];
+                const psd = eegData.spectra.psd[i];
+                for (let f = 1; f <= 60; f++) {
+                  const oneOverF = 18.0 / Math.pow(f, 0.75);
+                  const aPeak = 32.0 * aP * Math.exp(-Math.pow((f - (9.5 + i * 0.4)) / 2.0, 2));
+                  const tPeak = 20.0 * tP * Math.exp(-Math.pow((f - (6.0 + i * 0.3)) / 1.8, 2));
+                  const bPeak = 16.0 * bP * Math.exp(-Math.pow((f - (19.0 + i * 1.2)) / 4.2, 2));
+                  const dPeak = 24.0 * dP * Math.exp(-Math.pow((f - 2.2) / 1.6, 2));
+                  const gPeak = 10.0 * gP * Math.exp(-Math.pow((f - (36.0 + i * 1.5)) / 5.5, 2));
+                  psd[f - 1] = Math.max(0.1, oneOverF + aPeak + tPeak + bPeak + dPeak + gPeak + (Math.random() - 0.5) * 1.5);
+                }
+              }
             }
 
             // Synthesize 64 Hz PPG / optical waveforms via forward Modified Beer-Lambert Law (1 PPG sample every 4 EEG samples)
@@ -1340,6 +3294,78 @@
                 }
               }
             }
+
+            // Synthesize 5th Auxiliary EEG channel (AUX)
+            const auxSample = 24.0 * eegData.alpha * Math.sin(2 * Math.PI * 10.2 * time + 0.8)
+                            + 16.0 * eegData.theta * Math.cos(2 * Math.PI * 6.4 * time)
+                            + (Math.random() - 0.5) * 10.0;
+            eegData.aux = auxSample;
+            if (!eegData.rawHistory.AUX) eegData.rawHistory.AUX = [];
+            eegData.rawHistory.AUX.push(auxSample);
+            if (eegData.rawHistory.AUX.length > eegData.historyLength) {
+              eegData.rawHistory.AUX.splice(0, eegData.rawHistory.AUX.length - eegData.historyLength);
+            }
+
+            // Synthesize 52 Hz 6-DOF IMU (Accelerometer + Gyroscope), DRL/REF & Telemetry (1 IMU sample every 5 EEG samples ≈ 51.2 Hz)
+            if (n % 5 === 0) {
+              const mScale = 0.25 + this.baseMotion * 1.45;
+              // Simulated head pitch & roll kinematics (nodding + gentle sway + occasional rhythmic head-bop)
+              const pitchDeg = mScale * (14.0 * Math.sin(time * 1.35) + 6.0 * Math.sin(time * 3.1));
+              const rollDeg  = mScale * (11.0 * Math.cos(time * 1.05) + 4.5 * Math.sin(time * 2.4));
+              const yawRate  = mScale * (22.0 * Math.cos(time * 0.78) + 9.0 * Math.sin(time * 1.9));
+
+              // Analytical derivatives for angular rates (deg/s)
+              const gy = mScale * (14.0 * 1.35 * Math.cos(time * 1.35) + 6.0 * 3.1 * Math.cos(time * 3.1)) + (Math.random() - 0.5) * 1.2;
+              const gx = mScale * (-11.0 * 1.05 * Math.sin(time * 1.05) + 4.5 * 2.4 * Math.cos(time * 2.4)) + (Math.random() - 0.5) * 1.2;
+              const gz = yawRate + (Math.random() - 0.5) * 1.0;
+
+              // Gravity projection + translational head motion acceleration (in g)
+              const pRad = pitchDeg * (Math.PI / 180);
+              const rRad = rollDeg  * (Math.PI / 180);
+              const linWaveX = mScale * (0.045 * Math.sin(time * 2.7) + 0.025 * Math.cos(time * 5.4));
+              const linWaveY = mScale * (0.040 * Math.cos(time * 2.1) + 0.020 * Math.sin(time * 4.2));
+              const linWaveZ = mScale * (0.035 * Math.sin(time * 3.4));
+
+              const ax = Math.sin(pRad) + linWaveX + (Math.random() - 0.5) * 0.008;
+              const ay = Math.cos(pRad) * Math.sin(rRad) + linWaveY + (Math.random() - 0.5) * 0.008;
+              const az = Math.cos(pRad) * Math.cos(rRad) + linWaveZ + (Math.random() - 0.5) * 0.008;
+
+              eegData.updateIMUKinematics(ax, ay, az, gx, gy, gz, 1.0 / 52.0);
+
+              // Simulated DRL / REF & Contact Quality
+              const drlVal = Math.round(8192 + 180 * Math.sin(time * 0.9) + (Math.random() - 0.5) * 40);
+              const refVal = Math.round(8192 + 120 * Math.cos(time * 0.7) + (Math.random() - 0.5) * 35);
+              eegData.drlRef = { drl: drlVal, ref: refVal };
+              eegData.drlRefHistory.drl.push(drlVal);
+              eegData.drlRefHistory.ref.push(refVal);
+              if (eegData.drlRefHistory.drl.length > 260) eegData.drlRefHistory.drl.shift();
+              if (eegData.drlRefHistory.ref.length > 260) eegData.drlRefHistory.ref.shift();
+              eegData.contactQuality = { TP9: 1.0, AF7: 1.0, AF8: 1.0, TP10: 1.0 };
+
+              // Simulated Telemetry (Battery %, Voltage mV, Die Temperature °C)
+              if (n % 50 === 0) {
+                const bat = Math.max(15, 96.0 - ((time / 1200) % 40));
+                const mv  = Math.round(3550 + (bat / 100) * 630 + Math.sin(time * 0.3) * 8);
+                const tmp = +(33.4 + 0.6 * Math.sin(time * 0.15) + this.baseAttention * 0.5).toFixed(1);
+                eegData.telemetry = {
+                  batteryLevel: +bat.toFixed(1),
+                  fuelGaugeVoltage: mv,
+                  adcVoltage: Math.round(mv * 0.5),
+                  temperature: tmp,
+                  sequenceId: Math.floor(n / 50)
+                };
+                eegData.batteryLevel = eegData.telemetry.batteryLevel;
+                eegData.temperature = eegData.telemetry.temperature;
+                eegData.telemetryHistory.batteryLevel.push(eegData.batteryLevel);
+                eegData.telemetryHistory.fuelGaugeVoltage.push(mv);
+                eegData.telemetryHistory.temperature.push(tmp);
+                if (eegData.telemetryHistory.batteryLevel.length > 120) {
+                  eegData.telemetryHistory.batteryLevel.shift();
+                  eegData.telemetryHistory.fuelGaugeVoltage.shift();
+                  eegData.telemetryHistory.temperature.shift();
+                }
+              }
+            }
           }
 
           // Composite cognitive state indices (consistent across Simulator and Hardware)
@@ -1360,8 +3386,20 @@
           document.getElementById('delta-value').textContent = eegData.delta.toFixed(2);
           const ppgEl = document.getElementById('ppg-value');
           const hrEl = document.getElementById('hr-value');
+          const imuEl = document.getElementById('imu-value');
+          const telEl = document.getElementById('telemetry-value');
           if (ppgEl) ppgEl.textContent = (eegData.ppgPulse || 0).toFixed(2);
           if (hrEl) hrEl.textContent = eegData.heartRate > 0 ? `${eegData.heartRate} BPM` : '--';
+          if (imuEl && eegData.orientation) {
+            const p = Math.round(eegData.orientation.pitch || 0);
+            const r = Math.round(eegData.orientation.roll || 0);
+            imuEl.textContent = `${p >= 0 ? '+' : ''}${p}° / ${r >= 0 ? '+' : ''}${r}°`;
+          }
+          if (telEl && eegData.telemetry) {
+            const b = Math.round(eegData.telemetry.batteryLevel || 0);
+            const t = (eegData.telemetry.temperature || 33.5).toFixed(1);
+            telEl.textContent = `${b}% · ${t}°C`;
+          }
         }
       }
 
@@ -1418,7 +3456,11 @@
             logger.log('✅ Phase 1 complete: Control characteristic (273e0001) bound', 'success');
             
             // Step 5: Set up reactive data subscriptions
-            logger.log('Step 5: Setting up EEG, PPG & telemetry subscriptions...', 'info');
+            logger.log('Step 5: Setting up EEG, PPG, IMU (Accel/Gyro), DRL/REF & Telemetry subscriptions...', 'info');
+            eegData.resetKinematics();
+            this._latestGyroSample = { x: 0, y: 0, z: 0 };
+            this._imuPacketCount = 0;
+
             const eegSubscription = this.muse.eegReadings.subscribe(reading => {
               this.processEEGReading(reading);
             });
@@ -1431,13 +3473,29 @@
               this.subscriptions.push(ppgSubscription);
             }
 
-            const accelSubscription = this.muse.accelerometerData.subscribe(() => {});
-            this.subscriptions.push(accelSubscription);
+            if (this.muse.gyroscopeData) {
+              const gyroSubscription = this.muse.gyroscopeData.subscribe(packet => {
+                this.processGyroscopeReading(packet);
+              });
+              this.subscriptions.push(gyroSubscription);
+            }
+
+            if (this.muse.accelerometerData) {
+              const accelSubscription = this.muse.accelerometerData.subscribe(packet => {
+                this.processAccelerometerReading(packet);
+              });
+              this.subscriptions.push(accelSubscription);
+            }
+
+            if (this.muse.drlRefData) {
+              const drlRefSubscription = this.muse.drlRefData.subscribe(drlPacket => {
+                this.processDrlRefReading(drlPacket);
+              });
+              this.subscriptions.push(drlRefSubscription);
+            }
 
             const telemetrySubscription = this.muse.telemetryData.subscribe(telemetry => {
-              if (telemetry.batteryLevel !== undefined) {
-                logger.log(`🔋 Battery Level: ${telemetry.batteryLevel.toFixed(1)}%`, 'success');
-              }
+              this.processTelemetryReading(telemetry);
             });
             this.subscriptions.push(telemetrySubscription);
 
@@ -1497,7 +3555,7 @@
         }
 
         processEEGReading(reading) {
-          const electrodeMap = ['TP9', 'AF7', 'AF8', 'TP10'];
+          const electrodeMap = ['TP9', 'AF7', 'AF8', 'TP10', 'AUX'];
           const electrodeName = typeof reading.electrode === 'number' 
             ? electrodeMap[reading.electrode] 
             : reading.electrode;
@@ -1523,8 +3581,10 @@
           }
 
           const electrodeIndex = electrodeMap.indexOf(electrodeName);
-          if (electrodeIndex !== -1 && reading.samples.length > 0) {
+          if (electrodeIndex >= 0 && electrodeIndex < 4 && reading.samples.length > 0) {
             eegData.raw[electrodeIndex] = reading.samples[reading.samples.length - 1];
+          } else if (electrodeName === 'AUX' && reading.samples.length > 0) {
+            eegData.aux = reading.samples[reading.samples.length - 1];
           }
 
           let hist = eegData.rawHistory[electrodeName];
@@ -1545,6 +3605,91 @@
           if (this.packetCount % 100 === 0) {
             const pktsPerChannel = Math.round(this.packetCount / 4);
             this.updateStatus(`Connected (${pktsPerChannel} pkts/ch)`, 'connected');
+          }
+        }
+
+        processGyroscopeReading(packet) {
+          if (!packet || !Array.isArray(packet.samples) || packet.samples.length === 0) return;
+          this._latestGyroSamples = packet.samples;
+          const last = packet.samples[packet.samples.length - 1];
+          this._latestGyroSample = { x: last.x || 0, y: last.y || 0, z: last.z || 0 };
+        }
+
+        processAccelerometerReading(packet) {
+          if (!packet || !Array.isArray(packet.samples) || packet.samples.length === 0) return;
+          this._imuPacketCount = (this._imuPacketCount || 0) + 1;
+          const gyroSamples = this._latestGyroSamples || [];
+          const fallbackGyro = this._latestGyroSample || { x: 0, y: 0, z: 0 };
+
+          for (let i = 0; i < packet.samples.length; i++) {
+            const a = packet.samples[i];
+            const g = gyroSamples[i] || fallbackGyro;
+            eegData.updateIMUKinematics(
+              a.x || 0,
+              a.y || 0,
+              a.z !== undefined ? a.z : 1.0,
+              g.x || 0,
+              g.y || 0,
+              g.z || 0,
+              1.0 / 52.0
+            );
+          }
+
+          if (this._imuPacketCount === 1) {
+            const a0 = packet.samples[0];
+            logger.log(`🧭 6-DOF IMU streaming (Accel: ${a0.x?.toFixed(2)}g, ${a0.y?.toFixed(2)}g, ${a0.z?.toFixed(2)}g)`, 'success');
+          }
+          if (this._imuPacketCount % 4 === 0) {
+            const imuEl = document.getElementById('imu-value');
+            if (imuEl && eegData.orientation) {
+              const p = Math.round(eegData.orientation.pitch || 0);
+              const r = Math.round(eegData.orientation.roll || 0);
+              imuEl.textContent = `${p >= 0 ? '+' : ''}${p}° / ${r >= 0 ? '+' : ''}${r}°`;
+            }
+          }
+        }
+
+        processDrlRefReading(drlPacket) {
+          if (!drlPacket) return;
+          const drl = typeof drlPacket.drl === 'number' ? drlPacket.drl : 8192;
+          const ref = typeof drlPacket.ref === 'number' ? drlPacket.ref : 8192;
+          eegData.drlRef = { drl, ref };
+          eegData.drlRefHistory.drl.push(drl);
+          eegData.drlRefHistory.ref.push(ref);
+          if (eegData.drlRefHistory.drl.length > 260) eegData.drlRefHistory.drl.shift();
+          if (eegData.drlRefHistory.ref.length > 260) eegData.drlRefHistory.ref.shift();
+        }
+
+        processTelemetryReading(telemetry) {
+          if (!telemetry) return;
+          const bat = telemetry.batteryLevel !== undefined ? +telemetry.batteryLevel.toFixed(1) : eegData.batteryLevel;
+          const mv  = telemetry.fuelGaugeVoltage || Math.round(3550 + (bat / 100) * 630);
+          const adc = telemetry.adcVoltage || 0;
+          const tmp = telemetry.temperature || 33.5;
+          eegData.telemetry = {
+            batteryLevel: bat,
+            fuelGaugeVoltage: mv,
+            adcVoltage: adc,
+            temperature: tmp,
+            sequenceId: telemetry.sequenceId || 0
+          };
+          eegData.batteryLevel = bat;
+          eegData.temperature = tmp;
+          eegData.telemetryHistory.batteryLevel.push(bat);
+          eegData.telemetryHistory.fuelGaugeVoltage.push(mv);
+          eegData.telemetryHistory.temperature.push(tmp);
+          if (eegData.telemetryHistory.batteryLevel.length > 120) {
+            eegData.telemetryHistory.batteryLevel.shift();
+            eegData.telemetryHistory.fuelGaugeVoltage.shift();
+            eegData.telemetryHistory.temperature.shift();
+          }
+          const telEl = document.getElementById('telemetry-value');
+          if (telEl) {
+            telEl.textContent = `${Math.round(bat)}% · ${Number(tmp).toFixed(1)}°C`;
+          }
+          if (!this._loggedBatteryOnce && telemetry.batteryLevel !== undefined) {
+            this._loggedBatteryOnce = true;
+            logger.log(`🔋 Telemetry Broadcast: Battery ${bat.toFixed(1)}%, Voltage ${mv} mV, Temp ${tmp}°C`, 'success');
           }
         }
 
@@ -1701,7 +3846,8 @@
           const bandPowerSum = { delta: 0, theta: 0, alpha: 0, beta: 0, gamma: 0 };
           let validChannels = 0;
 
-          for (const ch of channels) {
+          for (let chIdx = 0; chIdx < channels.length; chIdx++) {
+            const ch = channels[chIdx];
             const history = eegData.rawHistory[ch] || [];
             if (history.length < N) continue;
             const windowSamples = history.slice(-N);
@@ -1721,6 +3867,11 @@
               imag[i] = 0.0;
             }
 
+            // Update per-electrode contact quality indicator (1.0 = good, 0.5 = noisy, 0.0 = railed/disconnected)
+            if (eegData.contactQuality) {
+              eegData.contactQuality[ch] = maxAbs < 110.0 ? 1.0 : (maxAbs < 220.0 ? 0.5 : 0.0);
+            }
+
             // Skip channel window if contaminated by gross ocular blink or jaw clench (> 150 uV)
             if (maxAbs > 150.0) continue;
 
@@ -1728,6 +3879,13 @@
 
             // Single-sided PSD P[k] = (2 / N^2) * (Re[k]^2 + Im[k]^2), where bin k corresponds to k * 1.0 Hz
             const scale = 2.0 / (N * N);
+            if (eegData.spectra && eegData.spectra.psd && eegData.spectra.psd[chIdx]) {
+              const psdArr = eegData.spectra.psd[chIdx];
+              for (let k = 1; k <= 60; k++) {
+                psdArr[k - 1] = scale * (real[k] * real[k] + imag[k] * imag[k]);
+              }
+            }
+
             const sumBins = (kStart, kEnd) => {
               let p = 0.0;
               for (let k = kStart; k <= kEnd; k++) {
@@ -1736,11 +3894,32 @@
               return p / (kEnd - kStart + 1);
             };
 
-            bandPowerSum.delta += sumBins(1, 4);    // 1–4 Hz
-            bandPowerSum.theta += sumBins(4, 8);    // 4–8 Hz
-            bandPowerSum.alpha += sumBins(8, 12);   // 8–12 Hz
-            bandPowerSum.beta  += sumBins(13, 30);  // 13–30 Hz
-            bandPowerSum.gamma += sumBins(30, 50);  // 30–50 Hz
+            const chDelta = sumBins(1, 4);
+            const chTheta = sumBins(4, 8);
+            const chAlpha = sumBins(8, 12);
+            const chBeta  = sumBins(13, 30);
+            const chGamma = sumBins(30, 50);
+
+            // Store per-electrode normalized relative band powers
+            if (eegData.channels) {
+              const cwDelta = chDelta * 0.35;
+              const cwTheta = chTheta * 0.75;
+              const cwAlpha = chAlpha * 1.00;
+              const cwBeta  = chBeta  * 2.20;
+              const cwGamma = chGamma * 4.00;
+              const cwTotal = cwDelta + cwTheta + cwAlpha + cwBeta + cwGamma + 1e-6;
+              eegData.channels.delta[chIdx] = Math.max(0, Math.min(1, (cwDelta / cwTotal) * 2.2));
+              eegData.channels.theta[chIdx] = Math.max(0, Math.min(1, (cwTheta / cwTotal) * 2.2));
+              eegData.channels.alpha[chIdx] = Math.max(0, Math.min(1, (cwAlpha / cwTotal) * 2.2));
+              eegData.channels.beta[chIdx]  = Math.max(0, Math.min(1, (cwBeta  / cwTotal) * 2.2));
+              eegData.channels.gamma[chIdx] = Math.max(0, Math.min(1, (cwGamma / cwTotal) * 2.2));
+            }
+
+            bandPowerSum.delta += chDelta;    // 1–4 Hz
+            bandPowerSum.theta += chTheta;    // 4–8 Hz
+            bandPowerSum.alpha += chAlpha;    // 8–12 Hz
+            bandPowerSum.beta  += chBeta;     // 13–30 Hz
+            bandPowerSum.gamma += chGamma;    // 30–50 Hz
             validChannels++;
           }
 
@@ -1771,6 +3950,9 @@
           document.getElementById('status-text').textContent = text;
           const indicator = document.getElementById('muse-status');
           indicator.className = `status-indicator ${status}`;
+          if (typeof window.syncCanvasStatusHud === 'function') {
+            window.syncCanvasStatusHud();
+          }
         }
 
         updateDataDisplay() {
@@ -1780,8 +3962,20 @@
           document.getElementById('delta-value').textContent = eegData.delta.toFixed(2);
           const ppgEl = document.getElementById('ppg-value');
           const hrEl = document.getElementById('hr-value');
+          const imuEl = document.getElementById('imu-value');
+          const telEl = document.getElementById('telemetry-value');
           if (ppgEl) ppgEl.textContent = (eegData.ppgPulse || 0).toFixed(2);
           if (hrEl) hrEl.textContent = eegData.heartRate > 0 ? `${eegData.heartRate} BPM` : '--';
+          if (imuEl && eegData.orientation) {
+            const p = Math.round(eegData.orientation.pitch || 0);
+            const r = Math.round(eegData.orientation.roll || 0);
+            imuEl.textContent = `${p >= 0 ? '+' : ''}${p}° / ${r >= 0 ? '+' : ''}${r}°`;
+          }
+          if (telEl && eegData.telemetry) {
+            const b = Math.round(eegData.telemetry.batteryLevel || 0);
+            const t = Number(eegData.telemetry.temperature || 33.5).toFixed(1);
+            telEl.textContent = `${b}% · ${t}°C`;
+          }
         }
 
         async togglePPGMode() {
@@ -2277,6 +4471,14 @@
           'eegData.getChannelNames': {
             signature: 'eegData.getChannelNames()',
             description: 'Returns array of channel names: ["TP9", "AF7", "AF8", "TP10"].'
+          },
+          'eegData.getChannelBand': {
+            signature: 'eegData.getChannelBand(band, channelIndex)',
+            description: 'Get per-electrode band power (0.0 - 1.0) for band ("delta", "theta", "alpha", "beta", "gamma") and channel index (0=TP9, 1=AF7, 2=AF8, 3=TP10).'
+          },
+          'eegData.getSpectrum': {
+            signature: 'eegData.getSpectrum(channelIndex)',
+            description: 'Get 1–60 Hz FFT power spectrum array (length 60) for a specific electrode (0=TP9, 1=AF7, 2=AF8, 3=TP10).'
           }
         },
         'PPG / Optical Channels': {
@@ -2313,6 +4515,134 @@
             description: 'PPG / optical sensor sample rate in Hz (64 samples per second).'
           }
         },
+        'Accelerometer (3-Axis Gravity & G-Force)': {
+          'eegData.accel': {
+            signature: 'eegData.accel { x, y, z, magnitude }',
+            description: 'Real-time 52 Hz 3-axis accelerometer vector in g-units (1.0 g = 9.81 m/s²). x = forward/back, y = left/right, z = vertical.'
+          },
+          'eegData.accel.x': {
+            signature: 'eegData.accel.x (g)',
+            description: 'Forward/backward acceleration or tilt component in g-units.'
+          },
+          'eegData.accel.y': {
+            signature: 'eegData.accel.y (g)',
+            description: 'Left/right lateral acceleration or roll tilt component in g-units.'
+          },
+          'eegData.accel.z': {
+            signature: 'eegData.accel.z (g)',
+            description: 'Vertical acceleration component in g-units (~1.0 g when head is upright and still).'
+          },
+          'eegData.accel.magnitude': {
+            signature: 'eegData.accel.magnitude (g)',
+            description: 'Total acceleration vector norm √(x² + y² + z²) in g-units (~1.0 g at rest; spikes >1.2 g during head nods/shakes).'
+          },
+          'eegData.getAccelChannel': {
+            signature: 'eegData.getAccelChannel(axis, numSamples)',
+            description: 'Get recent 52 Hz accelerometer history array for axis ("x", "y", "z", or "magnitude"). Default 256 samples.'
+          },
+          'eegData.getAllAccelChannels': {
+            signature: 'eegData.getAllAccelChannels(numSamples)',
+            description: 'Get recent 52 Hz accelerometer history for all axes: { x, y, z, magnitude }.'
+          }
+        },
+        'Gyroscope (3-Axis Angular Velocity)': {
+          'eegData.gyro': {
+            signature: 'eegData.gyro { x, y, z, magnitude }',
+            description: 'Real-time 52 Hz 3-axis gyroscope angular rate in degrees/second (°/s).'
+          },
+          'eegData.gyro.x': {
+            signature: 'eegData.gyro.x (°/s)',
+            description: 'Angular velocity around X axis (roll rate) in degrees/second.'
+          },
+          'eegData.gyro.y': {
+            signature: 'eegData.gyro.y (°/s)',
+            description: 'Angular velocity around Y axis (pitch/nod rate) in degrees/second.'
+          },
+          'eegData.gyro.z': {
+            signature: 'eegData.gyro.z (°/s)',
+            description: 'Angular velocity around Z axis (yaw/turn rate) in degrees/second.'
+          },
+          'eegData.gyro.magnitude': {
+            signature: 'eegData.gyro.magnitude (°/s)',
+            description: 'Total rotational speed √(gx² + gy² + gz²) in degrees/second.'
+          },
+          'eegData.getGyroChannel': {
+            signature: 'eegData.getGyroChannel(axis, numSamples)',
+            description: 'Get recent 52 Hz gyroscope history array for axis ("x", "y", "z", or "magnitude"). Default 256 samples.'
+          },
+          'eegData.getAllGyroChannels': {
+            signature: 'eegData.getAllGyroChannels(numSamples)',
+            description: 'Get recent 52 Hz gyroscope history for all axes: { x, y, z, magnitude }.'
+          }
+        },
+        'Head Orientation & 2nd-Order Kinematics': {
+          'eegData.pitch': {
+            signature: 'eegData.pitch (degrees)',
+            description: 'Fused head pitch angle in degrees (-90° to +90°, nodding up/down) via complementary filter.'
+          },
+          'eegData.roll': {
+            signature: 'eegData.roll (degrees)',
+            description: 'Fused head roll angle in degrees (-90° to +90°, tilting ear-to-shoulder).'
+          },
+          'eegData.yaw': {
+            signature: 'eegData.yaw (degrees)',
+            description: 'Integrated head yaw heading angle in degrees (-180° to +180°, turning left/right).'
+          },
+          'eegData.orientation': {
+            signature: 'eegData.orientation { pitch, roll, yaw }',
+            description: '3D head attitude angles in degrees fused from accelerometer gravity vector + gyroscope integration.'
+          },
+          'eegData.getOrientationChannel': {
+            signature: 'eegData.getOrientationChannel(axis, numSamples)',
+            description: 'Get recent 52 Hz orientation history for "pitch", "roll", or "yaw" (default 256 samples).'
+          },
+          'eegData.linearAccel': {
+            signature: 'eegData.linearAccel { x, y, z, magnitude }',
+            description: 'Gravity-compensated linear head acceleration in m/s² (world frame, after subtracting rotated 1g gravity vector).'
+          },
+          'eegData.velocity': {
+            signature: 'eegData.velocity { x, y, z, magnitude }',
+            description: '1st-order integrated head velocity in cm/s (leaky integration of linearAccel: v(t) = ∫ a_lin dt).'
+          },
+          'eegData.position': {
+            signature: 'eegData.position { x, y, z, magnitude }',
+            description: '2nd-order double-integrated 3D head displacement in cm (p(t) = ∬ a_lin dt² = ∫ v(t) dt).'
+          },
+          'eegData.getKinematicsHistory': {
+            signature: 'eegData.getKinematicsHistory(numSamples)',
+            description: 'Returns time-aligned history arrays for { ax, ay, az, gx, gy, gz, pitch, roll, yaw, linAx, linAy, linAz, vx, vy, vz, px, py, pz }.'
+          },
+          'eegData.resetKinematics': {
+            signature: 'eegData.resetKinematics()',
+            description: 'Zeroes out integrated yaw, velocity, and 2nd-order position state.'
+          }
+        },
+        'Telemetry, DRL/REF & Auxiliary Broadcast': {
+          'eegData.telemetry': {
+            signature: 'eegData.telemetry { batteryLevel, fuelGaugeVoltage, adcVoltage, temperature }',
+            description: 'Headset hardware broadcast telemetry: battery percentage (%), fuel-gauge voltage (mV), ADC voltage, and die temperature (°C).'
+          },
+          'eegData.batteryLevel': {
+            signature: 'eegData.batteryLevel (0 - 100%)',
+            description: 'Headset battery charge level in percent (0 to 100).'
+          },
+          'eegData.temperature': {
+            signature: 'eegData.temperature (°C)',
+            description: 'Headset internal temperature in degrees Celsius.'
+          },
+          'eegData.drlRef': {
+            signature: 'eegData.drlRef { drl, ref }',
+            description: 'Driven Right Leg (DRL) and Reference (REF) forehead calibration voltages in µV.'
+          },
+          'eegData.contactQuality': {
+            signature: 'eegData.contactQuality { TP9, AF7, AF8, TP10 }',
+            description: 'Per-electrode skin contact quality (0.0 = poor/off-head to 1.0 = clean contact).'
+          },
+          'eegData.aux': {
+            signature: 'eegData.aux (µV)',
+            description: 'Latest microvolt reading from the 5th auxiliary (AUX) electrode channel.'
+          }
+        },
         'Connection Status': {
           'eegData.connected': {
             signature: 'eegData.connected (boolean)',
@@ -2320,9 +4650,22 @@
           },
           'eegData.sampleRate': {
             signature: 'eegData.sampleRate (256)',
-            description: 'Sample rate in Hz (samples per second).'
+            description: 'EEG sample rate in Hz (256 samples per second).'
+          },
+          'eegData.imuSampleRate': {
+            signature: 'eegData.imuSampleRate (52)',
+            description: 'IMU (Accelerometer & Gyroscope) sample rate in Hz (52 samples per second).'
           }
         }
+      };
+
+      // Dedicated Broadcast Sensors / IMU / Kinematics Reference (for the Sensors / IMU tab)
+      const sensorsReference = {
+        'Accelerometer (52 Hz 3-Axis G-Force)': eegReference['Accelerometer (3-Axis Gravity & G-Force)'],
+        'Gyroscope (52 Hz Angular Velocity)': eegReference['Gyroscope (3-Axis Angular Velocity)'],
+        '3D Orientation & 2nd-Order Position Kinematics': eegReference['Head Orientation & 2nd-Order Kinematics'],
+        'Telemetry, DRL/REF & Contact Quality': eegReference['Telemetry, DRL/REF & Auxiliary Broadcast'],
+        'PPG / Optical (64 Hz Photoplethysmography)': eegReference['PPG / Optical Channels']
       };
 
       // Monaco Editor setup and management
@@ -2626,6 +4969,11 @@ function draw() {
             container.innerHTML = '';
             console.log('Canvas container cleared');
 
+            // Inject Zoom-style floating HUD (Connection Status Pill + One-Tap Fullscreen/Zoom Button)
+            if (typeof window.mountCanvasHud === 'function') {
+              window.mountCanvasHud(container);
+            }
+
             // Hide error console
             document.getElementById('error-console').style.display = 'none';
 
@@ -2814,16 +5162,34 @@ function draw() {
               // p5.js setup function
               p.setup = function() {
                 console.log('p5.js setup() called');
-                // Create canvas and attach to container
-                const canvas = p.createCanvas(containerWidth, containerHeight);
+                // Detect if user code requests WEBGL renderer
+                const usesWebGL = /\bcreateCanvas\s*\([^)]*\bWEBGL\b/.test(code);
+                const canvas = usesWebGL
+                  ? p.createCanvas(containerWidth, containerHeight, p.WEBGL)
+                  : p.createCanvas(containerWidth, containerHeight);
                 canvas.parent('canvas-container');
-                console.log('Canvas created:', containerWidth, 'x', containerHeight);
+                console.log('Canvas created:', containerWidth, 'x', containerHeight, usesWebGL ? '(WEBGL)' : '(2D)');
                 
                 // Update global dimensions
                 window.width = p.width;
                 window.height = p.height;
                 window.windowWidth = containerWidth;
                 window.windowHeight = containerHeight;
+
+                // Override global createCanvas inside userSetup so user calls to createCanvas(w, h, [WEBGL])
+                // keep the full container dimensions and stay attached inside #canvas-container
+                window.createCanvas = function(w, h, renderer) {
+                  if (renderer === p.WEBGL && !usesWebGL) {
+                    const c = p.createCanvas(containerWidth, containerHeight, p.WEBGL);
+                    c.parent('canvas-container');
+                    window.width = p.width;
+                    window.height = p.height;
+                    return c;
+                  }
+                  window.width = p.width;
+                  window.height = p.height;
+                  return canvas;
+                };
                 
                 // Call user setup if it exists
                 if (userSetup) {
@@ -3336,6 +5702,37 @@ function draw() {
           // Enable reload button
           document.getElementById('reload-btn').disabled = false;
 
+          // Sync quick-jump selector and active sketch pill
+          const selector = document.getElementById('example-selector');
+          if (selector && selector.value !== exampleName) {
+            selector.value = exampleName;
+          }
+          const activeTitle = document.getElementById('active-sketch-title');
+          if (activeTitle) {
+            activeTitle.textContent = example.title;
+            activeTitle.title = `${example.title} (${example.category})`;
+          }
+
+          // Sync active card in catalogue grid
+          document.querySelectorAll('.catalogue-card').forEach(card => {
+            if (card.dataset.exampleId === exampleName) {
+              card.classList.add('active');
+            } else {
+              card.classList.remove('active');
+            }
+          });
+
+          // Hide About window inside the animation pane when an example is chosen
+          const aboutOverlayEl = document.getElementById('about-modal-overlay');
+          if (aboutOverlayEl) {
+            aboutOverlayEl.classList.add('hidden');
+          }
+
+          // Blur any active button/select so Spacebar and Arrow keys go straight to the canvas
+          if (document.activeElement && document.activeElement !== document.body) {
+            try { document.activeElement.blur(); } catch (_) {}
+          }
+
           this.runCode();
         }
       }
@@ -3393,6 +5790,8 @@ function draw() {
               contentDiv.innerHTML = this.renderReference(inputReference);
             } else if (tabName === 'eeg') {
               contentDiv.innerHTML = this.renderReference(eegReference);
+            } else if (tabName === 'sensors') {
+              contentDiv.innerHTML = this.renderReference(sensorsReference);
             }
             
             // Add click handlers for inserting code
@@ -3479,6 +5878,8 @@ function draw() {
               reference = inputReference;
             } else if (this.currentTab === 'eeg') {
               reference = eegReference;
+            } else if (this.currentTab === 'sensors') {
+              reference = sensorsReference;
             }
             
             // Find the function in the reference
@@ -3654,14 +6055,19 @@ function draw() {
 
             const currentCode = codeEditor.editor.getValue();
             
-            const systemPrompt = `You are a helpful p5.js coding assistant for BrainImation, an EEG-powered creative coding platform. 
-Help users create animations that respond to brain and PPG optical data available through the eegData object:
+            const systemPrompt = `You are a helpful p5.js coding assistant for BrainImation, an EEG & biometric creative coding platform. 
+Help users create animations that respond to brain, PPG optical, and 6-DOF IMU / broadcast sensor data available through the eegData object:
 - eegData.alpha, beta, theta, delta, gamma (0.0-1.0)
 - eegData.attention, meditation (0.0-1.0)
-- eegData.getRawChannel(channel, numSamples) for raw EEG ("TP9", "AF7", "AF8", "TP10")
+- eegData.getRawChannel(channel, numSamples) for raw EEG ("TP9", "AF7", "AF8", "TP10", "AUX")
 - eegData.ppgPulse (0.0-1.0 normalized heartbeat pulse wave), eegData.heartRate (BPM)
 - eegData.ppg [ambient, infrared, red, optics4], eegData.ppgNormalized [0..3] (0.0-1.0)
 - eegData.getPPGChannel(channel, numSamples) for 64 Hz PPG ("ambient", "infrared", "red", "optics4")
+- eegData.accel { x, y, z, magnitude } (52 Hz 3-axis g-force) & eegData.getAccelChannel(axis, numSamples)
+- eegData.gyro { x, y, z, magnitude } (52 Hz angular velocity °/s) & eegData.getGyroChannel(axis, numSamples)
+- eegData.pitch, eegData.roll, eegData.yaw (degrees) & eegData.orientation { pitch, roll, yaw }
+- eegData.linearAccel (m/s²), eegData.velocity (cm/s), eegData.position (cm 2nd-order displacement)
+- eegData.telemetry { batteryLevel, fuelGaugeVoltage, adcVoltage, temperature }, eegData.drlRef { drl, ref }, eegData.contactQuality { TP9, AF7, AF8, TP10 }
 - eegData.connected (boolean)
 
 Respond ONLY with JavaScript code, no explanations or markdown. Include setup() and draw() functions.`;
@@ -4013,9 +6419,174 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
             mainContainer.classList.add('hide-reference');
             btn.textContent = '📖 Show Reference';
           }
+          setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
         });
 
+        // Toggle catalogue window
+        const toggleCatalogueBtn = document.getElementById('toggle-catalogue-btn');
+        if (toggleCatalogueBtn) {
+          toggleCatalogueBtn.addEventListener('click', () => {
+            const mainContainer = document.querySelector('.main-container');
+            if (mainContainer.classList.contains('hide-catalogue')) {
+              mainContainer.classList.remove('hide-catalogue');
+              toggleCatalogueBtn.textContent = '🎬 Catalogue';
+            } else {
+              mainContainer.classList.add('hide-catalogue');
+              toggleCatalogueBtn.textContent = '🎬 Show Catalogue';
+            }
+            setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+          });
+        }
+
+        // Catalogue width preset buttons (1x, 2x, 3x) and drag resizer
+        const mainContainerEl = document.querySelector('.main-container');
+        const sizeBtns = document.querySelectorAll('.catalogue-size-btn');
+        sizeBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            sizeBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const w = parseInt(btn.dataset.width, 10) || 320;
+            mainContainerEl.style.setProperty('--catalogue-width', `${w}px`);
+            setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+          });
+        });
+
+        const resizerEl = document.getElementById('catalogue-resizer');
+        if (resizerEl) {
+          let isResizing = false;
+          resizerEl.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            resizerEl.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+          });
+          window.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const catPanel = document.getElementById('catalogue-panel');
+            if (!catPanel) return;
+            const rect = catPanel.getBoundingClientRect();
+            const newWidth = rect.right - e.clientX;
+            const clampedWidth = Math.max(145, Math.min(640, newWidth));
+            mainContainerEl.style.setProperty('--catalogue-width', `${clampedWidth}px`);
+            sizeBtns.forEach(b => b.classList.remove('active'));
+          });
+          window.addEventListener('mouseup', () => {
+            if (!isResizing) return;
+            isResizing = false;
+            resizerEl.classList.remove('dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            window.dispatchEvent(new Event('resize'));
+          });
+        }
+
+        // Adjustable boundary resizer between the Catalogue panel and Reference docs panel
+        const refResizerEl = document.getElementById('reference-resizer');
+        if (refResizerEl) {
+          let isResizingRef = false;
+          let startX = 0;
+          let startRefWidth = 360;
+          let startCatWidth = 310;
+
+          refResizerEl.addEventListener('mousedown', (e) => {
+            isResizingRef = true;
+            startX = e.clientX;
+            const refPanel = document.getElementById('reference-panel');
+            const catPanel = document.getElementById('catalogue-panel');
+            startRefWidth = refPanel ? refPanel.getBoundingClientRect().width : 360;
+            startCatWidth = catPanel ? catPanel.getBoundingClientRect().width : 310;
+            refResizerEl.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+          });
+
+          window.addEventListener('mousemove', (e) => {
+            if (!isResizingRef) return;
+            const dx = e.clientX - startX;
+            const catHidden = mainContainerEl.classList.contains('hide-catalogue');
+
+            if (!catHidden) {
+              // Trade width directly between Catalogue and Reference panels when dragging their shared boundary
+              const totalRightWidth = startCatWidth + startRefWidth;
+              const newRefWidth = Math.max(200, Math.min(totalRightWidth - 150, startRefWidth - dx));
+              const newCatWidth = Math.max(150, totalRightWidth - newRefWidth);
+              mainContainerEl.style.setProperty('--reference-width', `${Math.round(newRefWidth)}px`);
+              mainContainerEl.style.setProperty('--catalogue-width', `${Math.round(newCatWidth)}px`);
+              sizeBtns.forEach(b => b.classList.remove('active'));
+            } else {
+              // Catalogue is hidden; resize Reference directly against the center canvas area
+              const newRefWidth = Math.max(200, Math.min(720, startRefWidth - dx));
+              mainContainerEl.style.setProperty('--reference-width', `${Math.round(newRefWidth)}px`);
+            }
+          });
+
+          window.addEventListener('mouseup', () => {
+            if (!isResizingRef) return;
+            isResizingRef = false;
+            refResizerEl.classList.remove('dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            window.dispatchEvent(new Event('resize'));
+          });
+        }
+
         // Event listeners
+        const aboutOverlay = document.getElementById('about-modal-overlay');
+        const aboutBtn = document.getElementById('about-btn');
+        const aboutCloseBtn = document.getElementById('about-close-btn');
+        const aboutExploreBtn = document.getElementById('about-explore-btn');
+        const aboutStartSimBtn = document.getElementById('about-start-sim-btn');
+        const aboutScrollMoreBtn = document.getElementById('about-scroll-more-btn');
+        const aboutModalBody = document.getElementById('about-modal-body');
+
+        const closeAboutModal = () => {
+          if (aboutOverlay) aboutOverlay.classList.add('hidden');
+        };
+        const openAboutModal = () => {
+          if (aboutOverlay) {
+            aboutOverlay.classList.remove('hidden');
+            if (aboutModalBody) aboutModalBody.scrollTop = 0;
+          }
+        };
+        const toggleAboutModal = () => {
+          if (!aboutOverlay) return;
+          if (aboutOverlay.classList.contains('hidden')) {
+            openAboutModal();
+          } else {
+            closeAboutModal();
+          }
+        };
+
+        if (aboutBtn) aboutBtn.addEventListener('click', toggleAboutModal);
+        if (aboutCloseBtn) aboutCloseBtn.addEventListener('click', closeAboutModal);
+        if (aboutExploreBtn) aboutExploreBtn.addEventListener('click', closeAboutModal);
+        if (aboutStartSimBtn) {
+          aboutStartSimBtn.addEventListener('click', () => {
+            if (currentDataSource !== 'simulator' && currentDataSource !== 'muse') {
+              startSimulation();
+            }
+            closeAboutModal();
+          });
+        }
+        if (aboutScrollMoreBtn) {
+          aboutScrollMoreBtn.addEventListener('click', () => {
+            const deepDive = document.getElementById('about-deep-dive');
+            if (deepDive) deepDive.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        }
+        if (aboutOverlay) {
+          aboutOverlay.addEventListener('click', (e) => {
+            if (e.target === aboutOverlay) closeAboutModal();
+          });
+        }
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && aboutOverlay && !aboutOverlay.classList.contains('hidden')) {
+            closeAboutModal();
+          }
+        });
+
         const connectBtn = document.getElementById('connect-btn');
         const ppgModeBtn = document.getElementById('ppg-mode-btn');
         if (ppgModeBtn) {
@@ -4081,6 +6652,7 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         });
 
         document.getElementById('run-btn').addEventListener('click', () => {
+          closeAboutModal();
           codeEditor.runCode();
         });
 
@@ -4109,22 +6681,9 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
           codeEditor.reloadCode();
         });
 
-        document.getElementById('fullscreen-btn').addEventListener('click', async () => {
-          const container = document.getElementById('canvas-container');
-          
-          try {
-            if (!document.fullscreenElement) {
-              // Enter fullscreen mode
-              await container.requestFullscreen();
-              document.getElementById('fullscreen-btn').textContent = 'Exit Fullscreen';
-            } else {
-              // Exit fullscreen mode
-              await document.exitFullscreen();
-              document.getElementById('fullscreen-btn').textContent = 'Fullscreen';
-            }
-          } catch (error) {
-            console.error('Fullscreen error:', error);
-            alert('Fullscreen mode is not supported or was blocked. Please try pressing F11 or allow fullscreen permissions.');
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+          if (typeof window.toggleCanvasZoomFullscreen === 'function') {
+            window.toggleCanvasZoomFullscreen();
           }
         });
 
@@ -4246,7 +6805,7 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
           selector.innerHTML = '';
           const placeholder = document.createElement('option');
           placeholder.value = '';
-          placeholder.textContent = '-- Select an Example --';
+          placeholder.textContent = '-- Quick Jump (' + registry.count() + ') --';
           selector.appendChild(placeholder);
 
           for (const cat of orderedCategories) {
@@ -4263,6 +6822,321 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
             selector.appendChild(group);
           }
           selector.disabled = false;
+
+          // Populate Category Filter in the Catalogue Panel
+          const catFilter = document.getElementById('catalogue-category-filter');
+          if (catFilter) {
+            catFilter.innerHTML = '<option value="all">All Categories (' + registry.count() + ')</option>';
+            for (const cat of orderedCategories) {
+              const examples = byCategory.get(cat);
+              if (!examples || !examples.length) continue;
+              const opt = document.createElement('option');
+              opt.value = cat;
+              opt.textContent = `${cat} (${examples.length})`;
+              catFilter.appendChild(opt);
+            }
+          }
+
+          // Generate deterministic, rich procedural SVG artwork for each sketch card
+          function buildCardSvg(ex) {
+            const str = ex.id + ':' + ex.title;
+            let hash = 2166136261;
+            for (let i = 0; i < str.length; i++) {
+              hash ^= str.charCodeAt(i);
+              hash = Math.imul(hash, 16777619);
+            }
+            const h1 = Math.abs(hash) % 360;
+            const h2 = (h1 + 55 + (Math.abs(hash >> 8) % 90)) % 360;
+            const h3 = (h2 + 70) % 360;
+            const c1 = `hsl(${h1}, 82%, 60%)`;
+            const c2 = `hsl(${h2}, 85%, 56%)`;
+            const c3 = `hsl(${h3}, 90%, 66%)`;
+            const bg1 = `hsl(${h1}, 42%, 11%)`;
+            const bg2 = `hsl(${h2}, 48%, 6%)`;
+            const t = (ex.title + ' ' + ex.id + ' ' + ex.category).toLowerCase();
+
+            let motif = '';
+            if (t.includes('theremin') || t.includes('antenna')) {
+              motif = `
+                <line x1="38" y1="84" x2="38" y2="20" stroke="${c1}" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="38" cy="18" r="5" fill="${c3}"/>
+                <path d="M 18 76 A 20 10 0 0 1 58 76" fill="none" stroke="${c2}" stroke-width="2.5"/>
+                <path d="M 48 48 Q 66 24 84 48 T 120 48 T 148 48" fill="none" stroke="${c3}" stroke-width="2.2"/>
+                <circle cx="54" cy="34" r="14" fill="none" stroke="${c1}" stroke-width="1.2" opacity="0.55" stroke-dasharray="3 3"/>
+                <circle cx="54" cy="34" r="24" fill="none" stroke="${c2}" stroke-width="1.2" opacity="0.35" stroke-dasharray="3 3"/>`;
+            } else if (t.includes('kinematic') || t.includes('derivation') || t.includes('stacked')) {
+              motif = `
+                <polyline points="14,22 36,16 58,28 80,14 102,26 124,18 146,22" fill="none" stroke="${c1}" stroke-width="2"/>
+                <polyline points="14,50 38,38 64,60 92,42 118,56 146,46" fill="none" stroke="${c2}" stroke-width="2.2"/>
+                <path d="M 14 80 C 46 80, 68 62, 98 72 C 118 78, 132 64, 146 68" fill="none" stroke="${c3}" stroke-width="2.6"/>
+                <line x1="80" y1="10" x2="80" y2="90" stroke="#ffffff" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>`;
+            } else if (t.includes('imu') || t.includes('gyro') || t.includes('accel') || t.includes('orientation') || t.includes('tilt')) {
+              motif = `
+                <g transform="translate(80,50)">
+                  <ellipse rx="36" ry="14" fill="none" stroke="${c1}" stroke-width="2" transform="rotate(-25)"/>
+                  <ellipse rx="36" ry="14" fill="none" stroke="${c2}" stroke-width="2" transform="rotate(35)"/>
+                  <circle r="24" fill="none" stroke="${c3}" stroke-width="1.6" stroke-dasharray="4 3"/>
+                  <line x1="0" y1="0" x2="22" y2="-16" stroke="${c3}" stroke-width="2.5" stroke-linecap="round"/>
+                  <circle r="5" fill="${c3}"/>
+                </g>`;
+            } else if (t.includes('torus') || t.includes('3d') || t.includes('sphere') || t.includes('terrain')) {
+              motif = `
+                <ellipse cx="80" cy="50" rx="46" ry="20" fill="none" stroke="${c1}" stroke-width="2.2" opacity="0.85" transform="rotate(-18 80 50)"/>
+                <ellipse cx="80" cy="50" rx="46" ry="20" fill="none" stroke="${c2}" stroke-width="2.2" opacity="0.85" transform="rotate(18 80 50)"/>
+                <circle cx="80" cy="50" r="14" fill="none" stroke="${c3}" stroke-width="2" stroke-dasharray="4 3"/>
+                <circle cx="80" cy="50" r="4.5" fill="${c3}"/>`;
+            } else if (t.includes('flower') || t.includes('petal') || t.includes('mandala') || t.includes('kaleidoscope')) {
+              motif = `
+                <g transform="translate(80,50)">
+                  <ellipse rx="24" ry="8" fill="${c1}" fill-opacity="0.35" stroke="${c1}" stroke-width="1.4"/>
+                  <ellipse rx="24" ry="8" fill="${c2}" fill-opacity="0.35" stroke="${c2}" stroke-width="1.4" transform="rotate(45)"/>
+                  <ellipse rx="24" ry="8" fill="${c1}" fill-opacity="0.35" stroke="${c1}" stroke-width="1.4" transform="rotate(90)"/>
+                  <ellipse rx="24" ry="8" fill="${c2}" fill-opacity="0.35" stroke="${c2}" stroke-width="1.4" transform="rotate(135)"/>
+                  <circle r="7" fill="${c3}"/>
+                </g>`;
+            } else if (t.includes('tree') || t.includes('fractal') || t.includes('forest')) {
+              motif = `
+                <g stroke-linecap="round" fill="none">
+                  <path d="M80 86 L80 58" stroke="${c1}" stroke-width="4"/>
+                  <path d="M80 58 L60 38 M80 58 L100 38" stroke="${c2}" stroke-width="2.8"/>
+                  <path d="M60 38 L46 24 M60 38 L68 22 M100 38 L92 22 M100 38 L114 24" stroke="${c3}" stroke-width="2"/>
+                  <circle cx="46" cy="24" r="4" fill="${c1}"/>
+                  <circle cx="68" cy="22" r="4" fill="${c3}"/>
+                  <circle cx="92" cy="22" r="4" fill="${c3}"/>
+                  <circle cx="114" cy="24" r="4" fill="${c1}"/>
+                </g>`;
+            } else if (t.includes('snake') || t.includes('worm') || t.includes('spline') || t.includes('ribbon')) {
+              motif = `
+                <path d="M18 65 C 45 20, 68 80, 95 36 C 115 10, 132 68, 146 32" fill="none" stroke="${c1}" stroke-width="5" stroke-linecap="round"/>
+                <path d="M18 65 C 45 20, 68 80, 95 36 C 115 10, 132 68, 146 32" fill="none" stroke="${c3}" stroke-width="2" stroke-dasharray="3 5" stroke-linecap="round"/>
+                <circle cx="146" cy="32" r="5" fill="${c2}"/>`;
+            } else if (t.includes('trace') || t.includes('epoch') || t.includes('wave') || t.includes('oscilloscope') || t.includes('erp') || t.includes('line')) {
+              motif = `
+                <polyline points="10,32 32,32 42,16 52,48 62,26 74,38 92,32 108,18 118,46 130,32 150,32" fill="none" stroke="${c1}" stroke-width="2.2"/>
+                <polyline points="10,66 36,66 48,52 58,82 70,58 84,72 102,66 116,50 128,78 140,66 150,66" fill="none" stroke="${c2}" stroke-width="2.2"/>
+                <line x1="80" y1="8" x2="80" y2="92" stroke="${c3}" stroke-width="1" stroke-dasharray="3 3" opacity="0.6"/>`;
+            } else if (t.includes('spectra') || t.includes('band') || t.includes('bar') || t.includes('graph') || t.includes('equalizer')) {
+              motif = `
+                <rect x="24" y="48" width="14" height="36" rx="3" fill="${c1}"/>
+                <rect x="46" y="26" width="14" height="58" rx="3" fill="${c2}"/>
+                <rect x="68" y="16" width="14" height="68" rx="3" fill="${c3}"/>
+                <rect x="90" y="34" width="14" height="50" rx="3" fill="${c2}"/>
+                <rect x="112" y="54" width="14" height="30" rx="3" fill="${c1}"/>`;
+            } else if (t.includes('heart') || t.includes('ppg') || t.includes('pulse') || t.includes('coherence')) {
+              motif = `
+                <path d="M80 76 C 80 76, 44 54, 44 33 C 44 21, 56 15, 67 22 C 74 26, 80 34, 80 34 C 80 34, 86 26, 93 22 C 104 15, 116 21, 116 33 C 116 54, 80 76, 80 76 Z" fill="${c1}" fill-opacity="0.35" stroke="${c1}" stroke-width="2.2"/>
+                <polyline points="22,50 56,50 66,30 76,68 86,40 94,54 138,50" fill="none" stroke="${c3}" stroke-width="2.2"/>`;
+            } else if (t.includes('game') || t.includes('pong') || t.includes('maze') || t.includes('target') || t.includes('tug') || t.includes('race')) {
+              motif = `
+                <circle cx="80" cy="50" r="28" fill="none" stroke="${c1}" stroke-width="2"/>
+                <circle cx="80" cy="50" r="17" fill="none" stroke="${c2}" stroke-width="2" stroke-dasharray="6 4"/>
+                <circle cx="80" cy="50" r="6" fill="${c3}"/>
+                <line x1="44" y1="50" x2="116" y2="50" stroke="${c1}" stroke-width="1.2" opacity="0.6"/>
+                <line x1="80" y1="14" x2="80" y2="86" stroke="${c1}" stroke-width="1.2" opacity="0.6"/>`;
+            } else if (t.includes('firework') || t.includes('star') || t.includes('cosmic') || t.includes('aurora') || t.includes('sun')) {
+              motif = `
+                <g transform="translate(80,50)" stroke-linecap="round">
+                  <line x1="-30" y1="0" x2="30" y2="0" stroke="${c1}" stroke-width="2.2"/>
+                  <line x1="0" y1="-30" x2="0" y2="30" stroke="${c1}" stroke-width="2.2"/>
+                  <line x1="-22" y1="-22" x2="22" y2="22" stroke="${c2}" stroke-width="2.2"/>
+                  <line x1="-22" y1="22" x2="22" y2="-22" stroke="${c2}" stroke-width="2.2"/>
+                  <circle r="9" fill="${c3}"/>
+                  <circle cx="-26" cy="-12" r="3" fill="${c3}"/>
+                  <circle cx="28" cy="14" r="3" fill="${c1}"/>
+                </g>`;
+            } else {
+              const r1 = 12 + (Math.abs(hash >> 4) % 10);
+              const r2 = 8 + (Math.abs(hash >> 9) % 10);
+              motif = `
+                <circle cx="52" cy="48" r="${r1}" fill="${c1}" fill-opacity="0.45" stroke="${c1}" stroke-width="2"/>
+                <circle cx="96" cy="42" r="${r2}" fill="${c2}" fill-opacity="0.45" stroke="${c2}" stroke-width="2"/>
+                <circle cx="78" cy="64" r="11" fill="${c3}" fill-opacity="0.45" stroke="${c3}" stroke-width="2"/>
+                <line x1="52" y1="48" x2="96" y2="42" stroke="${c3}" stroke-width="1.4" opacity="0.7"/>
+                <line x1="96" y1="42" x2="78" y2="64" stroke="${c1}" stroke-width="1.4" opacity="0.7"/>
+                <line x1="78" y1="64" x2="52" y2="48" stroke="${c2}" stroke-width="1.4" opacity="0.7"/>`;
+            }
+
+            return `<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="g-${ex.id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="${bg1}"/>
+                  <stop offset="100%" stop-color="${bg2}"/>
+                </linearGradient>
+              </defs>
+              <rect width="160" height="100" fill="url(#g-${ex.id})"/>
+              <circle cx="135" cy="18" r="34" fill="${c1}" opacity="0.09"/>
+              <circle cx="24" cy="84" r="38" fill="${c2}" opacity="0.09"/>
+              ${motif}
+            </svg>`;
+          }
+
+          function getCategoryTheme(cat) {
+            const themes = {
+              'Getting Started':                    { icon: '🚀', color: '#4ecdc4', bg: 'rgba(78, 205, 196, 0.26)' },
+              'Brain Wave Visualizations':          { icon: '🌊', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.26)' },
+              'PPG & Optical (fNIRS)':              { icon: '💓', color: '#ff4d79', bg: 'rgba(255, 77, 121, 0.28)' },
+              'Motion, IMU & Broadcast Sensors':    { icon: '🧭', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.28)' },
+              'Multimodal (EEG + PPG + HR)':        { icon: '🧠⚡💓', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.28)' },
+              'Attention & Meditation':        { icon: '🧘', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.25)' },
+              'Particle Systems':              { icon: '✨', color: '#f472b6', bg: 'rgba(244, 114, 182, 0.25)' },
+              '3D & Advanced':                 { icon: '🧊', color: '#60a5fa', bg: 'rgba(96, 165, 250, 0.25)' },
+              'Drawing & Interaction':         { icon: '🎨', color: '#34d399', bg: 'rgba(52, 211, 153, 0.25)' },
+              'Raw EEG Data':                  { icon: '📈', color: '#22d3ee', bg: 'rgba(34, 211, 238, 0.25)' },
+              'Noise & Generative':            { icon: '🌀', color: '#a78bfa', bg: 'rgba(167, 139, 250, 0.25)' },
+              'Animation & Motion':            { icon: '🎞️', color: '#fb923c', bg: 'rgba(251, 146, 60, 0.25)' },
+              'Sound & Music':                 { icon: '🎵', color: '#facc15', bg: 'rgba(250, 204, 21, 0.25)' },
+              'BrainGames':                    { icon: '🎮', color: '#ff4aa0', bg: 'rgba(255, 74, 160, 0.28)' },
+              'EEGEdu Modules':                     { icon: '🧬', color: '#818cf8', bg: 'rgba(129, 140, 248, 0.26)' },
+              'Classic p5.eegedu':                  { icon: '🏛️', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.25)' },
+              '2025 Neurotech Class Catalogue':     { icon: '🧠', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.26)' },
+              '2022 NeuroArt Class Gallery':        { icon: '🎓', color: '#fb7185', bg: 'rgba(251, 113, 133, 0.25)' }
+            };
+            return themes[cat] || { icon: '🎬', color: '#4ecdc4', bg: 'rgba(78, 205, 196, 0.22)' };
+          }
+
+          function getBadgeInfo(ex) {
+            if (ex.category === '2022 NeuroArt Class Gallery') {
+              const parts = ex.title.split('—');
+              const student = parts.length > 1 ? parts[0].trim() : 'Student';
+              return { badge: '🎓 ' + student.split(' ')[0], subtitle: parts.length > 1 ? `By ${student}` : ex.category, cleanTitle: parts.length > 1 ? parts.slice(1).join('—').trim() : ex.title };
+            }
+            if (ex.category === '2025 Neurotech Class Catalogue') {
+              const m = ex.title.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+              if (m) {
+                const student = m[2].trim();
+                return { badge: '🎓 ' + student.split(' ')[0], subtitle: `By ${student} (2025)`, cleanTitle: m[1].trim() };
+              }
+              return { badge: '🎓 2025', subtitle: ex.category, cleanTitle: ex.title };
+            }
+            if (ex.category === 'EEGEdu Modules') {
+              return { badge: '🧬 EEGEdu', subtitle: 'EEGEdu Module', cleanTitle: ex.title.replace(/\s*\(EEGEdu\)\s*$/i, '') };
+            }
+            if (ex.category === 'Classic p5.eegedu') {
+              return { badge: 'p5.eegedu', subtitle: 'Classic p5.eegedu', cleanTitle: ex.title.replace(/\s*\((?:Classic\s+)?(?:p5\.)?eegedu\)\s*$/i, '') };
+            }
+            if (ex.category === 'BrainGames') {
+              return { badge: '🎮 BrainGame', subtitle: 'BrainGames', cleanTitle: ex.title };
+            }
+            if (ex.category === 'Multimodal (EEG + PPG + HR)') {
+              return { badge: '🧠+💓 Multi', subtitle: ex.category, cleanTitle: ex.title };
+            }
+            if (ex.category === 'Motion, IMU & Broadcast Sensors') {
+              return { badge: '🧭 IMU/Sensors', subtitle: ex.category, cleanTitle: ex.title };
+            }
+            if (ex.category.includes('Games')) {
+              return { badge: '🎮 Game', subtitle: ex.category, cleanTitle: ex.title };
+            }
+            if (ex.category.includes('Heart') || ex.category.includes('PPG') || ex.category.includes('fNIRS')) {
+              return { badge: '💓 PPG/SpO₂', subtitle: ex.category, cleanTitle: ex.title };
+            }
+            return { badge: ex.category.split(' ')[0], subtitle: ex.category, cleanTitle: ex.title };
+          }
+
+          const scrollContainer = document.getElementById('catalogue-scroll');
+          const countBadge = document.getElementById('catalogue-count');
+          const searchInput = document.getElementById('catalogue-search');
+
+          function renderCatalogueGrid() {
+            if (!scrollContainer) return;
+            const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+            const selectedCat = catFilter ? catFilter.value : 'all';
+            const activeId = selector ? selector.value : '';
+
+            scrollContainer.innerHTML = '';
+            let totalRendered = 0;
+
+            for (const cat of orderedCategories) {
+              if (selectedCat !== 'all' && selectedCat !== cat) continue;
+              const examples = byCategory.get(cat) || [];
+              const filtered = examples.filter(ex => {
+                if (!query) return true;
+                return ex.title.toLowerCase().includes(query) ||
+                       ex.category.toLowerCase().includes(query) ||
+                       ex.id.toLowerCase().includes(query);
+              });
+              if (!filtered.length) continue;
+
+              totalRendered += filtered.length;
+
+              const section = document.createElement('div');
+              section.className = 'catalogue-section';
+              const theme = getCategoryTheme(cat);
+              section.style.setProperty('--cat-color', theme.color);
+              section.style.setProperty('--cat-bg', theme.bg);
+
+              const header = document.createElement('div');
+              header.className = 'catalogue-section-header';
+              const titleWrap = document.createElement('div');
+              titleWrap.className = 'catalogue-section-title-wrap';
+              const iconSpan = document.createElement('span');
+              iconSpan.className = 'catalogue-section-icon';
+              iconSpan.textContent = theme.icon;
+              const catSpan = document.createElement('span');
+              catSpan.className = 'catalogue-section-name';
+              catSpan.textContent = cat;
+              titleWrap.appendChild(iconSpan);
+              titleWrap.appendChild(catSpan);
+
+              const countSpan = document.createElement('span');
+              countSpan.className = 'catalogue-section-count';
+              countSpan.textContent = `${filtered.length}`;
+              header.appendChild(titleWrap);
+              header.appendChild(countSpan);
+              section.appendChild(header);
+
+              const grid = document.createElement('div');
+              grid.className = 'catalogue-grid';
+
+              for (const ex of filtered) {
+                const info = getBadgeInfo(ex);
+                const card = document.createElement('div');
+                card.className = 'catalogue-card' + (ex.id === activeId ? ' active' : '');
+                card.dataset.exampleId = ex.id;
+                card.title = `${ex.title}\nCategory: ${ex.category}\nClick to load into Code Editor`;
+
+                card.innerHTML = `
+                  <div class="catalogue-thumb">
+                    <img class="catalogue-thumb-img" src="./examples/thumbnails/${ex.id}.png" alt="${info.cleanTitle.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" />
+                    <div class="catalogue-thumb-fallback" style="display:none; width:100%; height:100%;">${buildCardSvg(ex)}</div>
+                    <span class="catalogue-tag-badge">${info.badge}</span>
+                    <div class="catalogue-play-badge">
+                      <div class="catalogue-play-pill">▶</div>
+                    </div>
+                  </div>
+                  <div class="catalogue-card-body">
+                    <div class="catalogue-card-title">${info.cleanTitle}</div>
+                    <div class="catalogue-card-sub">${info.subtitle}</div>
+                  </div>
+                `;
+
+                card.addEventListener('click', () => {
+                  codeEditor.loadExample(ex.id);
+                });
+
+                grid.appendChild(card);
+              }
+
+              section.appendChild(grid);
+              scrollContainer.appendChild(section);
+            }
+
+            if (countBadge) {
+              countBadge.textContent = `${totalRendered}`;
+            }
+
+            if (totalRendered === 0) {
+              scrollContainer.innerHTML = `<div style="padding: 24px 12px; text-align: center; color: var(--muted); font-size: 11px;">No animations match your filter.</div>`;
+            }
+          }
+
+          if (searchInput) {
+            searchInput.addEventListener('input', renderCatalogueGrid);
+          }
+          if (catFilter) {
+            catFilter.addEventListener('change', renderCatalogueGrid);
+          }
+
+          renderCatalogueGrid();
           console.log(
             `Loaded ${registry.count()} example animations across ${orderedCategories.length} categories`
           );
@@ -4271,8 +7145,10 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         // Simulation control sliders
         const attentionSlider = document.getElementById('sim-attention');
         const meditationSlider = document.getElementById('sim-meditation');
+        const motionSlider = document.getElementById('sim-motion');
         const attentionVal = document.getElementById('sim-attention-val');
         const meditationVal = document.getElementById('sim-meditation-val');
+        const motionVal = document.getElementById('sim-motion-val');
         
         attentionSlider.addEventListener('input', (e) => {
           const value = e.target.value;
@@ -4290,15 +7166,200 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
           }
         });
 
-        // Listen for fullscreen changes (e.g., when user presses ESC)
-        document.addEventListener('fullscreenchange', () => {
-          const btn = document.getElementById('fullscreen-btn');
-          if (document.fullscreenElement) {
-            btn.textContent = 'Exit Fullscreen';
-          } else {
-            btn.textContent = 'Fullscreen';
+        if (motionSlider) {
+          motionSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (motionVal) motionVal.textContent = value;
+            if (eegSimulator && eegSimulator.isRunning) {
+              eegSimulator.setMotion(value);
+            }
+          });
+        }
+
+        // Listen for fullscreen changes (e.g., when user presses ESC) and wire Zoom-style Canvas HUD + Mobile Navigation
+        window.syncCanvasStatusHud = function() {
+          const statusTextEl = document.getElementById('status-text');
+          const statusDotEl = document.getElementById('muse-status');
+          const hudTextEl = document.getElementById('canvas-hud-status-text');
+          const hudDotEl = document.getElementById('canvas-hud-status-dot');
+          if (hudTextEl && statusTextEl) {
+            hudTextEl.textContent = statusTextEl.textContent;
+          }
+          if (hudDotEl && statusDotEl) {
+            hudDotEl.className = statusDotEl.className;
+          }
+        };
+
+        window.isCanvasZoomed = function() {
+          const container = document.getElementById('canvas-container');
+          const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+          return Boolean(fsEl || (container && container.classList.contains('pseudo-fullscreen')));
+        };
+
+        window.updateZoomUI = function() {
+          const zoomed = window.isCanvasZoomed();
+          const fsBtn = document.getElementById('fullscreen-btn');
+          if (fsBtn) {
+            fsBtn.textContent = zoomed ? 'Exit Fullscreen' : 'Fullscreen';
+          }
+          const hudZoomLabel = document.getElementById('canvas-hud-zoom-label');
+          const hudZoomIcon = document.getElementById('canvas-hud-zoom-icon');
+          if (hudZoomLabel) {
+            hudZoomLabel.textContent = zoomed ? 'Minimize' : 'Full Screen';
+          }
+          if (hudZoomIcon) {
+            hudZoomIcon.textContent = zoomed ? '🗗' : '⛶';
+          }
+          const mobZoomLabel = document.getElementById('mobile-zoom-label');
+          const mobZoomIcon = document.getElementById('mobile-zoom-icon');
+          const mobZoomBtn = document.getElementById('mobile-zoom-btn');
+          if (mobZoomLabel) {
+            mobZoomLabel.textContent = zoomed ? 'Exit Zoom' : 'Zoom';
+          }
+          if (mobZoomIcon) {
+            mobZoomIcon.textContent = zoomed ? '🗗' : '⛶';
+          }
+          if (mobZoomBtn) {
+            mobZoomBtn.classList.toggle('active', zoomed);
+          }
+          setTimeout(() => window.dispatchEvent(new Event('resize')), 60);
+        };
+
+        window.toggleCanvasZoomFullscreen = async function() {
+          const container = document.getElementById('canvas-container');
+          if (!container) return;
+
+          // Dismiss the About card so the animation is visible in fullscreen
+          const aboutOverlayEl = document.getElementById('about-modal-overlay');
+          if (aboutOverlayEl) aboutOverlayEl.classList.add('hidden');
+
+          const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+          if (fsEl) {
+            try {
+              if (document.exitFullscreen) await document.exitFullscreen();
+              else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+            } catch (_) {}
+            container.classList.remove('pseudo-fullscreen');
+            window.updateZoomUI();
+            return;
+          }
+
+          if (container.classList.contains('pseudo-fullscreen')) {
+            container.classList.remove('pseudo-fullscreen');
+            window.updateZoomUI();
+            return;
+          }
+
+          // Try native Fullscreen API first; fall back to CSS fixed viewport zoom (for iOS Safari / mobile webviews)
+          const reqFs = container.requestFullscreen || container.webkitRequestFullscreen;
+          if (reqFs) {
+            try {
+              await reqFs.call(container);
+              window.updateZoomUI();
+              return;
+            } catch (_) {
+              // Fall through to pseudo-fullscreen
+            }
+          }
+          container.classList.add('pseudo-fullscreen');
+          window.updateZoomUI();
+        };
+
+        window.mountCanvasHud = function(container) {
+          if (!container) container = document.getElementById('canvas-container');
+          if (!container) return;
+          let hud = container.querySelector('.canvas-hud');
+          if (hud) hud.remove();
+
+          hud = document.createElement('div');
+          hud.className = 'canvas-hud';
+          hud.innerHTML = `
+            <div class="canvas-status-pill" id="canvas-hud-status-pill" title="Live Muse / Simulator Connection Status">
+              <div class="status-indicator" id="canvas-hud-status-dot"></div>
+              <span id="canvas-hud-status-text">Disconnected</span>
+            </div>
+            <button type="button" class="canvas-zoom-btn" id="canvas-hud-zoom-btn" title="Toggle Full Screen (Double-tap canvas or click)">
+              <span class="canvas-zoom-icon" id="canvas-hud-zoom-icon">⛶</span>
+              <span id="canvas-hud-zoom-label">Full Screen</span>
+            </button>
+          `;
+          container.appendChild(hud);
+
+          const zoomBtn = hud.querySelector('#canvas-hud-zoom-btn');
+          if (zoomBtn) {
+            zoomBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              window.toggleCanvasZoomFullscreen();
+            });
+            zoomBtn.addEventListener('touchend', (e) => {
+              e.stopPropagation();
+            });
+          }
+
+          window.syncCanvasStatusHud();
+          window.updateZoomUI();
+        };
+
+        // Mount HUD immediately and support double-click / Escape for Zoom-style fullscreen
+        window.mountCanvasHud(document.getElementById('canvas-container'));
+
+        const canvasContainerEl = document.getElementById('canvas-container');
+        if (canvasContainerEl) {
+          canvasContainerEl.addEventListener('dblclick', (e) => {
+            if (e.target.closest('.canvas-hud')) return;
+            window.toggleCanvasZoomFullscreen();
+          });
+        }
+
+        document.addEventListener('fullscreenchange', () => window.updateZoomUI());
+        document.addEventListener('webkitfullscreenchange', () => window.updateZoomUI());
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && canvasContainerEl && canvasContainerEl.classList.contains('pseudo-fullscreen')) {
+            canvasContainerEl.classList.remove('pseudo-fullscreen');
+            window.updateZoomUI();
           }
         });
+
+        // Mobile Bottom Navigation Bar switching (Catalogue / Code / Data & Docs / Zoom)
+        const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn[data-mobile-tab]');
+        const setMobileWorkspaceTab = (tabName) => {
+          if (!mainContainerEl) return;
+          mainContainerEl.setAttribute('data-mobile-view', tabName);
+          mobileNavBtns.forEach(b => {
+            b.classList.toggle('active', b.dataset.mobileTab === tabName);
+          });
+          setTimeout(() => window.dispatchEvent(new Event('resize')), 60);
+        };
+
+        mobileNavBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            setMobileWorkspaceTab(btn.dataset.mobileTab);
+          });
+        });
+
+        const mobileZoomBtn = document.getElementById('mobile-zoom-btn');
+        if (mobileZoomBtn) {
+          mobileZoomBtn.addEventListener('click', () => {
+            window.toggleCanvasZoomFullscreen();
+          });
+        }
+
+        // Also allow header Catalogue & Reference buttons to switch tabs when in mobile view
+        if (toggleCatalogueBtn) {
+          toggleCatalogueBtn.addEventListener('click', () => {
+            if (window.innerWidth <= 900) {
+              setMobileWorkspaceTab('catalogue');
+            }
+          });
+        }
+        const toggleRefBtnEl = document.getElementById('toggle-reference-btn');
+        if (toggleRefBtnEl) {
+          toggleRefBtnEl.addEventListener('click', () => {
+            if (window.innerWidth <= 900) {
+              setMobileWorkspaceTab('data');
+            }
+          });
+        }
 
         // Check for Web Bluetooth support first
         if (!navigator.bluetooth) {
@@ -4340,12 +7401,17 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         document.getElementById('sim-controls').style.display = 'block';
         document.getElementById('status-text').textContent = 'Simulating EEG Data';
         document.getElementById('muse-status').className = 'status-indicator connected';
+        if (typeof window.syncCanvasStatusHud === 'function') window.syncCanvasStatusHud();
         
         // Initialize with current slider values
         eegSimulator.setAttention(document.getElementById('sim-attention').value);
         eegSimulator.setMeditation(document.getElementById('sim-meditation').value);
+        const motionInput = document.getElementById('sim-motion');
+        if (motionInput) {
+          eegSimulator.setMotion(motionInput.value);
+        }
         
-        logger.log('✅ Simulation active - Use sliders to control brain wave parameters', 'success');
+        logger.log('✅ Simulation active - Use sliders to control brain wave & head motion parameters', 'success');
       }
 
       function stopSimulation() {
@@ -4358,9 +7424,14 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         document.getElementById('sim-controls').style.display = 'none';
         document.getElementById('status-text').textContent = 'Disconnected';
         document.getElementById('muse-status').className = 'status-indicator';
+        if (typeof window.syncCanvasStatusHud === 'function') window.syncCanvasStatusHud();
         
         // Reset eegData
-        const preserveNumericKeys = new Set(['sampleRate', 'historyLength', 'ppgSampleRate', 'ppgHistoryLength']);
+        const preserveNumericKeys = new Set([
+          'sampleRate', 'historyLength',
+          'ppgSampleRate', 'ppgHistoryLength',
+          'imuSampleRate', 'imuHistoryLength'
+        ]);
         Object.keys(eegData).forEach(key => {
           if (preserveNumericKeys.has(key)) {
             return;
@@ -4372,11 +7443,47 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
           } else if (key === 'connected') {
             eegData[key] = false;
           } else if (key === 'rawHistory') {
-            eegData[key] = { TP9: [], AF7: [], AF8: [], TP10: [] };
+            eegData[key] = { TP9: [], AF7: [], AF8: [], TP10: [], AUX: [] };
           } else if (key === 'ppgHistory') {
             eegData[key] = { ambient: [], infrared: [], red: [], optics4: [] };
+          } else if (key === 'accel') {
+            eegData[key] = { x: 0, y: 0, z: 1.0, magnitude: 1.0 };
+          } else if (key === 'gyro' || key === 'linearAccel' || key === 'velocity' || key === 'position') {
+            eegData[key] = { x: 0, y: 0, z: 0, magnitude: 0 };
+          } else if (key === 'orientation') {
+            eegData[key] = { pitch: 0, roll: 0, yaw: 0 };
+          } else if (key === 'accelHistory' || key === 'gyroHistory') {
+            eegData[key] = { x: [], y: [], z: [], magnitude: [] };
+          } else if (key === 'orientationHistory') {
+            eegData[key] = { pitch: [], roll: [], yaw: [] };
+          } else if (key === 'telemetry') {
+            eegData[key] = { batteryLevel: 0, fuelGaugeVoltage: 0, adcVoltage: 0, temperature: 0, sequenceId: 0 };
+          } else if (key === 'telemetryHistory') {
+            eegData[key] = { batteryLevel: [], fuelGaugeVoltage: [], temperature: [] };
+          } else if (key === 'drlRef') {
+            eegData[key] = { drl: 0, ref: 0 };
+          } else if (key === 'drlRefHistory') {
+            eegData[key] = { drl: [], ref: [] };
+          } else if (key === 'contactQuality') {
+            eegData[key] = { TP9: 0, AF7: 0, AF8: 0, TP10: 0 };
+          } else if (key === 'channels') {
+            eegData[key] = {
+              delta: [0.20, 0.22, 0.21, 0.19],
+              theta: [0.30, 0.28, 0.32, 0.29],
+              alpha: [0.35, 0.32, 0.36, 0.38],
+              beta:  [0.35, 0.38, 0.36, 0.33],
+              gamma: [0.25, 0.27, 0.26, 0.24]
+            };
+          } else if (key === 'spectra') {
+            eegData[key] = {
+              freqs: Array.from({ length: 60 }, (_, k) => k + 1),
+              psd: [new Array(60).fill(0), new Array(60).fill(0), new Array(60).fill(0), new Array(60).fill(0)]
+            };
           }
         });
+        if (typeof eegData.resetKinematics === 'function') {
+          eegData.resetKinematics();
+        }
         
         // Update display
         document.getElementById('alpha-value').textContent = '0.0';
@@ -4385,8 +7492,12 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         document.getElementById('delta-value').textContent = '0.0';
         const ppgEl = document.getElementById('ppg-value');
         const hrEl = document.getElementById('hr-value');
+        const imuEl = document.getElementById('imu-value');
+        const telEl = document.getElementById('telemetry-value');
         if (ppgEl) ppgEl.textContent = '0.00';
         if (hrEl) hrEl.textContent = '--';
+        if (imuEl) imuEl.textContent = '0° / 0°';
+        if (telEl) telEl.textContent = '--';
         
         logger.log('✅ Simulation stopped', 'success');
       }

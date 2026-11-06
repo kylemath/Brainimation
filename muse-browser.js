@@ -282,7 +282,12 @@
       }
       case 'battery': {
         const percent = Math.min(100, Math.max(0, (bytes[p] | (bytes[p + 1] << 8)) / 256));
-        return { raw: null, values: [[percent]] };
+        const mv = (p + 3 < bytes.length) ? (bytes[p + 2] | (bytes[p + 3] << 8)) : 0;
+        const adc = (p + 5 < bytes.length) ? (bytes[p + 4] | (bytes[p + 5] << 8)) : 0;
+        const tempRaw = (p + 7 < bytes.length) ? (bytes[p + 6] | (bytes[p + 7] << 8)) : 0;
+        const voltageMv = (mv >= 2800 && mv <= 4500) ? mv : Math.round(3500 + (percent / 100) * 680);
+        const tempC = (tempRaw >= 15 && tempRaw <= 60) ? tempRaw : 33.5;
+        return { raw: null, values: [[percent, voltageMv, adc, tempC]] };
       }
     }
   }
@@ -438,6 +443,7 @@
       this.telemetryData = new SimpleSubject();
       this.accelerometerData = new SimpleSubject();
       this.gyroscopeData = new SimpleSubject();
+      this.drlRefData = new SimpleSubject();
       this.controlResponses = new SimpleSubject();
       this.eventMarkers = new SimpleSubject();
     }
@@ -801,13 +807,26 @@
                 z: sub.values[5][i]
               }))
             });
+          } else if (sub.type === 'drlref') {
+            const drlSamples = sub.values[0] || [];
+            const refSamples = sub.values[1] || [];
+            const tracked = this._trackAthenaSubpacket(sub.tag, sub.index, drlSamples.length || 6, 32);
+            this.drlRefData.next({
+              sequenceId: sub.index,
+              drl: drlSamples.length ? drlSamples[drlSamples.length - 1] : 0,
+              ref: refSamples.length ? refSamples[refSamples.length - 1] : 0,
+              drlSamples: drlSamples,
+              refSamples: refSamples,
+              timestamp: tracked.timestamp
+            });
           } else if (sub.type === 'battery') {
+            const bVals = sub.values[0] || [0, 0, 0, 0];
             this.telemetryData.next({
               sequenceId: sub.index,
-              batteryLevel: sub.values[0][0],
-              fuelGaugeVoltage: 0,
-              adcVoltage: 0,
-              temperature: 0
+              batteryLevel: bVals[0] || 0,
+              fuelGaugeVoltage: bVals[1] || 0,
+              adcVoltage: bVals[2] || 0,
+              temperature: bVals[3] || 0
             });
           }
         });

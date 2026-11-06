@@ -30,22 +30,21 @@ function draw() {
   
   // Draw and update lines
   for (let i = lines.length - 1; i >= 0; i--) {
-    let line = lines[i];
+    let seg = lines[i];
     
     // Expand line
-    let expansion = (1 - line.life) * eegData.attention * 50;
-    let x1 = line.x1 + cos(atan2(line.y1 - height/2, line.x1 - width/2)) * expansion;
-    let y1 = line.y1 + sin(atan2(line.y1 - height/2, line.x1 - width/2)) * expansion;
-    let x2 = line.x2 + cos(atan2(line.y2 - height/2, line.x2 - width/2)) * expansion;
-    let y2 = line.y2 + sin(atan2(line.y2 - height/2, line.x2 - width/2)) * expansion;
+    let expansion = (1 - seg.life) * eegData.attention * 50;
+    let x1 = seg.x1 + cos(atan2(seg.y1 - height/2, seg.x1 - width/2)) * expansion;
+    let y1 = seg.y1 + sin(atan2(seg.y1 - height/2, seg.x1 - width/2)) * expansion;
+    let x2 = seg.x2 + cos(atan2(seg.y2 - height/2, seg.x2 - width/2)) * expansion;
+    let y2 = seg.y2 + sin(atan2(seg.y2 - height/2, seg.x2 - width/2)) * expansion;
     
-    stroke(line.hue, 70, 90, line.life);
+    stroke(seg.hue, 70, 90, seg.life);
     strokeWeight(2 + eegData.meditation * 5);
-    stroke(line.hue, 70, 90, line.life);
     line(x1, y1, x2, y2);
     
-    line.life -= 0.01;
-    if (line.life <= 0) {
+    seg.life -= 0.01;
+    if (seg.life <= 0) {
       lines.splice(i, 1);
     }
   }

@@ -11,20 +11,18 @@ let rotX = 0;
 let rotY = 0;
 
 function setup() {
+  createCanvas(600, 400, WEBGL);
   colorMode(HSB, 360, 100, 100);
 }
 
 function draw() {
   background(0, 0, 5);
   
-  // Setup 3D
-  push();
-  translate(width/2, height/2);
-  
   // Rotate based on brain waves
-  rotX += eegData.alpha * 0.02;
-  rotY += eegData.beta * 0.02;
+  rotX += eegData.alpha * 0.02 + 0.01;
+  rotY += eegData.beta * 0.02 + 0.01;
   
+  push();
   rotateX(rotX);
   rotateY(rotY);
   
@@ -35,17 +33,9 @@ function draw() {
   // Color based on theta
   let hue = eegData.theta * 360;
   fill(hue, 70, 90);
-  noStroke();
+  stroke(hue, 40, 100);
+  strokeWeight(0.6);
   
   torus(radius, tubeRadius);
   pop();
-  
-  // Info text
-  fill(0, 0, 100);
-  textAlign(LEFT, TOP);
-  textSize(10);
-  text("Alpha: rotation X", 10, 10);
-  text("Beta: rotation Y", 10, 25);
-  text("Meditation: radius", 10, 40);
-  text("Attention: tube", 10, 55);
 }

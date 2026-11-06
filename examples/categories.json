@@ -1,16 +1,23 @@
 {
-  "comment": "Desired category order for the example dropdown. Categories not listed here fall to the end in the order they're first discovered by tools/build_manifest.py.",
+  "comment": "Desired category order for the example selector. Categories not listed here fall to the end in the order they're first discovered by tools/build_manifest.py.",
   "categoryOrder": [
     "Getting Started",
     "Brain Wave Visualizations",
+    "PPG & Optical (fNIRS)",
+    "Motion, IMU & Broadcast Sensors",
+    "Multimodal (EEG + PPG + HR)",
     "Attention & Meditation",
     "Particle Systems",
     "3D & Advanced",
     "Drawing & Interaction",
     "Raw EEG Data",
-    "PPG & Optical (fNIRS)",
     "Noise & Generative",
     "Animation & Motion",
-    "Sound & Music"
+    "Sound & Music",
+    "BrainGames",
+    "EEGEdu Modules",
+    "Classic p5.eegedu",
+    "2025 Neurotech Class Catalogue",
+    "2022 NeuroArt Class Gallery"
   ]
 }

@@ -2,15 +2,22 @@
   "categoryOrder": [
     "Getting Started",
     "Brain Wave Visualizations",
+    "PPG & Optical (fNIRS)",
+    "Motion, IMU & Broadcast Sensors",
+    "Multimodal (EEG + PPG + HR)",
     "Attention & Meditation",
     "Particle Systems",
     "3D & Advanced",
     "Drawing & Interaction",
     "Raw EEG Data",
-    "PPG & Optical (fNIRS)",
     "Noise & Generative",
     "Animation & Motion",
-    "Sound & Music"
+    "Sound & Music",
+    "BrainGames",
+    "EEGEdu Modules",
+    "Classic p5.eegedu",
+    "2025 Neurotech Class Catalogue",
+    "2022 NeuroArt Class Gallery"
   ],
   "examples": [
     {
@@ -66,6 +73,150 @@
       "file": "spectra.js",
       "title": "Spectra",
       "category": "Brain Wave Visualizations"
+    },
+    {
+      "id": "ppgThreeChannels",
+      "file": "ppgThreeChannels.js",
+      "title": "3-Channel PPG Time Series",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "fNIRSBeerLambert",
+      "file": "fNIRSBeerLambert.js",
+      "title": "Modified Beer-Lambert (HbO2 & Hb)",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "cerebralOxygenationSpO2",
+      "file": "cerebralOxygenationSpO2.js",
+      "title": "Cerebral Oxygenation (SpO2 & HbO2/Hb Phase)",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "ppgStackedDerivation",
+      "file": "ppgStackedDerivation.js",
+      "title": "Stacked Derivation: Raw LEDs -> \u0394OD -> Oxy/Deoxy/Total Hb",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "museAthena3dDiagram",
+      "file": "museAthena3dDiagram.js",
+      "title": "3D Muse S Athena / Muse 2 LED & Electrode Anatomy",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "ppgSimplePulseRing",
+      "file": "ppgSimplePulseRing.js",
+      "title": "Intro to PPG: Glowing Heartbeat & SpO2 Ring",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "ppgVascularCoral3D",
+      "file": "ppgVascularCoral3D.js",
+      "title": "3D Bioluminescent Vascular Coral (Oxy/Deoxy & Pulse)",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "ppgPulseSurfGame",
+      "file": "ppgPulseSurfGame.js",
+      "title": "PPG Game: Arterial Pulse Wave Surfer",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "ppgBreathCoherenceGame",
+      "file": "ppgBreathCoherenceGame.js",
+      "title": "PPG Game: Respiratory Sinus Arrhythmia & SpO2 Coherence",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
+      "id": "imuAccelerometer3D",
+      "file": "imuAccelerometer3D.js",
+      "title": "Accelerometer: 3-Axis Gravity & G-Force Inclinometer",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "imuGyroscope3D",
+      "file": "imuGyroscope3D.js",
+      "title": "Gyroscope: 3-Axis Angular Velocity Gimbal",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "imuHeadOrientation",
+      "file": "imuHeadOrientation.js",
+      "title": "Head Orientation: 3D Pitch, Roll & Yaw Attitude Horizon",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "museTelemetryDashboard",
+      "file": "museTelemetryDashboard.js",
+      "title": "Telemetry Broadcast: Battery, Fuel Gauge Voltage & Die Temp",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "museDrlRefAndAux",
+      "file": "museDrlRefAndAux.js",
+      "title": "DRL/REF Ground Loop, Contact Quality & AUX Electrode",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "imuStackedKinematicsDerivation",
+      "file": "imuStackedKinematicsDerivation.js",
+      "title": "Stacked IMU Kinematics: Accel & Gyro \u2192 Velocity \u2192 2nd-Order Position",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "imuHeadTheremin",
+      "file": "imuHeadTheremin.js",
+      "title": "\ud83c\udfb5 Cosmic Head Theremin (Pitch/Roll Antennas + Alpha Vibrato)",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "imuTiltLabyrinthGame",
+      "file": "imuTiltLabyrinthGame.js",
+      "title": "\ud83c\udfae Head-Tilt Neon Labyrinth (IMU Balance Game)",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "imuStarfieldFlight",
+      "file": "imuStarfieldFlight.js",
+      "title": "\ud83d\ude80 Head-Steered Warp Cockpit (6-DOF IMU + 2nd-Order Parallax)",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "imuHeadBopSynth",
+      "file": "imuHeadBopSynth.js",
+      "title": "\ud83e\udd41 Head-Bop Kinetic Drum Pad & Gyro Filter Synth",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "multiBrainHeartSync",
+      "file": "multiBrainHeartSync.js",
+      "title": "Brain-Heart Synchrony (EEG Bands + PPG Pulse + HR)",
+      "category": "Multimodal (EEG + PPG + HR)"
+    },
+    {
+      "id": "multiNeurovascularCoupling",
+      "file": "multiNeurovascularCoupling.js",
+      "title": "Neurovascular Coupling: EEG Gamma/Beta -> fNIRS HbO2 Lag",
+      "category": "Multimodal (EEG + PPG + HR)"
+    },
+    {
+      "id": "multiHeartbeatERP",
+      "file": "multiHeartbeatERP.js",
+      "title": "Heartbeat-Evoked Potential (HEP): PPG R-Peak Locked EEG",
+      "category": "Multimodal (EEG + PPG + HR)"
+    },
+    {
+      "id": "multiMindHeartReactor",
+      "file": "multiMindHeartReactor.js",
+      "title": "Multimodal Game: Mind-Heart Fusion Reactor",
+      "category": "Multimodal (EEG + PPG + HR)"
+    },
+    {
+      "id": "multiNeuroCardiacCosmos3D",
+      "file": "multiNeuroCardiacCosmos3D.js",
+      "title": "3D Neuro-Cardiac Galaxy (EEG Orbits + PPG Supernova)",
+      "category": "Multimodal (EEG + PPG + HR)"
     },
     {
       "id": "attention",
@@ -152,24 +303,6 @@
       "category": "Raw EEG Data"
     },
     {
-      "id": "ppgThreeChannels",
-      "file": "ppgThreeChannels.js",
-      "title": "3-Channel PPG Time Series",
-      "category": "PPG & Optical (fNIRS)"
-    },
-    {
-      "id": "fNIRSBeerLambert",
-      "file": "fNIRSBeerLambert.js",
-      "title": "Modified Beer-Lambert (HbO2 & Hb)",
-      "category": "PPG & Optical (fNIRS)"
-    },
-    {
-      "id": "cerebralOxygenationSpO2",
-      "file": "cerebralOxygenationSpO2.js",
-      "title": "Cerebral Oxygenation (SpO2 & HbO2/Hb Phase)",
-      "category": "PPG & Optical (fNIRS)"
-    },
-    {
       "id": "perlinNoise",
       "file": "perlinNoise.js",
       "title": "Perlin Noise",
@@ -246,6 +379,990 @@
       "file": "brainSynth.js",
       "title": "Brain Synthesizer",
       "category": "Sound & Music"
+    },
+    {
+      "id": "gameGolfShooter",
+      "file": "gameGolfShooter.js",
+      "title": "Golf Driving Range",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameArcheryShooter",
+      "file": "gameArcheryShooter.js",
+      "title": "Archery Range",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameBballShooter",
+      "file": "gameBballShooter.js",
+      "title": "Basketball",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameSoccerPenalty",
+      "file": "gameSoccerPenalty.js",
+      "title": "Soccer Shoot-Out",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameRowingCalm",
+      "file": "gameRowingCalm.js",
+      "title": "Rowing Calm",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameBalanceBeam",
+      "file": "gameBalanceBeam.js",
+      "title": "Balance Beam",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameBalloonPop",
+      "file": "gameBalloonPop.js",
+      "title": "Balloon Pop (Focus Trainer)",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameDeepDiver",
+      "file": "gameDeepDiver.js",
+      "title": "Deep Sea Diver",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameMazeFocus",
+      "file": "gameMazeFocus.js",
+      "title": "Maze Focus (Navigator)",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameReactionRace",
+      "file": "gameReactionRace.js",
+      "title": "F1 Reaction Race",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameSnakeFeast",
+      "file": "gameSnakeFeast.js",
+      "title": "Snake Feast",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameZenBreakout",
+      "file": "gameZenBreakout.js",
+      "title": "Zen Breakout",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameBrainvaders",
+      "file": "gameBrainvaders.js",
+      "title": "Brainvaders",
+      "category": "BrainGames"
+    },
+    {
+      "id": "gameEegFPS",
+      "file": "gameEegFPS.js",
+      "title": "EEG FPS Range",
+      "category": "BrainGames"
+    },
+    {
+      "id": "eegeduFlock2D",
+      "file": "eegeduFlock2D.js",
+      "title": "Boids 2D Flock (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduFlock3D",
+      "file": "eegeduFlock3D.js",
+      "title": "Boids 3D Flock (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduBands3D",
+      "file": "eegeduBands3D.js",
+      "title": "3D Frequency Band Boxes (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduAlphaCube",
+      "file": "eegeduAlphaCube.js",
+      "title": "Alpha 3D Cube (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduAlphaBetaDraw",
+      "file": "eegeduAlphaBetaDraw.js",
+      "title": "Alpha & Beta Paint Brush (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduBandTone",
+      "file": "eegeduBandTone.js",
+      "title": "Frequency Band Synth & FFT (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduSpectrogram",
+      "file": "eegeduSpectrogram.js",
+      "title": "Scrolling Waterfall Spectrogram (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduEvokedOddball",
+      "file": "eegeduEvokedOddball.js",
+      "title": "Visual Oddball ERP Stimulus + CSV (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduSsvepSlow",
+      "file": "eegeduSsvepSlow.js",
+      "title": "SSVEP Slow Flicker 4 Hz + CSV (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduSsvepFast",
+      "file": "eegeduSsvepFast.js",
+      "title": "SSVEP Fast Flicker 11 Hz + CSV (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduAlphaFixation",
+      "file": "eegeduAlphaFixation.js",
+      "title": "Alpha Eyes Open/Closed Fixation + CSV (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduPredictVisual",
+      "file": "eegeduPredictVisual.js",
+      "title": "Brain State Classifier A vs B (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegeduPredictSound",
+      "file": "eegeduPredictSound.js",
+      "title": "Brain State Major Triad Sound (EEGEdu)",
+      "category": "EEGEdu Modules"
+    },
+    {
+      "id": "eegedu3dTorus",
+      "file": "eegedu3dTorus.js",
+      "title": "3D Torus (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduAlphaSnake",
+      "file": "eegeduAlphaSnake.js",
+      "title": "Alpha Snake Game (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduBasicFrequencyBands",
+      "file": "eegeduBasicFrequencyBands.js",
+      "title": "Mouse Band Stack (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduBrainDraw",
+      "file": "eegeduBrainDraw.js",
+      "title": "Brain Draw Brush (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduColourBalls",
+      "file": "eegeduColourBalls.js",
+      "title": "500 Quadrant Colour Balls (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduMultipleBalls",
+      "file": "eegeduMultipleBalls.js",
+      "title": "100 Alpha Swarm Balls (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduSplineBounce",
+      "file": "eegeduSplineBounce.js",
+      "title": "Frequency Band Spline (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduBandOrbitz",
+      "file": "eegeduBandOrbitz.js",
+      "title": "Band Orbitz Physics (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduBasicShapes",
+      "file": "eegeduBasicShapes.js",
+      "title": "Left/Right Alpha Trail (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduBouncingLine",
+      "file": "eegeduBouncingLine.js",
+      "title": "Bouncing Line Screensaver (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduEegTrace",
+      "file": "eegeduEegTrace.js",
+      "title": "4-Channel EEG Trace (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduEpochs",
+      "file": "eegeduEpochs.js",
+      "title": "Overlapping Epochs Butterfly (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduFunctionExample",
+      "file": "eegeduFunctionExample.js",
+      "title": "Custom Function Triplet (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduGhostLines",
+      "file": "eegeduGhostLines.js",
+      "title": "Cascading Ghost Traces (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduPiWedges",
+      "file": "eegeduPiWedges.js",
+      "title": "Radial Band Wedges (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "eegeduSpectra",
+      "file": "eegeduSpectra.js",
+      "title": "Overlapping FFT Spectra (Classic EEGEdu)",
+      "category": "Classic p5.eegedu"
+    },
+    {
+      "id": "neurotech2025AliciaOCatErp",
+      "file": "neurotech2025AliciaOCatErp.js",
+      "title": "Cat Oddball ERP Monitor (Alicia Osorio)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AliciaOHeelsRunner",
+      "file": "neurotech2025AliciaOHeelsRunner.js",
+      "title": "Sunset Heels Runner (Alicia Osorio)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AmnaKJellyfishAquarium",
+      "file": "neurotech2025AmnaKJellyfishAquarium.js",
+      "title": "Jellyfish Meditation Aquarium (Amna Khan)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AmnaKJellyfishSleepTrainer",
+      "file": "neurotech2025AmnaKJellyfishSleepTrainer.js",
+      "title": "Jellyfish Sleep Trainer & Bell Music (Amna Khan)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AmnaKEmotionalFaceErp",
+      "file": "neurotech2025AmnaKEmotionalFaceErp.js",
+      "title": "Happy vs. Sad Emotional Face ERP (Amna Khan)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AmnaKNeuroTetris",
+      "file": "neurotech2025AmnaKNeuroTetris.js",
+      "title": "NeuroTetris Mini-Game (Amna Khan)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AngelNMandalaWorkout",
+      "file": "neurotech2025AngelNMandalaWorkout.js",
+      "title": "StairMaster Neural Mandala (Angel Nwaka)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AngelNMandalaSound",
+      "file": "neurotech2025AngelNMandalaSound.js",
+      "title": "Neural Mandala & Harmonic Sound (Angel Nwaka)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AngelNMmnErp",
+      "file": "neurotech2025AngelNMmnErp.js",
+      "title": "Moonlight Mismatch Negativity ERP (Angel Nwaka)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AyaanJZenBloodParticles",
+      "file": "neurotech2025AyaanJZenBloodParticles.js",
+      "title": "Zen vs. Stress Particle Field (Ayaan Jimale)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AyaanJP300OddballErp",
+      "file": "neurotech2025AyaanJP300OddballErp.js",
+      "title": "4-Channel P300 Oddball ERP (Ayaan Jimale)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025AyaanJTargetParticles",
+      "file": "neurotech2025AyaanJTargetParticles.js",
+      "title": "Target Brain State Particle Trainer (Ayaan Jimale)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025BaniSKaleidoscope",
+      "file": "neurotech2025BaniSKaleidoscope.js",
+      "title": "4-Band Neural Kaleidoscope (Bani Sekhon)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025BaniSKaleidoscopeConnections",
+      "file": "neurotech2025BaniSKaleidoscopeConnections.js",
+      "title": "Pulsing Network Kaleidoscope (Bani Sekhon)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025BaniSP300SimErp",
+      "file": "neurotech2025BaniSP300SimErp.js",
+      "title": "Simulated P300 Oddball ERP (Bani Sekhon)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025BaniSBaselineP300Erp",
+      "file": "neurotech2025BaniSBaselineP300Erp.js",
+      "title": "Baseline-Corrected P300 ERP (Bani Sekhon)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025BaniSLilyGarden",
+      "file": "neurotech2025BaniSLilyGarden.js",
+      "title": "Lily of the Valley & Butterfly Garden (Bani Sekhon)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025CaitlynAMindGarden",
+      "file": "neurotech2025CaitlynAMindGarden.js",
+      "title": "Five-Band EEG Mind Garden (Caitlyn Archibald)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025CaitlynASunflowerReward",
+      "file": "neurotech2025CaitlynASunflowerReward.js",
+      "title": "Sunflower Neurofeedback Trainer (Caitlyn Archibald)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025CaitlynAFaceObjectN170",
+      "file": "neurotech2025CaitlynAFaceObjectN170.js",
+      "title": "N170 Faces vs. Star Objects ERP (Caitlyn Archibald)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025ChloeSAlphaBetaRing",
+      "file": "neurotech2025ChloeSAlphaBetaRing.js",
+      "title": "Alpha/Beta Ratio Ring & Chime (Chloe Sorochan)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025ChloeSStroopErp",
+      "file": "neurotech2025ChloeSStroopErp.js",
+      "title": "Color-Word Stroop Oddball ERP (Chloe Sorochan)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025EllaTSolarSystem",
+      "file": "neurotech2025EllaTSolarSystem.js",
+      "title": "EEG Frequency Band Solar System (Ella Thorsen-Bell)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025EllaTOddballErpMonitor",
+      "file": "neurotech2025EllaTOddballErpMonitor.js",
+      "title": "Oddball ERP & Stimulus Monitor (Ella Thorsen-Bell)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025EllaTSynthWaves",
+      "file": "neurotech2025EllaTSynthWaves.js",
+      "title": "Harmonic Ocean Waves & Synth (Ella Thorsen-Bell)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025EllaTEegPacMan",
+      "file": "neurotech2025EllaTEegPacMan.js",
+      "title": "EEG Pac-Man Pellet Collector (Ella Thorsen-Bell)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025GraceSOceanSky",
+      "file": "neurotech2025GraceSOceanSky.js",
+      "title": "Alpha Ocean Waves & Shifting Sky (Grace Shin)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025GraceSP300Oddball",
+      "file": "neurotech2025GraceSP300Oddball.js",
+      "title": "P300 Oddball ERP Averager (Grace Shin)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025GraceSCalmnessWaves",
+      "file": "neurotech2025GraceSCalmnessWaves.js",
+      "title": "Calmness Bar & Ocean Neurofeedback (Grace Shin)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HamzaRNeuralFireflies",
+      "file": "neurotech2025HamzaRNeuralFireflies.js",
+      "title": "Neural Fireflies Swarm (Hamza Razzo)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HamzaRP300Paradigm",
+      "file": "neurotech2025HamzaRP300Paradigm.js",
+      "title": "4-Channel P300 Oddball Display (Hamza Razzo)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HamzaRBrainFlowFlappy",
+      "file": "neurotech2025HamzaRBrainFlowFlappy.js",
+      "title": "Brain Flow Adaptive Flappy Bird (Hamza Razzo)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HannahCBloomingMandala",
+      "file": "neurotech2025HannahCBloomingMandala.js",
+      "title": "Blooming Neural Mandala (Hannah Cooper)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HannahCAdaptiveSnake",
+      "file": "neurotech2025HannahCAdaptiveSnake.js",
+      "title": "Adaptive EEG Snake & Auto-Calibration (Hannah Cooper)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HannahCAnnulusOddballErp",
+      "file": "neurotech2025HannahCAnnulusOddballErp.js",
+      "title": "Circle vs. Annulus Oddball ERP (Hannah Cooper)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HardiPConnect3Math",
+      "file": "neurotech2025HardiPConnect3Math.js",
+      "title": "Connect-3 Match Game & Alpha/Beta Tracker (Hardi Patel)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HardiPFaceObjectErp",
+      "file": "neurotech2025HardiPFaceObjectErp.js",
+      "title": "Face vs. Object ERP with Timing Axis (Hardi Patel)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HardiPIceCreamCatch",
+      "file": "neurotech2025HardiPIceCreamCatch.js",
+      "title": "EEG Ice Cream Cone Catcher (Hardi Patel)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025HardiPNeuroArtTracing",
+      "file": "neurotech2025HardiPNeuroArtTracing.js",
+      "title": "NeuroArt Star Template Tracing & Sound (Hardi Patel)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025IvanLP300N400Detector",
+      "file": "neurotech2025IvanLP300N400Detector.js",
+      "title": "P300 & N400 Component Detector (Ivan Espino Lopez)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025IvanLOddballHazardSim",
+      "file": "neurotech2025IvanLOddballHazardSim.js",
+      "title": "P300 Oddball & Hazard Overlay Simulator (Ivan Espino Lopez)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025IvanLThresholdErpDetector",
+      "file": "neurotech2025IvanLThresholdErpDetector.js",
+      "title": "P300/N400 Detector with Alpha/Beta Thresholds (Ivan Espino Lopez)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025JakeGEegFlappyBird",
+      "file": "neurotech2025JakeGEegFlappyBird.js",
+      "title": "Alpha-Controlled Flappy Bird (Jake Gannon)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025JakeGMmnErpDisplay",
+      "file": "neurotech2025JakeGMmnErpDisplay.js",
+      "title": "Mismatch Negativity (MMN) ERP Display (Jake Gannon)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025JakeGAdaptiveFlappyBird",
+      "file": "neurotech2025JakeGAdaptiveFlappyBird.js",
+      "title": "Adaptive Difficulty EEG Flappy Bird (Jake Gannon)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025JiaGNeonRibbons",
+      "file": "neurotech2025JiaGNeonRibbons.js",
+      "title": "Expanding Alpha Neon Ribbons (Jia Guina)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025JiaGFaceObjectErp",
+      "file": "neurotech2025JiaGFaceObjectErp.js",
+      "title": "Face vs. Object ERP Averager (Jia Guina)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025JiaGAlphaStateRibbons",
+      "file": "neurotech2025JiaGAlphaStateRibbons.js",
+      "title": "5-State Alpha Classifier Ribbons (Jia Guina)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025JiaGParolStarLantern",
+      "file": "neurotech2025JiaGParolStarLantern.js",
+      "title": "Filipino Parol Star Lantern (Jia Guina)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KiaraRAlphaBetaParticles",
+      "file": "neurotech2025KiaraRAlphaBetaParticles.js",
+      "title": "Alpha/Beta Brain Particle Fountain (Kiara Ruda)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KiaraREmotionalOddballErp",
+      "file": "neurotech2025KiaraREmotionalOddballErp.js",
+      "title": "Happy vs. Angry Emotional Oddball ERP (Kiara Ruda)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KiaraRBciTargetParticles",
+      "file": "neurotech2025KiaraRBciTargetParticles.js",
+      "title": "Adaptive BCI Target Particle Game (Kiara Ruda)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KiaraRNeuroWeather",
+      "file": "neurotech2025KiaraRNeuroWeather.js",
+      "title": "NeuroWeather Storm & Sun Simulator (Kiara Ruda)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KoraBEmotionPalette",
+      "file": "neurotech2025KoraBEmotionPalette.js",
+      "title": "Emotion Palette Abstract Painter (Kora Budzyk)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KoraBEegTetris",
+      "file": "neurotech2025KoraBEegTetris.js",
+      "title": "Brain-State Controlled Tetris (Kora Budzyk)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KoraBP300OddballErp",
+      "file": "neurotech2025KoraBP300OddballErp.js",
+      "title": "P300 Oddball & ERP Averager (Kora Budzyk)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KyleCAttentionRain",
+      "file": "neurotech2025KyleCAttentionRain.js",
+      "title": "Beta Velocity Rainstorm & Attention Meter (Kyle Cordez)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KyleCAuditoryN1Erp",
+      "file": "neurotech2025KyleCAuditoryN1Erp.js",
+      "title": "Auditory N1 High vs. Low Tone ERP (Kyle Cordez)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025KyleCStarFlowJourney",
+      "file": "neurotech2025KyleCStarFlowJourney.js",
+      "title": "Journey Through the Stars Flow Game (Kyle Cordez)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025MarinayaSN170FaceObject",
+      "file": "neurotech2025MarinayaSN170FaceObject.js",
+      "title": "4-Channel N170 Faces vs. Objects ERP (Marinaya Saigh)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025MarinayaSCalmBloomParticles",
+      "file": "neurotech2025MarinayaSCalmBloomParticles.js",
+      "title": "Calm Bloom vs. Stress Particle Trainer (Marinaya Saigh)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025MohamedJCalmSpectrumParticles",
+      "file": "neurotech2025MohamedJCalmSpectrumParticles.js",
+      "title": "Blue-to-Red Calmness Spectrum Particles (Mohamed Jomha)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025MohamedJP300OddballCsv",
+      "file": "neurotech2025MohamedJP300OddballCsv.js",
+      "title": "P300 Oddball ERP with CSV Export (Mohamed Jomha)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025MohamedJPitchDingTrainer",
+      "file": "neurotech2025MohamedJPitchDingTrainer.js",
+      "title": "Pitch-Scaled Audio Ding Calmness Trainer (Mohamed Jomha)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025NatashaCMeditationGarden",
+      "file": "neurotech2025NatashaCMeditationGarden.js",
+      "title": "Meditation Garden with Fireflies (Natasha Chemello)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025NatashaCN400SemanticErp",
+      "file": "neurotech2025NatashaCN400SemanticErp.js",
+      "title": "N400 Semantic Word Pair ERP (Natasha Chemello)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025NatashaCSmoothedGardenTrainer",
+      "file": "neurotech2025NatashaCSmoothedGardenTrainer.js",
+      "title": "Smoothed Alpha/Theta Garden Trainer (Natasha Chemello)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025NatashaCWolfIslandRun",
+      "file": "neurotech2025NatashaCWolfIslandRun.js",
+      "title": "Wolf Island Run: Aurora Platformer (Natasha Chemello)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025PortiaWAlphaPulseFlowers",
+      "file": "neurotech2025PortiaWAlphaPulseFlowers.js",
+      "title": "Alpha Wave Pulsing Meadow Flowers (Portia Wainwright)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025PortiaWMandalaCalmMonitor",
+      "file": "neurotech2025PortiaWMandalaCalmMonitor.js",
+      "title": "Alpha/Theta Mandala & Calmness Monitor (Portia Wainwright)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025PortiaWTwoCategoryErp",
+      "file": "neurotech2025PortiaWTwoCategoryErp.js",
+      "title": "Two-Category Oddball ERP Plotter (Portia Wainwright)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RaissaSContrastBrainNetwork",
+      "file": "neurotech2025RaissaSContrastBrainNetwork.js",
+      "title": "High-Contrast Brain Particle Network (Raissa Shariff)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RaissaSFourStateErpAverager",
+      "file": "neurotech2025RaissaSFourStateErpAverager.js",
+      "title": "4-Brain-State Stratified ERP Averager (Raissa Shariff)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RaissaSFourStateFlowGame",
+      "file": "neurotech2025RaissaSFourStateFlowGame.js",
+      "title": "4-State Geometry & Flow Speed Game (Raissa Shariff)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RanaRCaterpillarRace",
+      "file": "neurotech2025RanaRCaterpillarRace.js",
+      "title": "Five-Band Caterpillar Race (Rana Radiansyah)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RanaRN170FaceObjectErp",
+      "file": "neurotech2025RanaRN170FaceObjectErp.js",
+      "title": "Multi-Channel N170 Face vs. Object ERP (Rana Radiansyah)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RanaRCaterpillarDominantWave",
+      "file": "neurotech2025RanaRCaterpillarDominantWave.js",
+      "title": "1-Second Averaged Caterpillar Wave Visualizer (Rana Radiansyah)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RanaRPainterlyEegCanvas",
+      "file": "neurotech2025RanaRPainterlyEegCanvas.js",
+      "title": "Living Painterly EEG Canvas & Sound (Rana Radiansyah)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RyanPFourLaneWaveMonitor",
+      "file": "neurotech2025RyanPFourLaneWaveMonitor.js",
+      "title": "4-Lane Wave Monitor & Target Trainer (Ryan Park)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RyanPMultiStateClassifier",
+      "file": "neurotech2025RyanPMultiStateClassifier.js",
+      "title": "Multi-State Classifier & 4-Lane Neurofeedback (Ryan Park)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025RyanPClosedLoopMmnErp",
+      "file": "neurotech2025RyanPClosedLoopMmnErp.js",
+      "title": "Attention-Adaptive Closed-Loop MMN ERP (Ryan Park)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025SamirJWaveAffectMonitor",
+      "file": "neurotech2025SamirJWaveAffectMonitor.js",
+      "title": "4-Lane Wave & Stress/Relax Affect HUD (Samir Jaber)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025SamirJP300RareBeepErp",
+      "file": "neurotech2025SamirJP300RareBeepErp.js",
+      "title": "P300 Oddball ERP with Rare Trial Audio Beep (Samir Jaber)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025SamirJTargetStateTrainer",
+      "file": "neurotech2025SamirJTargetStateTrainer.js",
+      "title": "Adaptive Alpha/Theta Target State Trainer (Samir Jaber)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025SarahBN400WordPairErp",
+      "file": "neurotech2025SarahBN400WordPairErp.js",
+      "title": "N400 Semantic Match vs. Mismatch ERP (Sarah Badran)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025SarahBAdaptiveFlowTrainer",
+      "file": "neurotech2025SarahBAdaptiveFlowTrainer.js",
+      "title": "Adaptive Flow Window Neurofeedback (Sarah Badran)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025ToriAN170DarkErp",
+      "file": "neurotech2025ToriAN170DarkErp.js",
+      "title": "Dark-Mode Neon N170 Face ERP (Tori Anderson)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025ToriABrainwaveFlowerGarden",
+      "file": "neurotech2025ToriABrainwaveFlowerGarden.js",
+      "title": "Smoothed Brainwave Flower Garden (Tori Anderson)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025ToriALilypadFrogPond",
+      "file": "neurotech2025ToriALilypadFrogPond.js",
+      "title": "Lilypad Frog Pond & Bug Catcher (Tori Anderson)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025YanLMandalaSnakeGame",
+      "file": "neurotech2025YanLMandalaSnakeGame.js",
+      "title": "Breathing Mandala & Fruit Snake Game (Yan Luo)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025YanLFaceObjectErpDemo",
+      "file": "neurotech2025YanLFaceObjectErpDemo.js",
+      "title": "Continuous Face vs. Object ERP Averager (Yan Luo)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025YanLOceanRainfallSplash",
+      "file": "neurotech2025YanLOceanRainfallSplash.js",
+      "title": "Alpha/Theta Ocean Rainfall & Adaptive Ripples (Yan Luo)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025ZainabSGalaxyCalmExplosion",
+      "file": "neurotech2025ZainabSGalaxyCalmExplosion.js",
+      "title": "Expanding Galaxy: Blue Calm vs. Red Supernova (Zainab Samiuddin)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025ZainabSAdaptiveGalaxySparkles",
+      "file": "neurotech2025ZainabSAdaptiveGalaxySparkles.js",
+      "title": "Adaptive Difficulty Cosmic Nebula Trainer (Zainab Samiuddin)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "neurotech2025ZainabSMultiChannelFaceErp",
+      "file": "neurotech2025ZainabSMultiChannelFaceErp.js",
+      "title": "Multi-Channel Face vs. Object ERP Plotter (Zainab Samiuddin)",
+      "category": "2025 Neurotech Class Catalogue"
+    },
+    {
+      "id": "studentAhmedFTelekinesis",
+      "file": "studentAhmedFTelekinesis.js",
+      "title": "Telekinesis (Faiyaz Ahmed)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentAhmedSFireworks",
+      "file": "studentAhmedSFireworks.js",
+      "title": "Fireworks-VF (Sharmin Ahmed)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentArmstrongFractalTree",
+      "file": "studentArmstrongFractalTree.js",
+      "title": "Fractal Tree Blossom (Aislinn Armstrong)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentAlemuSunrise",
+      "file": "studentAlemuSunrise.js",
+      "title": "Breath Sunrise (Meron Alemu)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentAlizadehFlowerBrain",
+      "file": "studentAlizadehFlowerBrain.js",
+      "title": "FlowerBrain Landscape (Shima Rastgar Alizadeh)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentDikaRainyHouse",
+      "file": "studentDikaRainyHouse.js",
+      "title": "Rainy House (Kirsten Dika)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentGaidanovFlowerBrain",
+      "file": "studentGaidanovFlowerBrain.js",
+      "title": "Popping Meadow Flower (Andrada Gaidanov)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentGrimesNeuroartFinal",
+      "file": "studentGrimesNeuroartFinal.js",
+      "title": "Interactive Alpha Bubbles (Kassaundra Grimes)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentHomeakFinalProject",
+      "file": "studentHomeakFinalProject.js",
+      "title": "Five Band Circles (Kira Homeak)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentHosseiniLostMyMind",
+      "file": "studentHosseiniLostMyMind.js",
+      "title": "Lost My Mind Wave Grid (Rastin Hosseini)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentJayaswalFinal",
+      "file": "studentJayaswalFinal.js",
+      "title": "Gamma Bouncing Spheres (Aakanksha Jayaswal)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentKhamvongsaBikeRace",
+      "file": "studentKhamvongsaBikeRace.js",
+      "title": "EEG Bike Race (Amanda Khamvongsa)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentLeeBrainArts",
+      "file": "studentLeeBrainArts.js",
+      "title": "BrainArts Band Ribbon (JB Lee)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentLocherFinalProject",
+      "file": "studentLocherFinalProject.js",
+      "title": "Gyroscope Rings 3D (Megan Locher)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentMallickColouredBallMap",
+      "file": "studentMallickColouredBallMap.js",
+      "title": "Coloured Ball Map (Roy Mallick)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentMazidiAnimation",
+      "file": "studentMazidiAnimation.js",
+      "title": "Stay Calm Smiley (Shafa Mazidi)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentNnanmaniFinalSketch",
+      "file": "studentNnanmaniFinalSketch.js",
+      "title": "Bullseye Alpha Target (Pearl Nnanmani)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentPilzSnakeDance",
+      "file": "studentPilzSnakeDance.js",
+      "title": "Snake Charmer Dance (Pilz)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentPriorRainbowPotOfGold",
+      "file": "studentPriorRainbowPotOfGold.js",
+      "title": "Rainbow & Pot of Gold (Andrea Prior)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentRennieFinalRobot",
+      "file": "studentRennieFinalRobot.js",
+      "title": "Smiling EEG Robot (Victoria Rennie)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentRyuTrippyFlower",
+      "file": "studentRyuTrippyFlower.js",
+      "title": "Trippy Pulsing Flower (Nayoung Ryu)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentSchulzMySketch",
+      "file": "studentSchulzMySketch.js",
+      "title": "Minimalist Alpha-Gamma Circle (Schulz)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentSimonBrainTyphoon",
+      "file": "studentSimonBrainTyphoon.js",
+      "title": "Brain Typhoon (Kyle Simon)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentStonehouseColouredDataGraphs",
+      "file": "studentStonehouseColouredDataGraphs.js",
+      "title": "4-Electrode Band Bar Graph (Grace Stonehouse)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentThunderchildFlowerDrawing",
+      "file": "studentThunderchildFlowerDrawing.js",
+      "title": "Orange Flower Brush (Thunderchild)",
+      "category": "2022 NeuroArt Class Gallery"
+    },
+    {
+      "id": "studentVillaflorTerrain3D",
+      "file": "studentVillaflorTerrain3D.js",
+      "title": "3D Perlin Terrain (Lance Villaflor)",
+      "category": "2022 NeuroArt Class Gallery"
     }
   ]
 }
