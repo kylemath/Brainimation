@@ -2236,6 +2236,48 @@
           optics4: []
         },
 
+        // Short-Separation (~8-10mm Skin/Scalp) vs Long-Separation (~20-25mm Cortical+Skin) PPG & Skin Artifact Regression
+        // Works on both Muse S Athena (true dual-distance 8/16-ch optics) and Classic Muse 2 / Muse S (Ambient + Red/IR fallback)
+        hasDualDistancePPG: false,
+        hardwareOpticalModel: 'Simulated Muse S Athena / Classic',
+        ppgShort: { ir850: 0, red660: 0, nir730: 0, ambient: 0 }, // Short-separation superficial skin channels
+        ppgLong:  { ir850: 0, red660: 0, nir730: 0, ambient: 0 }, // Long-separation deep prefrontal + skin channels
+        ppgShortHistory: { ir850: [], red660: [], nir730: [], ambient: [] },
+        ppgLongHistory:  { ir850: [], red660: [], nir730: [], ambient: [] },
+        fnirsRegression: {
+          mode: 'athena',             // 'athena' (8mm short-channel) or 'classic' (ambient + superficial red/IR proxy)
+          beta850: 0.78,              // Estimated OLS/RLS scaling weight β for 850nm short-channel skin regression
+          beta660: 0.82,              // Estimated OLS/RLS scaling weight β for 660nm short-channel skin regression
+          rawOD850: 0, rawOD660: 0,   // Uncorrected long-channel optical density changes ΔOD_long
+          shortOD850: 0, shortOD660: 0, // Superficial short-channel optical density changes ΔOD_short
+          skinFit850: 0, skinFit660: 0, // Fitted superficial skin artifact β · ΔOD_short
+          cleanOD850: 0, cleanOD660: 0, // Skin-regressed cortical optical density ΔOD_clean = ΔOD_long - β·ΔOD_short
+          rawHbO2: 0, rawHHb: 0,      // Uncorrected MBLL Δ[HbO2] and Δ[HHb] (µM, contaminated by scalp pulse & Mayer waves)
+          skinHbO2: 0, skinHHb: 0,    // Estimated superficial scalp hemodynamic artifact (µM)
+          cleanHbO2: 0, cleanHHb: 0,  // Regressed deep prefrontal cortical Δ[HbO2] and Δ[HHb] (µM)
+          suppressionDb: 0            // Superficial artifact attenuation in dB
+        },
+        fnirsRegressionHistory: {
+          rawOD850: [], shortOD850: [], skinFit850: [], cleanOD850: [],
+          rawHbO2: [], rawHHb: [], skinHbO2: [], cleanHbO2: [], cleanHHb: [],
+          beta850: []
+        },
+
+        // Real-Time IMU Head-Movement Adaptive Filter (NLMS / RLS) for EEG & PPG Motion Artifact Removal
+        clean: [0, 0, 0, 0],          // Motion-regressed clean EEG values (µV) for [TP9, AF7, AF8, TP10]
+        motionArtifact: [0, 0, 0, 0], // Estimated head-movement EEG artifact (µV) per electrode
+        cleanHistory: { TP9: [], AF7: [], AF8: [], TP10: [] },
+        motionArtifactHistory: { TP9: [], AF7: [], AF8: [], TP10: [] },
+        ppgMotionClean: 0,            // Motion-decontaminated infrared PPG signal
+        ppgMotionArtifact: 0,         // Estimated IMU motion artifact on the PPG optical trace
+        ppgMotionHistory: { raw: [], artifact: [], clean: [] },
+        motionFilterWeights: {
+          AF7: [0, 0, 0, 0, 0, 0],    // Adaptive weights [w_ax, w_ay, w_az, w_gx, w_gy, w_gz]
+          AF8: [0, 0, 0, 0, 0, 0],
+          TP9: [0, 0, 0, 0, 0, 0],
+          TP10: [0, 0, 0, 0, 0, 0]
+        },
+
         // 6-DOF IMU Broadcast Sensors (Accelerometer & Gyroscope @ 52 Hz)
         imuSampleRate: 52,
         imuHistoryLength: 260,       // ~5 seconds at 52 Hz
@@ -2599,6 +2641,192 @@
 
         getPPGChannelNames: function() {
           return ['ambient', 'infrared', 'red', 'optics4'];
+        },
+
+        // Short-Separation (~8-10mm Skin/Scalp) vs Long-Separation (~20-25mm Cortical+Skin) helpers
+        getShortPPGChannel: function(wavelength = 'ir850', numSamples = 128) {
+          const mapKey = {
+            ir: 'ir850', '850': 'ir850', '850nm': 'ir850', ir850: 'ir850', infrared: 'ir850',
+            red: 'red660', '660': 'red660', '660nm': 'red660', red660: 'red660',
+            nir: 'nir730', '730': 'nir730', '730nm': 'nir730', nir730: 'nir730',
+            amb: 'ambient', ambient: 'ambient'
+          };
+          const k = mapKey[String(wavelength).toLowerCase()] || 'ir850';
+          const arr = (this.ppgShortHistory && this.ppgShortHistory[k]) || [];
+          return arr.slice(-numSamples);
+        },
+
+        getLongPPGChannel: function(wavelength = 'ir850', numSamples = 128) {
+          const mapKey = {
+            ir: 'ir850', '850': 'ir850', '850nm': 'ir850', ir850: 'ir850', infrared: 'ir850',
+            red: 'red660', '660': 'red660', '660nm': 'red660', red660: 'red660',
+            nir: 'nir730', '730': 'nir730', '730nm': 'nir730', nir730: 'nir730',
+            amb: 'ambient', ambient: 'ambient'
+          };
+          const k = mapKey[String(wavelength).toLowerCase()] || 'ir850';
+          const arr = (this.ppgLongHistory && this.ppgLongHistory[k]) || [];
+          return arr.slice(-numSamples);
+        },
+
+        // Real-time Short-Separation Skin Artifact Regression (OLS/RLS + Modified Beer-Lambert Law)
+        updateShortChannelRegression: function(shortIR, shortRed, shortNIR, shortAmb, longIR, longRed, longNIR, longAmb, hasDual = true) {
+          this.hasDualDistancePPG = Boolean(hasDual);
+          this.ppgShort = { ir850: shortIR, red660: shortRed, nir730: shortNIR, ambient: shortAmb };
+          this.ppgLong  = { ir850: longIR,  red660: longRed,  nir730: longNIR,  ambient: longAmb };
+
+          const maxN = this.ppgHistoryLength || 512;
+          const pushCap = (arr, v) => {
+            arr.push(v);
+            if (arr.length > maxN) arr.splice(0, arr.length - maxN);
+          };
+          pushCap(this.ppgShortHistory.ir850, shortIR);
+          pushCap(this.ppgShortHistory.red660, shortRed);
+          pushCap(this.ppgShortHistory.nir730, shortNIR);
+          pushCap(this.ppgShortHistory.ambient, shortAmb);
+
+          pushCap(this.ppgLongHistory.ir850, longIR);
+          pushCap(this.ppgLongHistory.red660, longRed);
+          pushCap(this.ppgLongHistory.nir730, longNIR);
+          pushCap(this.ppgLongHistory.ambient, longAmb);
+
+          // Track slow baseline I0 for Short and Long channels
+          if (!this._fnirsBase) {
+            this._fnirsBase = {
+              sIR: shortIR || 180000, sRed: shortRed || 160000,
+              lIR: longIR  || 180000, lRed: longRed  || 160000
+            };
+          } else {
+            this._fnirsBase.sIR  = 0.996 * this._fnirsBase.sIR  + 0.004 * (shortIR || this._fnirsBase.sIR);
+            this._fnirsBase.sRed = 0.996 * this._fnirsBase.sRed + 0.004 * (shortRed || this._fnirsBase.sRed);
+            this._fnirsBase.lIR  = 0.996 * this._fnirsBase.lIR  + 0.004 * (longIR  || this._fnirsBase.lIR);
+            this._fnirsBase.lRed = 0.996 * this._fnirsBase.lRed + 0.004 * (longRed || this._fnirsBase.lRed);
+          }
+
+          const sOD850 = -Math.log(Math.max(1, shortIR) / Math.max(1, this._fnirsBase.sIR));
+          const sOD660 = -Math.log(Math.max(1, shortRed) / Math.max(1, this._fnirsBase.sRed));
+          const lOD850 = -Math.log(Math.max(1, longIR)  / Math.max(1, this._fnirsBase.lIR));
+          const lOD660 = -Math.log(Math.max(1, longRed) / Math.max(1, this._fnirsBase.lRed));
+
+          const hist = this.fnirsRegressionHistory;
+          pushCap(hist.rawOD850, lOD850);
+          pushCap(hist.shortOD850, sOD850);
+
+          // Rolling OLS regression weight β = Cov(ΔOD_long, ΔOD_short) / (Var(ΔOD_short) + ε) over recent 96 samples (1.5 s @ 64 Hz)
+          const W = Math.min(96, hist.rawOD850.length);
+          let beta850 = this.fnirsRegression.beta850 || 0.78;
+          if (W >= 16) {
+            let mL = 0, mS = 0;
+            for (let i = hist.rawOD850.length - W; i < hist.rawOD850.length; i++) {
+              mL += hist.rawOD850[i];
+              mS += hist.shortOD850[i];
+            }
+            mL /= W; mS /= W;
+            let cov = 0, varS = 0;
+            for (let i = hist.rawOD850.length - W; i < hist.rawOD850.length; i++) {
+              const dl = hist.rawOD850[i] - mL;
+              const ds = hist.shortOD850[i] - mS;
+              cov += dl * ds;
+              varS += ds * ds;
+            }
+            if (varS > 1e-11) {
+              const estBeta = Math.max(0.15, Math.min(1.65, cov / (varS + 1e-10)));
+              beta850 = 0.92 * beta850 + 0.08 * estBeta;
+            }
+          }
+          const beta660 = beta850 * 1.03;
+
+          const skinFit850 = beta850 * sOD850;
+          const skinFit660 = beta660 * sOD660;
+          const cleanOD850 = lOD850 - skinFit850;
+          const cleanOD660 = lOD660 - skinFit660;
+
+          // Invert 2x2 Modified Beer-Lambert system (660 nm & 850 nm, d_long = 2.0 cm) for Raw, Skin, and Clean Δ[HbO2] & Δ[HHb] (µM)
+          const a11 = 0.3196 * 13.0, a12 = 3.2266 * 13.0;
+          const a21 = 1.0580 * 11.6, a22 = 0.6913 * 11.6;
+          const det = a11 * a22 - a12 * a21;
+
+          const rawHbO2   = (( a22 * lOD660     - a12 * lOD850)     / det) * 1000.0;
+          const rawHHb    = ((-a21 * lOD660     + a11 * lOD850)     / det) * 1000.0;
+          const skinHbO2  = (( a22 * skinFit660 - a12 * skinFit850) / det) * 1000.0;
+          const skinHHb   = ((-a21 * skinFit660 + a11 * skinFit850) / det) * 1000.0;
+          const cleanHbO2 = (( a22 * cleanOD660 - a12 * cleanOD850) / det) * 1000.0;
+          const cleanHHb  = ((-a21 * cleanOD660 + a11 * cleanOD850) / det) * 1000.0;
+
+          pushCap(hist.skinFit850, skinFit850);
+          pushCap(hist.cleanOD850, cleanOD850);
+          pushCap(hist.rawHbO2, rawHbO2);
+          pushCap(hist.rawHHb, rawHHb);
+          pushCap(hist.skinHbO2, skinHbO2);
+          pushCap(hist.cleanHbO2, cleanHbO2);
+          pushCap(hist.cleanHHb, cleanHHb);
+          pushCap(hist.beta850, beta850);
+
+          this.fnirsRegression = {
+            mode: hasDual ? 'athena' : 'classic',
+            beta850, beta660,
+            rawOD850: lOD850, rawOD660: lOD660,
+            shortOD850: sOD850, shortOD660: sOD660,
+            skinFit850, skinFit660,
+            cleanOD850, cleanOD660,
+            rawHbO2, rawHHb,
+            skinHbO2, skinHHb,
+            cleanHbO2, cleanHHb,
+            suppressionDb: Math.max(0, 10 * Math.log10((rawHbO2 * rawHbO2 + 1e-4) / (cleanHbO2 * cleanHbO2 + 1e-4)))
+          };
+        },
+
+        // Real-Time 6-Tap NLMS Adaptive Filter using IMU Accelerometer + Gyroscope to cancel Head-Movement Artifacts from EEG
+        updateEEGImuMotionFilter: function(rawSamples4) {
+          const chNames = ['TP9', 'AF7', 'AF8', 'TP10'];
+          const xVec = [
+            (this.linearAccel ? this.linearAccel.x : 0) * 0.25,
+            (this.linearAccel ? this.linearAccel.y : 0) * 0.25,
+            (this.linearAccel ? this.linearAccel.z : 0) * 0.25,
+            (this.gyro ? this.gyro.x : 0) / 80.0,
+            (this.gyro ? this.gyro.y : 0) / 80.0,
+            (this.gyro ? this.gyro.z : 0) / 80.0
+          ];
+          let normSq = 1e-4;
+          for (let k = 0; k < 6; k++) normSq += xVec[k] * xVec[k];
+          const mu = 0.035; // NLMS learning step size
+
+          const maxLen = this.historyLength || 1000;
+          for (let c = 0; c < 4; c++) {
+            const ch = chNames[c];
+            const rawVal = rawSamples4[c] || 0;
+            const w = this.motionFilterWeights[ch] || [0, 0, 0, 0, 0, 0];
+            let yHat = 0;
+            for (let k = 0; k < 6; k++) yHat += w[k] * xVec[k];
+            const errClean = rawVal - yHat;
+            for (let k = 0; k < 6; k++) {
+              w[k] = 0.9992 * w[k] + (mu * errClean * xVec[k]) / normSq;
+            }
+            this.motionFilterWeights[ch] = w;
+            this.motionArtifact[c] = yHat;
+            this.clean[c] = errClean;
+
+            if (!this.cleanHistory[ch]) this.cleanHistory[ch] = [];
+            if (!this.motionArtifactHistory[ch]) this.motionArtifactHistory[ch] = [];
+            this.cleanHistory[ch].push(errClean);
+            this.motionArtifactHistory[ch].push(yHat);
+            if (this.cleanHistory[ch].length > maxLen) this.cleanHistory[ch].shift();
+            if (this.motionArtifactHistory[ch].length > maxLen) this.motionArtifactHistory[ch].shift();
+          }
+        },
+
+        getCleanChannel: function(channel = 'AF7', numSamples = 128) {
+          const channelMap = { 0: 'TP9', 1: 'AF7', 2: 'AF8', 3: 'TP10' };
+          const key = channelMap[channel] !== undefined ? channelMap[channel] : channel;
+          const hist = (this.cleanHistory && this.cleanHistory[key]) || [];
+          if (hist.length >= numSamples) return hist.slice(-numSamples);
+          return this.getRawChannel(key, numSamples);
+        },
+
+        getMotionArtifactChannel: function(channel = 'AF7', numSamples = 128) {
+          const channelMap = { 0: 'TP9', 1: 'AF7', 2: 'AF8', 3: 'TP10' };
+          const key = channelMap[channel] !== undefined ? channelMap[channel] : channel;
+          const hist = (this.motionArtifactHistory && this.motionArtifactHistory[key]) || [];
+          return hist.slice(-numSamples);
         },
         
         // Get the most recent N samples across all channels
@@ -3184,7 +3412,11 @@
               }
             }
 
-            // Synthesize 4-channel microvolt time series V_c(t) (Equation 2)
+            // Synthesize 4-channel microvolt time series V_c(t) + correlated IMU head-movement artifact
+            const mScaleEEG = 0.25 + this.baseMotion * 1.45;
+            const headNodArtifact = mScaleEEG * (38.0 * Math.sin(time * 1.35) + 22.0 * Math.cos(time * 2.7));
+            const headRollArtifact = mScaleEEG * (28.0 * Math.cos(time * 1.05) + 16.0 * Math.sin(time * 2.1));
+
             for (let i = 0; i < 4; i++) {
               const channel = channels[i];
               let sample = 0;
@@ -3195,6 +3427,10 @@
               sample += 10.0 * eegData.gamma * Math.sin(2 * Math.PI * (35.0 + i * 2.0) * time);
               sample += 5.0  * Math.sin(2 * Math.PI * 0.1 * time); // Slow baseline drift
               sample += (Math.random() - 0.5) * 15.0;              // Broadband sensor noise U(-7.5, 7.5) uV
+
+              // Add realistic head-movement electrode cable/slip artifact proportional to IMU motion
+              const motionSign = (i === 0 || i === 1) ? 1.0 : -0.85;
+              sample += headNodArtifact * (i === 1 || i === 2 ? 1.15 : 0.75) + headRollArtifact * motionSign;
 
               // Bilateral anterior frontal (AF7, AF8) blink deflection B(t)
               if (i === 1 || i === 2) {
@@ -3221,6 +3457,11 @@
                 eegData.channels.delta[i] = Math.max(0, Math.min(1, eegData.delta + Math.cos(time * 0.9 + i * 0.8) * 0.08));
                 eegData.channels.gamma[i] = Math.max(0, Math.min(1, eegData.gamma + Math.sin(time * 3.8 + i * 1.2) * 0.10));
               }
+            }
+
+            // Run real-time 6-tap NLMS IMU head-movement adaptive filter on the 4 raw EEG channels
+            if (typeof eegData.updateEEGImuMotionFilter === 'function') {
+              eegData.updateEEGImuMotionFilter(eegData.raw);
             }
 
             // Periodically synthesize 1..60 Hz per-electrode power spectra (once per 8-sample tick)
@@ -3273,10 +3514,25 @@
 
               // Transmitted optical intensity I(lambda, t) = I0(lambda) * exp(-dOD(lambda, t))
               const rawAmb = 12000 + 35 * Math.sin(2 * Math.PI * 0.15 * time) + (Math.random() - 0.5) * 12;
-              const rawIR  = 185000 * Math.exp(-dOD_850); // 850nm Infrared
-              const rawRed = 162000 * Math.exp(-dOD_660); // 660nm Red
-              const rawNIR = 178000 * Math.exp(-dOD_730); // 730nm Near-Infrared
+              const rawIR  = 185000 * Math.exp(-dOD_850); // 850nm Infrared (Long 20mm: Cortical + Skin)
+              const rawRed = 162000 * Math.exp(-dOD_660); // 660nm Red (Long 20mm: Cortical + Skin)
+              const rawNIR = 178000 * Math.exp(-dOD_730); // 730nm Near-Infrared (Long 20mm: Cortical + Skin)
               const rawValues = [rawAmb, rawIR, rawRed, rawNIR];
+
+              // Synthesize Short-Separation (~8mm Inner Optode) superficial skin/scalp-only signals
+              // Contains the systemic cardiac pulse, respiration, and Mayer wave (0.08 Hz) but NOT deep cortical attention response
+              const skinHbO2_mM = 0.0012 * slowHemo + 0.00055 * (pulse01 - 0.4) + 0.00012 * respMod;
+              const skinHHb_mM  = -0.00048 * Math.sin(2 * Math.PI * 0.08 * time - 0.4) + 0.00002 * (pulse01 - 0.4);
+              const sOD_850 = (1.0580 * skinHbO2_mM + 0.6913 * skinHHb_mM) * 5.2 + (Math.random() - 0.5) * 0.00025;
+              const sOD_660 = (0.3196 * skinHbO2_mM + 3.2266 * skinHHb_mM) * 5.8 + (Math.random() - 0.5) * 0.00025;
+              const sOD_730 = (0.3900 * skinHbO2_mM + 1.1022 * skinHHb_mM) * 5.5 + (Math.random() - 0.5) * 0.00025;
+              const shortIR  = 185000 * Math.exp(-sOD_850);
+              const shortRed = 162000 * Math.exp(-sOD_660);
+              const shortNIR = 178000 * Math.exp(-sOD_730);
+
+              if (typeof eegData.updateShortChannelRegression === 'function') {
+                eegData.updateShortChannelRegression(shortIR, shortRed, shortNIR, rawAmb, rawIR, rawRed, rawNIR, rawAmb, true);
+              }
 
               const ppgNames = ['ambient', 'infrared', 'red', 'optics4'];
               for (let p = 0; p < 4; p++) {
@@ -3583,6 +3839,9 @@
           const electrodeIndex = electrodeMap.indexOf(electrodeName);
           if (electrodeIndex >= 0 && electrodeIndex < 4 && reading.samples.length > 0) {
             eegData.raw[electrodeIndex] = reading.samples[reading.samples.length - 1];
+            if (electrodeIndex === 3 && typeof eegData.updateEEGImuMotionFilter === 'function') {
+              eegData.updateEEGImuMotionFilter(eegData.raw);
+            }
           } else if (electrodeName === 'AUX' && reading.samples.length > 0) {
             eegData.aux = reading.samples[reading.samples.length - 1];
           }
@@ -3711,6 +3970,31 @@
 
           const latestSample = reading.samples[reading.samples.length - 1];
           eegData.ppg[chIndex] = latestSample;
+
+          // Update Short-Separation vs Long-Separation regression (Athena dual-distance or Classic single-distance proxy)
+          if (reading.separationPairs && chIndex === 1 && typeof eegData.updateShortChannelRegression === 'function') {
+            const sp = reading.separationPairs;
+            eegData.hardwareOpticalModel = sp.hardwareModel || 'Muse S Athena';
+            const lastOf = (arr, fb) => (Array.isArray(arr) && arr.length ? arr[arr.length - 1] : fb);
+            eegData.updateShortChannelRegression(
+              lastOf(sp.short.ir850, latestSample),
+              lastOf(sp.short.red660, eegData.ppg[2] || latestSample),
+              lastOf(sp.short.nir730, eegData.ppg[3] || latestSample),
+              lastOf(sp.short.ambient, eegData.ppg[0] || 12000),
+              lastOf(sp.long.ir850, latestSample),
+              lastOf(sp.long.red660, eegData.ppg[2] || latestSample),
+              lastOf(sp.long.nir730, eegData.ppg[3] || latestSample),
+              lastOf(sp.long.ambient, eegData.ppg[0] || 12000),
+              sp.hasDualDistance
+            );
+          } else if (!reading.separationPairs && chIndex === 1 && typeof eegData.updateShortChannelRegression === 'function') {
+            // Classic Muse 2 / Muse S single-distance fallback: use Ambient + Red (660nm shallower volume) as superficial skin proxy
+            eegData.hardwareOpticalModel = 'Muse 2 / Muse S Classic (Single-Distance Proxy)';
+            const amb = eegData.ppg[0] || 12000;
+            const ir  = eegData.ppg[1] || latestSample;
+            const red = eegData.ppg[2] || latestSample;
+            eegData.updateShortChannelRegression(red, red, amb, amb, ir, red, ir, amb, false);
+          }
 
           if (!eegData.ppgHistory[chName]) {
             eegData.ppgHistory[chName] = [];
@@ -4479,6 +4763,26 @@
           'eegData.getSpectrum': {
             signature: 'eegData.getSpectrum(channelIndex)',
             description: 'Get 1–60 Hz FFT power spectrum array (length 60) for a specific electrode (0=TP9, 1=AF7, 2=AF8, 3=TP10).'
+          },
+          'eegData.clean': {
+            signature: 'eegData.clean [TP9, AF7, AF8, TP10]',
+            description: 'Real-time IMU-filtered EEG values (µV) after subtracting head-movement artifacts via 6-DOF NLMS adaptive filtering.'
+          },
+          'eegData.motionArtifact': {
+            signature: 'eegData.motionArtifact [TP9, AF7, AF8, TP10]',
+            description: 'Estimated head-movement EEG artifact (µV) modeled from 6-DOF linear acceleration and angular velocity.'
+          },
+          'eegData.getCleanChannel': {
+            signature: 'eegData.getCleanChannel(channel, numSamples)',
+            description: 'Get recent motion-regressed (clean) EEG samples for "TP9", "AF7", "AF8", or "TP10".'
+          },
+          'eegData.getMotionArtifactChannel': {
+            signature: 'eegData.getMotionArtifactChannel(channel, numSamples)',
+            description: 'Get recent estimated IMU head-movement artifact trace (µV) for "TP9", "AF7", "AF8", or "TP10".'
+          },
+          'eegData.motionFilterWeights': {
+            signature: 'eegData.motionFilterWeights { TP9, AF7, AF8, TP10 }',
+            description: 'Live 6-tap NLMS adaptive filter weights [w_ax, w_ay, w_az, w_gx, w_gy, w_gz] mapping IMU motion to electrode artifact.'
           }
         },
         'PPG / Optical Channels': {
@@ -4513,6 +4817,36 @@
           'eegData.ppgSampleRate': {
             signature: 'eegData.ppgSampleRate (64)',
             description: 'PPG / optical sensor sample rate in Hz (64 samples per second).'
+          }
+        },
+        'Short-Channel PPG & fNIRS Skin Regression': {
+          'eegData.hasDualDistancePPG': {
+            signature: 'eegData.hasDualDistancePPG (boolean)',
+            description: 'True on Muse S Athena (MS-03) with physical 8mm inner short-separation + 20mm outer long-separation optodes; false on Classic Muse 2/S (single-distance fallback).'
+          },
+          'eegData.hardwareOpticalModel': {
+            signature: 'eegData.hardwareOpticalModel (string)',
+            description: 'Active optical sensor geometry: "Muse S Athena (Dual-Distance 8mm/20mm)" or "Muse 2 / Muse S Classic (Single-Distance Proxy)".'
+          },
+          'eegData.ppgShort': {
+            signature: 'eegData.ppgShort { nir730, ir850, red660, ambient }',
+            description: 'Short-separation (~8 mm superficial skin/scalp dermis) optical intensities on Athena, or surface proxy on Classic Muse.'
+          },
+          'eegData.ppgLong': {
+            signature: 'eegData.ppgLong { nir730, ir850, red660, ambient }',
+            description: 'Long-separation (~20 mm deep prefrontal cortex + superficial skin) optical intensities.'
+          },
+          'eegData.getShortPPGChannel': {
+            signature: 'eegData.getShortPPGChannel(wavelength, numSamples)',
+            description: 'Get recent 64 Hz short-separation PPG samples for "ir850", "red660", "nir730", or "ambient".'
+          },
+          'eegData.getLongPPGChannel': {
+            signature: 'eegData.getLongPPGChannel(wavelength, numSamples)',
+            description: 'Get recent 64 Hz long-separation PPG samples for "ir850", "red660", "nir730", or "ambient".'
+          },
+          'eegData.fnirsRegression': {
+            signature: 'eegData.fnirsRegression { rawOD850, shortOD850, skinFit850, cleanOD850, beta850, rawHbO2, skinHbO2, cleanHbO2, cleanHHb, suppressionDb }',
+            description: 'Real-time short-channel fNIRS regression metrics (ΔOD_clean = ΔOD_long − β·ΔOD_short) separating superficial scalp pulse from prefrontal cortical oxygenation.'
           }
         },
         'Accelerometer (3-Axis Gravity & G-Force)': {
@@ -4664,6 +4998,14 @@
         'Accelerometer (52 Hz 3-Axis G-Force)': eegReference['Accelerometer (3-Axis Gravity & G-Force)'],
         'Gyroscope (52 Hz Angular Velocity)': eegReference['Gyroscope (3-Axis Angular Velocity)'],
         '3D Orientation & 2nd-Order Position Kinematics': eegReference['Head Orientation & 2nd-Order Kinematics'],
+        'Adaptive IMU Head-Movement Filter (NLMS)': {
+          'eegData.clean': eegReference['Raw Data Access']['eegData.clean'],
+          'eegData.motionArtifact': eegReference['Raw Data Access']['eegData.motionArtifact'],
+          'eegData.getCleanChannel': eegReference['Raw Data Access']['eegData.getCleanChannel'],
+          'eegData.getMotionArtifactChannel': eegReference['Raw Data Access']['eegData.getMotionArtifactChannel'],
+          'eegData.motionFilterWeights': eegReference['Raw Data Access']['eegData.motionFilterWeights']
+        },
+        'Short-Channel PPG & fNIRS Skin Regression': eegReference['Short-Channel PPG & fNIRS Skin Regression'],
         'Telemetry, DRL/REF & Contact Quality': eegReference['Telemetry, DRL/REF & Auxiliary Broadcast'],
         'PPG / Optical (64 Hz Photoplethysmography)': eegReference['PPG / Optical Channels']
       };
@@ -5104,8 +5446,11 @@ function draw() {
                 window.touchMoved = undefined;
                 window.touchEnded = undefined;
                 
-                // Use eval with 'this' bound to window to ensure global scope
-                eval.call(window, code);
+                // Use eval with 'this' bound to window to ensure global scope.
+                // Transform top-level 'let ' and 'const ' declarations to 'var ' so switching between
+                // examples that declare the same top-level variable names never throws a SyntaxError.
+                const safeGlobalCode = code.replace(/^(\s*)(?:let|const)\s+/gm, '$1var ');
+                eval.call(window, safeGlobalCode);
                 
                 console.log('User code executed successfully');
                 console.log('window.setup type:', typeof window.setup);
@@ -7442,10 +7787,40 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
             eegData[key] = [0, 0, 0, 0];
           } else if (key === 'connected') {
             eegData[key] = false;
-          } else if (key === 'rawHistory') {
+          } else if (key === 'rawHistory' || key === 'cleanHistory' || key === 'motionArtifactHistory') {
             eegData[key] = { TP9: [], AF7: [], AF8: [], TP10: [], AUX: [] };
           } else if (key === 'ppgHistory') {
             eegData[key] = { ambient: [], infrared: [], red: [], optics4: [] };
+          } else if (key === 'ppgShort' || key === 'ppgLong') {
+            eegData[key] = { nir730: 0, ir850: 0, red660: 0, ambient: 0 };
+          } else if (key === 'ppgShortHistory' || key === 'ppgLongHistory') {
+            eegData[key] = { nir730: [], ir850: [], red660: [], ambient: [] };
+          } else if (key === 'fnirsRegression') {
+            eegData[key] = {
+              mode: 'athena',
+              beta850: 0.78, beta660: 0.82,
+              rawOD850: 0, rawOD660: 0,
+              shortOD850: 0, shortOD660: 0,
+              skinFit850: 0, skinFit660: 0,
+              cleanOD850: 0, cleanOD660: 0,
+              rawHbO2: 0, rawHHb: 0,
+              skinHbO2: 0, skinHHb: 0,
+              cleanHbO2: 0, cleanHHb: 0,
+              suppressionDb: 0
+            };
+          } else if (key === 'fnirsRegressionHistory') {
+            eegData[key] = {
+              rawOD850: [], shortOD850: [], skinFit850: [], cleanOD850: [],
+              rawHbO2: [], rawHHb: [], skinHbO2: [], cleanHbO2: [], cleanHHb: [],
+              beta850: []
+            };
+          } else if (key === 'motionFilterWeights') {
+            eegData[key] = {
+              TP9:  [0, 0, 0, 0, 0, 0],
+              AF7:  [0, 0, 0, 0, 0, 0],
+              AF8:  [0, 0, 0, 0, 0, 0],
+              TP10: [0, 0, 0, 0, 0, 0]
+            };
           } else if (key === 'accel') {
             eegData[key] = { x: 0, y: 0, z: 1.0, magnitude: 1.0 };
           } else if (key === 'gyro' || key === 'linearAccel' || key === 'velocity' || key === 'position') {

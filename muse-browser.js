@@ -754,23 +754,57 @@
           } else if (sub.type === 'optics') {
             const nSamples = sub.values[0] ? sub.values[0].length : 3;
             const tracked = this._trackAthenaSubpacket(sub.tag, sub.index, nSamples, PPG_FREQUENCY);
-            // Map 16-ch (0x36: p1041/p1042), 8-ch (0x35: p1034), or 4-ch (0x34: p1035) optics
-            // to [0: ambient, 1: infrared (850nm), 2: red (660nm), 3: optics4/nir (730nm)]
+            // Map 16-ch (0x36: p1041/p1042), 8-ch (0x35: p1034), or 4-ch (0x34: p1035) optics:
+            //   - mappedChannels: 4 primary compatibility channels [ambient, infrared(850nm), red(660nm), optics4(730nm)]
+            //   - separationPairs: explicit Short-Separation (~8-10mm Inner LI/RI) vs Long-Separation (~20-25mm Outer LO/RO)
             let mappedChannels;
+            let separationPairs;
             if (sub.values.length >= 16) {
               mappedChannels = [
                 sub.values[14], // 0: ambient (LI_AMB)
-                sub.values[6],  // 1: infrared (LI_IR 850nm)
-                sub.values[12], // 2: red (LI_RED 660nm)
-                sub.values[4]   // 3: optics4 / nir (LI_NIR 730nm)
+                sub.values[2],  // 1: infrared (LO_850 Long-Separation 20mm)
+                sub.values[8],  // 2: red (LO_660 Long-Separation 20mm)
+                sub.values[0]   // 3: optics4 / nir (LO_730 Long-Separation 20mm)
               ];
+              separationPairs = {
+                hasDualDistance: true,
+                hardwareModel: 'Muse S Athena (16-ch Dual-Distance)',
+                short: {
+                  nir730: sub.values[4],
+                  ir850:  sub.values[6],
+                  red660: sub.values[12],
+                  ambient: sub.values[14]
+                },
+                long: {
+                  nir730: sub.values[0],
+                  ir850:  sub.values[2],
+                  red660: sub.values[8],
+                  ambient: sub.values[10]
+                }
+              };
             } else if (sub.values.length >= 8) {
               mappedChannels = [
                 sub.values[0],  // 0: LO_NIR
-                sub.values[6],  // 1: LI_IR 850nm
-                sub.values[7],  // 2: RI_IR 850nm
-                sub.values[4]   // 3: LI_NIR 730nm
+                sub.values[2],  // 1: LO_IR 850nm (Long)
+                sub.values[6],  // 2: LI_IR 850nm (Short)
+                sub.values[4]   // 3: LI_NIR 730nm (Short)
               ];
+              separationPairs = {
+                hasDualDistance: true,
+                hardwareModel: 'Muse S Athena (8-ch Dual-Distance)',
+                short: {
+                  nir730: sub.values[4],
+                  ir850:  sub.values[6],
+                  red660: sub.values[7] || sub.values[6],
+                  ambient: sub.values[5] || sub.values[4]
+                },
+                long: {
+                  nir730: sub.values[0],
+                  ir850:  sub.values[2],
+                  red660: sub.values[3] || sub.values[2],
+                  ambient: sub.values[1] || sub.values[0]
+                }
+              };
             } else {
               mappedChannels = [
                 sub.values[0],  // 0: LI_NIR 730nm
@@ -778,6 +812,22 @@
                 sub.values[3] || sub.values[2], // 2: RI_IR 850nm
                 sub.values[1]   // 3: RI_NIR 730nm
               ];
+              separationPairs = {
+                hasDualDistance: false,
+                hardwareModel: 'Muse S Athena (4-ch Single-Distance)',
+                short: {
+                  nir730: sub.values[0],
+                  ir850:  sub.values[1] || sub.values[0],
+                  red660: sub.values[1] || sub.values[0],
+                  ambient: sub.values[0]
+                },
+                long: {
+                  nir730: sub.values[1] || sub.values[0],
+                  ir850:  sub.values[2] || sub.values[1],
+                  red660: sub.values[3] || sub.values[2],
+                  ambient: sub.values[0]
+                }
+              };
             }
             for (let ch = 0; ch < mappedChannels.length; ch++) {
               if (!mappedChannels[ch]) continue;
@@ -787,6 +837,7 @@
                 channelName: PPG_CHANNEL_NAMES[ch] || `optics${ch + 1}`,
                 samples: mappedChannels[ch],
                 allOptics: sub.values,
+                separationPairs: separationPairs,
                 timestamp: tracked.timestamp
               });
             }

@@ -60,6 +60,15 @@ async function main() {
 
   const page = await browser.newPage();
 
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') {
+      console.error('PAGE ERROR:', msg.text());
+    }
+  });
+  page.on('pageerror', (err) => {
+    console.error('UNCAUGHT PAGE ERROR:', err.message);
+  });
+
   // Dismiss any alerts/prompts automatically
   page.on('dialog', async (dialog) => {
     try { await dialog.dismiss(); } catch (_) {}

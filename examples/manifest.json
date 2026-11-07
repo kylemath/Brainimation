@@ -105,6 +105,12 @@
       "category": "PPG & Optical (fNIRS)"
     },
     {
+      "id": "ppgShortChannelSkinRegression",
+      "file": "ppgShortChannelSkinRegression.js",
+      "title": "Short-Channel PPG Skin Artifact Regression (Athena vs. Classic)",
+      "category": "PPG & Optical (fNIRS)"
+    },
+    {
       "id": "ppgSimplePulseRing",
       "file": "ppgSimplePulseRing.js",
       "title": "Intro to PPG: Glowing Heartbeat & SpO2 Ring",
@@ -186,6 +192,12 @@
       "id": "imuHeadBopSynth",
       "file": "imuHeadBopSynth.js",
       "title": "\ud83e\udd41 Head-Bop Kinetic Drum Pad & Gyro Filter Synth",
+      "category": "Motion, IMU & Broadcast Sensors"
+    },
+    {
+      "id": "imuHeadMovementArtifactFilter",
+      "file": "imuHeadMovementArtifactFilter.js",
+      "title": "Adaptive IMU Head-Movement Filter (NLMS Artifact Cancellation)",
       "category": "Motion, IMU & Broadcast Sensors"
     },
     {
