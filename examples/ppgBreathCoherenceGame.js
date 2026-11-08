@@ -29,7 +29,12 @@ function draw() {
     : 0.5 + 0.42 * sin(t * 3.9 + breathPhase * 0.6);
   const bpm = eegData.heartRate > 0 ? eegData.heartRate : Math.round(70 + breathPhase * 6);
 
-  coherenceScore = lerp(coherenceScore, 72 + (eegData.meditation || 0.5) * 26, 0.03);
+  const pulseCentered = (pulse - 0.5) * 2;
+  const rsaSync = 1.0 - Math.min(1.0, Math.abs(breathPhase - pulseCentered) * 0.55);
+  const targetCoherence = eegData.connected
+    ? constrain(55 + rsaSync * 28 + (eegData.meditation || 0.5) * 17, 20, 99)
+    : 72 + 18 * sin(t * 0.3);
+  coherenceScore = lerp(coherenceScore, targetCoherence, 0.04);
 
   const cx = width / 2;
   const cy = height / 2 - 12;

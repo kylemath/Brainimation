@@ -49,14 +49,34 @@ function draw() {
     lastPeakMs = millis();
     trialCount++;
     const chNames = ['TP9', 'AF7', 'AF8', 'TP10'];
+    const hasRealEEG = Boolean(
+      eegData.connected &&
+      eegData.rawHistory &&
+      Array.isArray(eegData.rawHistory.AF7) &&
+      eegData.rawHistory.AF7.length >= 16
+    );
+    const preSamples = Math.max(1, Math.floor(EPOCH_SAMPLES * (100 / 600)));
     for (let c = 0; c < 4; c++) {
-      const raw = eegData.getRawChannel(chNames[c], EPOCH_SAMPLES);
+      const chKey = chNames[c];
+      const raw = (hasRealEEG && typeof eegData.getCleanChannel === 'function')
+        ? eegData.getCleanChannel(chKey, EPOCH_SAMPLES)
+        : eegData.getRawChannel(chKey, EPOCH_SAMPLES);
+      // Pre-stimulus (-100..0 ms) baseline correction
+      let baseMean = 0;
+      for (let b = 0; b < preSamples; b++) baseMean += (raw[b] || 0);
+      baseMean /= preSamples;
+
       for (let i = 0; i < EPOCH_SAMPLES; i++) {
-        // Synthetic HEP cortical dipole around +250..380 ms post-heartbeat + live EEG
-        const ms = map(i, 0, EPOCH_SAMPLES - 1, -100, 500);
-        const hepWave = (c === 1 || c === 2 ? 1.0 : -0.6) *
-          8.5 * Math.exp(-Math.pow((ms - 280) / 65, 2));
-        const sampleVal = ((raw[i] || 0) * 0.25) + hepWave;
+        let sampleVal;
+        if (hasRealEEG) {
+          sampleVal = (raw[i] || 0) - baseMean;
+        } else {
+          // Demo preview when disconnected: synthetic HEP cortical dipole around +250..380 ms post-heartbeat
+          const ms = map(i, 0, EPOCH_SAMPLES - 1, -100, 500);
+          const hepWave = (c === 1 || c === 2 ? 1.0 : -0.6) *
+            8.5 * Math.exp(-Math.pow((ms - 280) / 65, 2));
+          sampleVal = (((raw[i] || 0) - baseMean) * 0.25) + hepWave;
+        }
         avgHEP[c][i] = ((avgHEP[c][i] * (trialCount - 1)) + sampleVal) / trialCount;
       }
     }

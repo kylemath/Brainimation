@@ -130,11 +130,18 @@ function draw() {
   const i850 = getSmoothedIntensity('infrared', 'red', 24);
 
   if (i660 !== null && i730 !== null && i850 !== null && i660 > 0 && i730 > 0 && i850 > 0) {
-    // Initialize or slowly adapt baseline I0 if not set
-    if (!baselineI0[660] || !baselineI0[730] || !baselineI0[850]) {
+    // Initialize or re-zero baseline I0 on >8% step jump (e.g. connecting Athena or adjusting headband), and track slow DC drift
+    if (!baselineI0[660] || !baselineI0[730] || !baselineI0[850] ||
+        Math.abs(i850 - baselineI0[850]) / baselineI0[850] > 0.08 ||
+        Math.abs(i660 - baselineI0[660]) / baselineI0[660] > 0.08) {
       baselineI0[660] = i660;
       baselineI0[730] = i730;
       baselineI0[850] = i850;
+      hemoHistory = [];
+    } else {
+      baselineI0[660] = 0.996 * baselineI0[660] + 0.004 * i660;
+      baselineI0[730] = 0.996 * baselineI0[730] + 0.004 * i730;
+      baselineI0[850] = 0.996 * baselineI0[850] + 0.004 * i850;
     }
 
     // 2. Compute Optical Density change dOD(lambda) = -ln(I(t) / I0)

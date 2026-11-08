@@ -52,8 +52,26 @@ function draw() {
     ellipse(cx, cy, rp.r * 2, rp.r * 2);
   }
 
-  // Outer SpO2 oxygenation gauge arc (98% SpO2)
-  const spo2 = 97.8 + 0.6 * sin(t * 0.5);
+  // Outer SpO2 oxygenation gauge arc (computed from Red 660nm & IR 850nm AC/DC Ratio-of-Ratios when connected)
+  const irWave = eegData.getPPGChannel('infrared', 128);
+  const redWave = eegData.getPPGChannel('red', 128);
+  let spo2 = 97.8 + 0.6 * sin(t * 0.5);
+  if (eegData.connected && irWave && irWave.length >= 16) {
+    const calcRatio = (arr) => {
+      let m = 0;
+      for (let i = 0; i < arr.length; i++) m += arr[i];
+      m /= arr.length;
+      let sq = 0;
+      for (let i = 0; i < arr.length; i++) sq += (arr[i] - m) * (arr[i] - m);
+      return m > 1 ? Math.sqrt(sq / arr.length) / m : 0;
+    };
+    const rIR = calcRatio(irWave);
+    const rRed = (redWave && redWave.length >= 16) ? calcRatio(redWave) : rIR * 0.5;
+    if (rIR > 1e-6 && rRed > 1e-6) {
+      const R = constrain(rRed / rIR, 0.35, 1.35);
+      spo2 = constrain(110.0 - 25.0 * R, 88.0, 100.0);
+    }
+  }
   stroke(190, 85, 95, 0.35);
   strokeWeight(10);
   noFill();
@@ -81,24 +99,34 @@ function draw() {
   fill(190, 70, 98);
   text(`SpO₂ ${spo2.toFixed(1)}%`, cx, cy + 16);
 
-  // Bottom live infrared PPG waveform strip
-  const irWave = eegData.getPPGChannel('infrared', 128);
+  // Bottom live infrared PPG waveform strip (auto-scaled to live AC amplitude)
   const stripY = height - 48;
   stroke(352, 80, 95);
   strokeWeight(2.2);
   noFill();
   beginShape();
-  for (let i = 0; i < 128; i++) {
-    const x = map(i, 0, 127, 40, width - 40);
-    let yOff = 0;
-    if (irWave && irWave.length === 128 && eegData.connected) {
-      const mean = irWave.reduce((a, b) => a + b, 0) / 128;
-      yOff = constrain((irWave[i] - mean) * 0.25, -26, 26);
-    } else {
-      const ph = t * 3.8 - (128 - i) * 0.08;
-      yOff = (Math.pow(max(0, sin(ph)), 3) - 0.3) * 28;
+  if (irWave && irWave.length >= 8 && eegData.connected) {
+    const nW = irWave.length;
+    let mean = 0;
+    for (let i = 0; i < nW; i++) mean += irWave[i];
+    mean /= nW;
+    let maxDev = 1e-3;
+    for (let i = 0; i < nW; i++) {
+      const d = Math.abs(irWave[i] - mean);
+      if (d > maxDev) maxDev = d;
     }
-    vertex(x, stripY - yOff);
+    for (let i = 0; i < nW; i++) {
+      const x = map(i, 0, Math.max(1, nW - 1), 40, width - 40);
+      const yOff = ((irWave[i] - mean) / maxDev) * 24;
+      vertex(x, stripY - yOff);
+    }
+  } else {
+    for (let i = 0; i < 128; i++) {
+      const x = map(i, 0, 127, 40, width - 40);
+      const ph = t * 3.8 - (128 - i) * 0.08;
+      const yOff = (Math.pow(max(0, sin(ph)), 3) - 0.3) * 28;
+      vertex(x, stripY - yOff);
+    }
   }
   endShape();
 }

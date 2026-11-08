@@ -59,10 +59,17 @@ function draw() {
 
   // Modified Beer-Lambert Δ[HbO2] and Δ[HHb]
   if (redStats.dc > 0 && irStats.dc > 0) {
-    if (!baseline.red || !baseline.ir) {
+    if (!baseline.red || !baseline.ir ||
+        Math.abs(irStats.dc - baseline.ir) / baseline.ir > 0.08 ||
+        Math.abs(redStats.dc - baseline.red) / baseline.red > 0.08) {
       baseline.red = redStats.dc;
       baseline.ir  = irStats.dc;
       baseline.nir = nirStats.dc || irStats.dc;
+      traceHistory = [];
+    } else {
+      baseline.red = 0.996 * baseline.red + 0.004 * redStats.dc;
+      baseline.ir  = 0.996 * baseline.ir  + 0.004 * irStats.dc;
+      baseline.nir = 0.996 * (baseline.nir || irStats.dc) + 0.004 * (nirStats.dc || irStats.dc);
     }
     const dOD660 = -Math.log(redStats.dc / baseline.red);
     const dOD850 = -Math.log(irStats.dc / baseline.ir);

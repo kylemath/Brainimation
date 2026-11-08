@@ -17,6 +17,7 @@
 let rotY = -0.35;
 let rotX = 0.18;
 let isAthena = true;
+let userOverrodeModel = false;
 let hudGraphics;
 
 function setup() {
@@ -40,12 +41,14 @@ function mouseDragged() {
 
 function keyPressed() {
   if (key === 'm' || key === 'M') {
+    userOverrodeModel = true;
     isAthena = !isAthena;
   }
 }
 
 function mousePressed() {
   if (mouseX < 280 && mouseY < 58) {
+    userOverrodeModel = true;
     isAthena = !isAthena;
   }
 }
@@ -77,6 +80,9 @@ function draw() {
     rotY = -0.32 + sin(t * 0.45) * 0.38;
   }
 
+  if (!userOverrodeModel && typeof eegData !== 'undefined' && eegData.connected) {
+    isAthena = Boolean(eegData.hasDualDistancePPG);
+  }
   const pulse = eegData.connected ? (eegData.ppgPulse || 0.5) : 0.5 + 0.45 * sin(t * 7.2);
   const sceneScale = Math.min(width, height) / 430;
 

@@ -43,10 +43,10 @@ function draw() {
 
   // Sample 4 optical channels (or realistic live fallback when disconnected)
   const t = millis() * 0.001;
-  let iRed = meanSample('red', 'infrared', 16);
-  let iNIR = meanSample('nir', 'optics4', 16);
-  let iIR  = meanSample('infrared', 'red', 16);
-  let iAmb = meanSample('ambient', 'nir', 16);
+  let iRed = meanSample('red', 'infrared', 3);
+  let iNIR = meanSample('nir', 'optics4', 3);
+  let iIR  = meanSample('infrared', 'red', 3);
+  let iAmb = meanSample('ambient', 'nir', 3);
 
   if (iRed === null || iIR === null || iRed <= 0) {
     const pulse = 0.5 + 0.45 * sin(t * 7.2) + 0.18 * sin(t * 14.4 - 0.8);
@@ -57,11 +57,19 @@ function draw() {
     iIR  = 185000 * exp(-(0.008 * (pulse - 0.5) + slowWave * 4.5));
   }
 
-  if (!baseI0.red) {
+  if (!baseI0.red ||
+      Math.abs(iIR - baseI0.ir) / Math.max(1, baseI0.ir) > 0.08 ||
+      Math.abs(iRed - baseI0.red) / Math.max(1, baseI0.red) > 0.08) {
     baseI0.red = iRed;
     baseI0.nir = iNIR || iIR;
     baseI0.ir  = iIR;
     baseI0.amb = iAmb || 12000;
+    stackHistory = [];
+  } else {
+    baseI0.red = 0.992 * baseI0.red + 0.008 * iRed;
+    baseI0.nir = 0.992 * baseI0.nir + 0.008 * (iNIR || iIR);
+    baseI0.ir  = 0.992 * baseI0.ir  + 0.008 * iIR;
+    baseI0.amb = 0.992 * baseI0.amb + 0.008 * (iAmb || 12000);
   }
 
   // Step 1 -> Step 2: Optical Density ΔOD(λ) = -ln(I(λ,t) / I0(λ))

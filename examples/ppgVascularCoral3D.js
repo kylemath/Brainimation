@@ -64,12 +64,21 @@ function draw() {
     ? (eegData.ppgPulse || 0.5)
     : 0.45 + 0.45 * Math.pow(max(0, sin(t * 3.7)), 3);
 
-  // Compute oxy/deoxy balance from Red & IR channels
+  // Compute oxy/deoxy balance from live Red & IR optical channels (and fNIRS cleanHbO2)
   const irArr = eegData.getPPGChannel('infrared', 32);
   const redArr = eegData.getPPGChannel('red', 32);
   let oxyRatio = 0.72 + 0.22 * sin(t * 0.8);
-  if (eegData.connected && irArr.length && redArr.length) {
-    oxyRatio = constrain(0.55 + (eegData.attention || 0.5) * 0.4, 0.2, 0.98);
+  if (eegData.connected && irArr.length) {
+    if (eegData.fnirsRegression && typeof eegData.fnirsRegression.cleanHbO2 === 'number') {
+      const hbo2 = eegData.fnirsRegression.cleanHbO2;
+      const hhb  = eegData.fnirsRegression.cleanHHb || 0;
+      oxyRatio = constrain(0.68 + 0.18 * Math.tanh((hbo2 - hhb) * 0.4) + (pulse - 0.5) * 0.15, 0.2, 0.98);
+    } else if (redArr.length) {
+      const irLast = irArr[irArr.length - 1] || 1;
+      const redLast = redArr[redArr.length - 1] || 1;
+      const ratio = irLast / Math.max(1, irLast + redLast);
+      oxyRatio = constrain(map(ratio, 0.35, 0.65, 0.3, 0.95) + (pulse - 0.5) * 0.15, 0.2, 0.98);
+    }
   }
 
   ambientLight(220, 30, 35);

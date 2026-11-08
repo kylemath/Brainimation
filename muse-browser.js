@@ -754,54 +754,68 @@
           } else if (sub.type === 'optics') {
             const nSamples = sub.values[0] ? sub.values[0].length : 3;
             const tracked = this._trackAthenaSubpacket(sub.tag, sub.index, nSamples, PPG_FREQUENCY);
+            const blendOptics = (chA, chB, fb) => {
+              if (!Array.isArray(chA) && !Array.isArray(chB)) return fb || [];
+              const len = (chA && chA.length) || (chB && chB.length) || (fb && fb.length) || 1;
+              const out = new Array(len);
+              for (let s = 0; s < len; s++) {
+                const a = chA && chA[s] > 10 ? chA[s] : 0;
+                const b = chB && chB[s] > 10 ? chB[s] : 0;
+                if (a > 0 && b > 0) out[s] = (a + b) * 0.5;
+                else if (a > 0) out[s] = a;
+                else if (b > 0) out[s] = b;
+                else out[s] = (fb && fb[s]) || (chA && chA[s]) || (chB && chB[s]) || 0;
+              }
+              return out;
+            };
             // Map 16-ch (0x36: p1041/p1042), 8-ch (0x35: p1034), or 4-ch (0x34: p1035) optics:
-            //   - mappedChannels: 4 primary compatibility channels [ambient, infrared(850nm), red(660nm), optics4(730nm)]
+            //   - mappedChannels: 4 primary high-SNR channels [ambient, infrared(850nm), red(660nm), optics4(730nm)]
             //   - separationPairs: explicit Short-Separation (~8-10mm Inner LI/RI) vs Long-Separation (~20-25mm Outer LO/RO)
             let mappedChannels;
             let separationPairs;
             if (sub.values.length >= 16) {
               mappedChannels = [
                 sub.values[14], // 0: ambient (LI_AMB)
-                sub.values[2],  // 1: infrared (LO_850 Long-Separation 20mm)
-                sub.values[8],  // 2: red (LO_660 Long-Separation 20mm)
-                sub.values[0]   // 3: optics4 / nir (LO_730 Long-Separation 20mm)
+                sub.values[6],  // 1: infrared (LI_IR 850nm)
+                sub.values[12], // 2: red (LI_RED 660nm)
+                sub.values[4]   // 3: optics4 / nir (LI_NIR 730nm)
               ];
               separationPairs = {
                 hasDualDistance: true,
                 hardwareModel: 'Muse S Athena (16-ch Dual-Distance)',
                 short: {
-                  nir730: sub.values[4],
-                  ir850:  sub.values[6],
-                  red660: sub.values[12],
-                  ambient: sub.values[14]
+                  nir730: blendOptics(sub.values[4], sub.values[5], sub.values[4]),
+                  ir850:  blendOptics(sub.values[6], sub.values[7], sub.values[6]),
+                  red660: blendOptics(sub.values[12], sub.values[13], sub.values[12]),
+                  ambient: blendOptics(sub.values[14], sub.values[15], sub.values[14])
                 },
                 long: {
-                  nir730: sub.values[0],
-                  ir850:  sub.values[2],
-                  red660: sub.values[8],
-                  ambient: sub.values[10]
+                  nir730: blendOptics(sub.values[0], sub.values[1], sub.values[5] || sub.values[4]),
+                  ir850:  blendOptics(sub.values[2], sub.values[3], sub.values[7] || sub.values[6]),
+                  red660: blendOptics(sub.values[8], sub.values[9], sub.values[13] || sub.values[12]),
+                  ambient: blendOptics(sub.values[10], sub.values[11], sub.values[15] || sub.values[14])
                 }
               };
             } else if (sub.values.length >= 8) {
               mappedChannels = [
                 sub.values[0],  // 0: LO_NIR
-                sub.values[2],  // 1: LO_IR 850nm (Long)
-                sub.values[6],  // 2: LI_IR 850nm (Short)
-                sub.values[4]   // 3: LI_NIR 730nm (Short)
+                sub.values[6],  // 1: LI_IR 850nm
+                sub.values[7],  // 2: RI_IR 850nm
+                sub.values[4]   // 3: LI_NIR 730nm
               ];
               separationPairs = {
                 hasDualDistance: true,
                 hardwareModel: 'Muse S Athena (8-ch Dual-Distance)',
                 short: {
-                  nir730: sub.values[4],
-                  ir850:  sub.values[6],
-                  red660: sub.values[7] || sub.values[6],
+                  nir730: blendOptics(sub.values[4], sub.values[5], sub.values[4]),
+                  ir850:  blendOptics(sub.values[6], sub.values[7], sub.values[6]),
+                  red660: blendOptics(sub.values[4], sub.values[5], sub.values[6]),
                   ambient: sub.values[5] || sub.values[4]
                 },
                 long: {
-                  nir730: sub.values[0],
-                  ir850:  sub.values[2],
-                  red660: sub.values[3] || sub.values[2],
+                  nir730: blendOptics(sub.values[0], sub.values[1], sub.values[4]),
+                  ir850:  blendOptics(sub.values[2], sub.values[3], sub.values[7] || sub.values[6]),
+                  red660: blendOptics(sub.values[0], sub.values[1], sub.values[6]),
                   ambient: sub.values[1] || sub.values[0]
                 }
               };
@@ -817,14 +831,14 @@
                 hardwareModel: 'Muse S Athena (4-ch Single-Distance)',
                 short: {
                   nir730: sub.values[0],
-                  ir850:  sub.values[1] || sub.values[0],
-                  red660: sub.values[1] || sub.values[0],
+                  ir850:  sub.values[2] || sub.values[1] || sub.values[0],
+                  red660: sub.values[0],
                   ambient: sub.values[0]
                 },
                 long: {
                   nir730: sub.values[1] || sub.values[0],
-                  ir850:  sub.values[2] || sub.values[1],
-                  red660: sub.values[3] || sub.values[2],
+                  ir850:  sub.values[3] || sub.values[2] || sub.values[1],
+                  red660: sub.values[1] || sub.values[0],
                   ambient: sub.values[0]
                 }
               };
@@ -842,20 +856,20 @@
               });
             }
           } else if (sub.type === 'motion') {
-            this.accelerometerData.next({
-              sequenceId: sub.index,
-              samples: [0, 1, 2].map((i) => ({
-                x: sub.values[0][i],
-                y: sub.values[1][i],
-                z: sub.values[2][i]
-              }))
-            });
             this.gyroscopeData.next({
               sequenceId: sub.index,
               samples: [0, 1, 2].map((i) => ({
                 x: sub.values[3][i],
                 y: sub.values[4][i],
                 z: sub.values[5][i]
+              }))
+            });
+            this.accelerometerData.next({
+              sequenceId: sub.index,
+              samples: [0, 1, 2].map((i) => ({
+                x: sub.values[0][i],
+                y: sub.values[1][i],
+                z: sub.values[2][i]
               }))
             });
           } else if (sub.type === 'drlref') {

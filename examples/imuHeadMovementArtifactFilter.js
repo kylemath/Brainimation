@@ -43,6 +43,8 @@ var localHistory = {
 
 var demoWeights = [12.4, -5.8, 10.2, 6.5, 16.8, -8.4];
 var uiButtons = [];
+var wasLiveFilter = false;
+var lastLoadedChIdx = -1;
 
 function setup() {
   colorMode(RGB, 255);
@@ -61,7 +63,10 @@ function stepFilterDemo(isWarmup = false) {
   joltEnvelope *= 0.955;
 
   const chName = FILT_CHANNELS[selectedChIdx];
-  const hasLive = false; // Use controlled biophysical + 6-DOF NLMS closed-loop model so weights stay calibrated in µV/m·s⁻²
+  const hasLive = !isWarmup && typeof eegData !== 'undefined' && eegData.connected &&
+                  Array.isArray(eegData.raw) && eegData.rawHistory &&
+                  Array.isArray(eegData.rawHistory[chName]) &&
+                  eegData.rawHistory[chName].length > 5;
 
   let rawVal, artVal, cleanVal, trueBrainVal;
   let linAx, linAy, linAz, gx, gy, gz;
@@ -69,10 +74,32 @@ function stepFilterDemo(isWarmup = false) {
   if (hasLive) {
     // Map channel name to eegData index (0=TP9, 1=AF7, 2=AF8, 3=TP10)
     const eegIdx = chName === 'TP9' ? 0 : chName === 'AF7' ? 1 : chName === 'AF8' ? 2 : 3;
+
+    // Sync rolling buffer on first live frame or when user switches electrode tab
+    if (!wasLiveFilter || lastLoadedChIdx !== selectedChIdx) {
+      wasLiveFilter = true;
+      lastLoadedChIdx = selectedChIdx;
+      const rawH = (eegData.rawHistory && eegData.rawHistory[chName]) || [];
+      const artH = (eegData.motionArtifactHistory && eegData.motionArtifactHistory[chName]) || [];
+      const clnH = (eegData.cleanHistory && eegData.cleanHistory[chName]) || [];
+      const kAx  = (eegData.kinematicsHistory && eegData.kinematicsHistory.linAccX) || [];
+      const kAz  = (eegData.kinematicsHistory && eegData.kinematicsHistory.linAccZ) || [];
+      const gYH  = (eegData.gyroHistory && eegData.gyroHistory.y) || [];
+      const gZH  = (eegData.gyroHistory && eegData.gyroHistory.z) || [];
+      const nCopy = Math.min(FILT_HIST_LEN, rawH.length);
+      localHistory.raw = rawH.slice(-nCopy);
+      localHistory.artifact = artH.length >= nCopy ? artH.slice(-nCopy) : new Array(nCopy).fill(0);
+      localHistory.clean = clnH.length >= nCopy ? clnH.slice(-nCopy) : localHistory.raw.slice();
+      localHistory.trueNeural = localHistory.clean.slice();
+      localHistory.linAx = kAx.length ? kAx.slice(-nCopy) : new Array(nCopy).fill(0);
+      localHistory.linAz = kAz.length ? kAz.slice(-nCopy) : new Array(nCopy).fill(0);
+      localHistory.gyroY = gYH.length ? gYH.slice(-nCopy).map(v => v / 15.0) : new Array(nCopy).fill(0);
+      localHistory.gyroZ = gZH.length ? gZH.slice(-nCopy).map(v => v / 15.0) : new Array(nCopy).fill(0);
+    }
+
     rawVal   = (eegData.raw && eegData.raw[eegIdx]) || 0;
     artVal   = (eegData.motionArtifact && eegData.motionArtifact[eegIdx]) || 0;
     cleanVal = (eegData.clean && eegData.clean[eegIdx]) || (rawVal - artVal);
-    trueBrainVal = cleanVal;
 
     linAx = (eegData.linearAccel && eegData.linearAccel.x) || 0;
     linAy = (eegData.linearAccel && eegData.linearAccel.y) || 0;
@@ -84,7 +111,21 @@ function stepFilterDemo(isWarmup = false) {
     if (eegData.motionFilterWeights && eegData.motionFilterWeights[chName]) {
       demoWeights = eegData.motionFilterWeights[chName].slice();
     }
+
+    // Optional interactive Jolt impulse superimposed on live stream when user clicks Jolt / presses Space
+    if (joltEnvelope > 0.01) {
+      const joltWave = 2.2 * joltEnvelope * sin(simT * 14.0);
+      linAx += 1.2 * joltWave;
+      linAz += 0.9 * joltWave;
+      gy    += 42.0 * joltWave;
+      const joltArt = (demoWeights[0] * 1.2 + demoWeights[2] * 0.9 + demoWeights[4] * (42.0 / 60.0)) * joltWave;
+      rawVal += joltArt;
+      artVal += joltArt * 0.92;
+      cleanVal = rawVal - artVal;
+    }
+    trueBrainVal = cleanVal;
   } else {
+    wasLiveFilter = false;
     // Biophysical + 6-DOF kinematic head movement generator (continuous rhythmic motion + optional jolt)
     const t = simT;
     const burst = 1.0 + 2.4 * joltEnvelope * sin(t * 14.0);
@@ -352,7 +393,7 @@ function drawRightFilterCascade(x, y, w, h, chName) {
       colA: color(248, 113, 113),
       labelA: `Raw ${chName}`,
       unit: 'µV',
-      fixedMax: 45
+      fixedMax: 12
     },
     {
       title: 'TIER 2: 6-DOF IMU Regressors',
@@ -364,7 +405,7 @@ function drawRightFilterCascade(x, y, w, h, chName) {
       colB: color(250, 204, 21),
       labelB: 'Pitch ω_y',
       unit: '',
-      fixedMax: 5.5
+      fixedMax: 0.45
     },
     {
       title: 'TIER 3: NLMS Artifact Fit m̂(t)',
@@ -376,7 +417,7 @@ function drawRightFilterCascade(x, y, w, h, chName) {
       colB: color(251, 146, 60),
       labelB: 'Artifact m̂(t)',
       unit: 'µV',
-      fixedMax: 45
+      fixedMax: 12
     },
     {
       title: `TIER 4: Cleaned EEG Output (${chName})`,
@@ -388,7 +429,7 @@ function drawRightFilterCascade(x, y, w, h, chName) {
       colGhost: color(248, 113, 113, 80),
       labelGhost: '',
       unit: 'µV',
-      fixedMax: 45
+      fixedMax: 12
     }
   ];
 

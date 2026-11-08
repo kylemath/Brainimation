@@ -157,15 +157,28 @@ function drawDrlRefScope(x, y, w, h, drl, ref) {
   stroke(38, 52, 82);
   line(plotX, plotY + plotH * 0.5, plotX + plotW, plotY + plotH * 0.5);
 
+  // Dynamically center and scale around the live DRL/REF baseline (supports both Athena ~8192 and Classic ~820)
+  let N = dHist.length > 2 ? dHist.length : 120;
+  let minV = Infinity, maxV = -Infinity;
+  for (let i = 0; i < N; i++) {
+    let vd = dHist.length > 2 ? dHist[i] : (820 + 22 * sin(simT * 1.1 - (N - i) * 0.06));
+    let vr = rHist.length > 2 ? rHist[Math.min(i, rHist.length - 1)] : (815 + 16 * cos(simT * 0.9 - (N - i) * 0.06));
+    if (vd < minV) minV = vd;
+    if (vd > maxV) maxV = vd;
+    if (vr < minV) minV = vr;
+    if (vr > maxV) maxV = vr;
+  }
+  let midV = (minV + maxV) * 0.5;
+  let halfSpan = Math.max(25, (maxV - minV) * 0.65);
+
   noFill();
   stroke(56, 189, 248);
   strokeWeight(1.8);
   beginShape();
-  let N = dHist.length > 2 ? dHist.length : 120;
   for (let i = 0; i < N; i++) {
     let v = dHist.length > 2 ? dHist[i] : (820 + 22 * sin(simT * 1.1 - (N - i) * 0.06));
     let px = plotX + (i / max(1, N - 1)) * plotW;
-    let py = constrain(map(v, 740, 900, plotY + plotH, plotY), plotY, plotY + plotH);
+    let py = constrain(map(v, midV - halfSpan, midV + halfSpan, plotY + plotH, plotY), plotY, plotY + plotH);
     vertex(px, py);
   }
   endShape();
@@ -174,9 +187,9 @@ function drawDrlRefScope(x, y, w, h, drl, ref) {
   strokeWeight(1.8);
   beginShape();
   for (let i = 0; i < N; i++) {
-    let v = rHist.length > 2 ? rHist[i] : (815 + 16 * cos(simT * 0.9 - (N - i) * 0.06));
+    let v = rHist.length > 2 ? rHist[Math.min(i, rHist.length - 1)] : (815 + 16 * cos(simT * 0.9 - (N - i) * 0.06));
     let px = plotX + (i / max(1, N - 1)) * plotW;
-    let py = constrain(map(v, 740, 900, plotY + plotH, plotY), plotY, plotY + plotH);
+    let py = constrain(map(v, midV - halfSpan, midV + halfSpan, plotY + plotH, plotY), plotY, plotY + plotH);
     vertex(px, py);
   }
   endShape();

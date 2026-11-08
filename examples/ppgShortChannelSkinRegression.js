@@ -23,7 +23,9 @@
 //         cardiac template as a proxy regressor for superficial scalp pulse.
 
 var SHORT_HIST_LEN = 220;
-var uiMode = 'athena'; // 'auto' | 'athena' | 'classic'
+var uiMode = 'auto'; // 'auto' | 'athena' | 'classic'
+var wasLive = false;
+var liveHighPassLp = 0;
 var traceBuf = {
   longOd: [],
   shortOd: [],
@@ -70,18 +72,55 @@ function stepRegressionSample(isWarmup = false) {
 
   let longOd, shortOd, cleanOd, rawHbO2, skinHbO2, cleanHbO2, cleanHHb, beta;
 
-  if (hasLive && uiMode === 'auto') {
+  if (hasLive) {
     const reg = eegData.fnirsRegression;
+    const hist = eegData.fnirsRegressionHistory;
+
+    // On first transition from warmup/disconnected to live hardware, replace synthetic buffer with live history
+    if (!wasLive) {
+      wasLive = true;
+      const nCopy = Math.min(SHORT_HIST_LEN, hist.rawOD850.length);
+      traceBuf.longOd = hist.rawOD850.slice(-nCopy);
+      traceBuf.shortOd = (hist.shortOD850 || []).slice(-nCopy);
+      traceBuf.scaledShortOd = (hist.skinFit850 || []).slice(-nCopy);
+      traceBuf.cleanOd = (hist.cleanOD850 || []).slice(-nCopy);
+      traceBuf.rawHbO2 = (hist.rawHbO2 || []).slice(-nCopy);
+      traceBuf.skinHbO2 = (hist.skinHbO2 || []).slice(-nCopy);
+      traceBuf.cleanHbO2 = (hist.cleanHbO2 || []).slice(-nCopy);
+      traceBuf.cleanHHb = (hist.cleanHHb || []).slice(-nCopy);
+    }
+
     longOd = reg.rawOD850 || 0;
-    shortOd = reg.shortOD850 || 0;
-    beta = reg.beta850 || 0.78;
-    cleanOd = reg.cleanOD850 || (longOd - beta * shortOd);
-    rawHbO2 = reg.rawHbO2 || 0;
-    skinHbO2 = reg.skinHbO2 || 0;
-    cleanHbO2 = reg.cleanHbO2 || 0;
-    cleanHHb = reg.cleanHHb || 0;
-    rlsBeta = beta;
+    const liveShortOd = reg.shortOD850 || 0;
+    const liveOd660 = reg.rawOD660 || (longOd * 0.75);
+
+    if (effMode === 'athena') {
+      // True dual-distance 8mm short + 20mm long optical regression from live headband stream
+      shortOd = liveShortOd;
+      beta = reg.beta850 || 0.78;
+      cleanOd = reg.cleanOD850 !== undefined ? reg.cleanOD850 : (longOd - beta * shortOd);
+      rawHbO2 = reg.rawHbO2 || 0;
+      skinHbO2 = reg.skinHbO2 || 0;
+      cleanHbO2 = reg.cleanHbO2 || 0;
+      cleanHHb = reg.cleanHHb || 0;
+      rlsBeta = beta;
+    } else {
+      // Classic Single-Distance Proxy applied to live optical stream (high-pass cardiac + shallow 660nm Red proxy)
+      liveHighPassLp = 0.94 * liveHighPassLp + 0.06 * longOd;
+      const highPassCardiac = longOd - liveHighPassLp;
+      shortOd = 0.65 * highPassCardiac + 0.35 * liveOd660;
+      rlsCov = 0.96 * rlsCov + 0.04 * (longOd * shortOd);
+      rlsVar = 0.96 * rlsVar + 0.04 * (shortOd * shortOd);
+      rlsBeta = constrain(rlsCov / Math.max(1e-9, rlsVar), 0.20, 1.45);
+      beta = rlsBeta;
+      cleanOd = longOd - beta * shortOd;
+      rawHbO2 = reg.rawHbO2 || (longOd * 95.0);
+      skinHbO2 = (beta * shortOd) * 95.0;
+      cleanHbO2 = cleanOd * 95.0;
+      cleanHHb = (reg.cleanHHb || 0) + (liveHighPassLp * 42.0);
+    }
   } else {
+    wasLive = false;
     // Realistic biophysical generator comparing Athena 8mm/20mm vs Classic Single-Distance Proxy
     const t = simPhase;
     // Superficial scalp interference: strong 1.15 Hz cardiac pulse + 0.25 Hz respiration + 0.1 Hz Mayer wave
@@ -515,7 +554,7 @@ function drawRegressionStack(x, y, w, h, isAthena) {
     line(px, py + ph / 2, px + pw, py + ph / 2);
 
     // Compute dynamic scale across active series in this tier
-    let maxAbs = 1e-5;
+    let maxAbs = 1e-6;
     const allArrays = [t.dataA, t.dataB, t.dataGhost].filter(Boolean);
     for (const arr of allArrays) {
       for (let k = 0; k < arr.length; k++) {

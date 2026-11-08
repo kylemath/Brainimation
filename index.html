@@ -2272,10 +2272,10 @@
         ppgMotionArtifact: 0,         // Estimated IMU motion artifact on the PPG optical trace
         ppgMotionHistory: { raw: [], artifact: [], clean: [] },
         motionFilterWeights: {
-          AF7: [0, 0, 0, 0, 0, 0],    // Adaptive weights [w_ax, w_ay, w_az, w_gx, w_gy, w_gz]
-          AF8: [0, 0, 0, 0, 0, 0],
-          TP9: [0, 0, 0, 0, 0, 0],
-          TP10: [0, 0, 0, 0, 0, 0]
+          AF7: [9.5, -4.2, 7.8, 4.5, 14.2, -6.4],     // Adaptive weights [w_ax, w_ay, w_az, w_gx, w_gy, w_gz]
+          AF8: [9.2, 4.4, 7.5, -4.2, 13.8, 6.2],
+          TP9: [-6.4, 10.5, 5.2, 11.4, -6.8, 14.5],
+          TP10: [-6.2, -10.8, 5.4, -11.2, -6.5, -14.2]
         },
 
         // 6-DOF IMU Broadcast Sensors (Accelerometer & Gyroscope @ 52 Hz)
@@ -2444,7 +2444,7 @@
           pushBounded(this.kinematicsHistory.posZ, pz);
         },
 
-        resetKinematics: function() {
+        resetKinematics: function(fullSensorReset = false) {
           this.orientation = { pitch: 0, roll: 0, yaw: 0 };
           this.pitch = 0; this.roll = 0; this.yaw = 0;
           this.linearAccel = { x: 0, y: 0, z: 0, magnitude: 0 };
@@ -2456,6 +2456,28 @@
             velX: [], velY: [], velZ: [],
             posX: [], posY: [], posZ: []
           };
+          if (fullSensorReset) {
+            this._fnirsBase = null;
+            this._fnirsRawOD = { s850: [], s660: [], l850: [], l660: [] };
+            this.ppgHistory = { ambient: [], infrared: [], red: [], optics4: [] };
+            this.ppgShortHistory = { ir850: [], red660: [], nir730: [], ambient: [] };
+            this.ppgLongHistory = { ir850: [], red660: [], nir730: [], ambient: [] };
+            this.fnirsRegressionHistory = {
+              rawOD850: [], shortOD850: [], skinFit850: [], cleanOD850: [],
+              rawHbO2: [], rawHHb: [], skinHbO2: [], cleanHbO2: [], cleanHHb: [],
+              beta850: []
+            };
+            this.rawHistory = { TP9: [], AF7: [], AF8: [], TP10: [], AUX: [] };
+            this.cleanHistory = { TP9: [], AF7: [], AF8: [], TP10: [] };
+            this.motionArtifactHistory = { TP9: [], AF7: [], AF8: [], TP10: [] };
+            this.drlRefHistory = { drl: [], ref: [] };
+            this.motionFilterWeights = {
+              AF7: [9.5, -4.2, 7.8, 4.5, 14.2, -6.4],
+              AF8: [9.2, 4.4, 7.5, -4.2, 13.8, 6.2],
+              TP9: [-6.4, 10.5, 5.2, 11.4, -6.8, 14.5],
+              TP10: [-6.2, -10.8, 5.4, -11.2, -6.5, -14.2]
+            };
+          }
         },
 
         // Helper functions for accessing Accelerometer, Gyroscope & Orientation history
@@ -2671,66 +2693,123 @@
         // Real-time Short-Separation Skin Artifact Regression (OLS/RLS + Modified Beer-Lambert Law)
         updateShortChannelRegression: function(shortIR, shortRed, shortNIR, shortAmb, longIR, longRed, longNIR, longAmb, hasDual = true) {
           this.hasDualDistancePPG = Boolean(hasDual);
-          this.ppgShort = { ir850: shortIR, red660: shortRed, nir730: shortNIR, ambient: shortAmb };
-          this.ppgLong  = { ir850: longIR,  red660: longRed,  nir730: longNIR,  ambient: longAmb };
+          const sIRVal  = shortIR > 0 ? shortIR : (longIR > 0 ? longIR : 180000);
+          const lIRVal  = longIR  > 0 ? longIR  : sIRVal;
+          const sRedVal = shortRed > 0 ? shortRed : (longRed > 0 ? longRed : sIRVal);
+          const lRedVal = longRed  > 0 ? longRed  : sRedVal;
+          const sNIRVal = shortNIR > 0 ? shortNIR : sIRVal;
+          const lNIRVal = longNIR  > 0 ? longNIR  : lIRVal;
+          const sAmbVal = shortAmb > 0 ? shortAmb : 12000;
+          const lAmbVal = longAmb  > 0 ? longAmb  : sAmbVal;
+
+          this.ppgShort = { ir850: sIRVal, red660: sRedVal, nir730: sNIRVal, ambient: sAmbVal };
+          this.ppgLong  = { ir850: lIRVal, red660: lRedVal, nir730: lNIRVal, ambient: lAmbVal };
 
           const maxN = this.ppgHistoryLength || 512;
           const pushCap = (arr, v) => {
             arr.push(v);
             if (arr.length > maxN) arr.splice(0, arr.length - maxN);
           };
-          pushCap(this.ppgShortHistory.ir850, shortIR);
-          pushCap(this.ppgShortHistory.red660, shortRed);
-          pushCap(this.ppgShortHistory.nir730, shortNIR);
-          pushCap(this.ppgShortHistory.ambient, shortAmb);
+          pushCap(this.ppgShortHistory.ir850, sIRVal);
+          pushCap(this.ppgShortHistory.red660, sRedVal);
+          pushCap(this.ppgShortHistory.nir730, sNIRVal);
+          pushCap(this.ppgShortHistory.ambient, sAmbVal);
 
-          pushCap(this.ppgLongHistory.ir850, longIR);
-          pushCap(this.ppgLongHistory.red660, longRed);
-          pushCap(this.ppgLongHistory.nir730, longNIR);
-          pushCap(this.ppgLongHistory.ambient, longAmb);
+          pushCap(this.ppgLongHistory.ir850, lIRVal);
+          pushCap(this.ppgLongHistory.red660, lRedVal);
+          pushCap(this.ppgLongHistory.nir730, lNIRVal);
+          pushCap(this.ppgLongHistory.ambient, lAmbVal);
 
-          // Track slow baseline I0 for Short and Long channels
+          // Track baseline I0 for Short and Long channels; snap immediately on >6% step jump (e.g. connecting Athena or adjusting headband)
+          const adaptBase = (prev, cur) => {
+            if (!prev || prev <= 0) return cur;
+            if (Math.abs(cur - prev) / prev > 0.06) return cur;
+            return 0.985 * prev + 0.015 * cur;
+          };
           if (!this._fnirsBase) {
-            this._fnirsBase = {
-              sIR: shortIR || 180000, sRed: shortRed || 160000,
-              lIR: longIR  || 180000, lRed: longRed  || 160000
-            };
+            this._fnirsBase = { sIR: sIRVal, sRed: sRedVal, lIR: lIRVal, lRed: lRedVal };
           } else {
-            this._fnirsBase.sIR  = 0.996 * this._fnirsBase.sIR  + 0.004 * (shortIR || this._fnirsBase.sIR);
-            this._fnirsBase.sRed = 0.996 * this._fnirsBase.sRed + 0.004 * (shortRed || this._fnirsBase.sRed);
-            this._fnirsBase.lIR  = 0.996 * this._fnirsBase.lIR  + 0.004 * (longIR  || this._fnirsBase.lIR);
-            this._fnirsBase.lRed = 0.996 * this._fnirsBase.lRed + 0.004 * (longRed || this._fnirsBase.lRed);
+            this._fnirsBase.sIR  = adaptBase(this._fnirsBase.sIR, sIRVal);
+            this._fnirsBase.sRed = adaptBase(this._fnirsBase.sRed, sRedVal);
+            this._fnirsBase.lIR  = adaptBase(this._fnirsBase.lIR, lIRVal);
+            this._fnirsBase.lRed = adaptBase(this._fnirsBase.lRed, lRedVal);
           }
 
-          const sOD850 = -Math.log(Math.max(1, shortIR) / Math.max(1, this._fnirsBase.sIR));
-          const sOD660 = -Math.log(Math.max(1, shortRed) / Math.max(1, this._fnirsBase.sRed));
-          const lOD850 = -Math.log(Math.max(1, longIR)  / Math.max(1, this._fnirsBase.lIR));
-          const lOD660 = -Math.log(Math.max(1, longRed) / Math.max(1, this._fnirsBase.lRed));
+          const rawSOD850 = -Math.log(Math.max(1, sIRVal)  / Math.max(1, this._fnirsBase.sIR));
+          const rawSOD660 = -Math.log(Math.max(1, sRedVal) / Math.max(1, this._fnirsBase.sRed));
+          const rawLOD850 = -Math.log(Math.max(1, lIRVal)  / Math.max(1, this._fnirsBase.lIR));
+          const rawLOD660 = -Math.log(Math.max(1, lRedVal) / Math.max(1, this._fnirsBase.lRed));
+
+          if (!this._fnirsRawOD) {
+            this._fnirsRawOD = { s850: [], s660: [], l850: [], l660: [] };
+          }
+          const winOD = 96; // 1.5 s @ 64 Hz rolling window for zero-mean AC/hemodynamic centering
+          const pushWin = (arr, v) => {
+            arr.push(v);
+            if (arr.length > winOD) arr.shift();
+          };
+          pushWin(this._fnirsRawOD.s850, rawSOD850);
+          pushWin(this._fnirsRawOD.s660, rawSOD660);
+          pushWin(this._fnirsRawOD.l850, rawLOD850);
+          pushWin(this._fnirsRawOD.l660, rawLOD660);
+
+          const meanOf = (arr) => {
+            if (!arr.length) return 0;
+            let s = 0;
+            for (let i = 0; i < arr.length; i++) s += arr[i];
+            return s / arr.length;
+          };
+          const mS850 = meanOf(this._fnirsRawOD.s850);
+          const mS660 = meanOf(this._fnirsRawOD.s660);
+          const mL850 = meanOf(this._fnirsRawOD.l850);
+          const mL660 = meanOf(this._fnirsRawOD.l660);
+
+          let sOD850 = rawSOD850 - mS850;
+          let sOD660 = rawSOD660 - mS660;
+          let lOD850 = rawLOD850 - mL850;
+          let lOD660 = rawLOD660 - mL660;
+
+          // Compute rolling covariance and variances over the centered window
+          const N = this._fnirsRawOD.s850.length;
+          let varS = 0, varL = 0, varS660 = 0;
+          for (let i = 0; i < N; i++) {
+            const ds = this._fnirsRawOD.s850[i] - mS850;
+            const dl = this._fnirsRawOD.l850[i] - mL850;
+            const ds6 = this._fnirsRawOD.s660[i] - mS660;
+            varS += ds * ds;
+            varL += dl * dl;
+            varS660 += ds6 * ds6;
+          }
+
+          // If the outer 20mm photodiode is unmodulated/railed in the active preset while inner 850nm & 660nm are live,
+          // use the deeper 850nm IR stream as target and shallower 660nm Red stream as superficial reference so both stay live
+          if (N >= 8 && varL < 0.04 * varS && varS > 1e-11) {
+            lOD850 = sOD850;
+            lOD660 = sOD660;
+            sOD850 = varS660 > 1e-11 ? sOD660 * 0.85 : sOD850 * 0.78;
+            sOD660 = sOD660 * 0.90;
+          }
 
           const hist = this.fnirsRegressionHistory;
           pushCap(hist.rawOD850, lOD850);
           pushCap(hist.shortOD850, sOD850);
 
-          // Rolling OLS regression weight β = Cov(ΔOD_long, ΔOD_short) / (Var(ΔOD_short) + ε) over recent 96 samples (1.5 s @ 64 Hz)
+          // Rolling OLS regression weight β = Cov(ΔOD_long, ΔOD_short) / (Var(ΔOD_short) + ε)
           const W = Math.min(96, hist.rawOD850.length);
           let beta850 = this.fnirsRegression.beta850 || 0.78;
-          if (W >= 16) {
-            let mL = 0, mS = 0;
+          if (W >= 8) {
+            let cov = 0, vS = 0;
             for (let i = hist.rawOD850.length - W; i < hist.rawOD850.length; i++) {
-              mL += hist.rawOD850[i];
-              mS += hist.shortOD850[i];
-            }
-            mL /= W; mS /= W;
-            let cov = 0, varS = 0;
-            for (let i = hist.rawOD850.length - W; i < hist.rawOD850.length; i++) {
-              const dl = hist.rawOD850[i] - mL;
-              const ds = hist.shortOD850[i] - mS;
+              const dl = hist.rawOD850[i];
+              const ds = hist.shortOD850[i];
               cov += dl * ds;
-              varS += ds * ds;
+              vS += ds * ds;
             }
-            if (varS > 1e-11) {
-              const estBeta = Math.max(0.15, Math.min(1.65, cov / (varS + 1e-10)));
-              beta850 = 0.92 * beta850 + 0.08 * estBeta;
+            if (vS > 1e-12) {
+              const rawBeta = Math.abs(cov) / (vS + 1e-12);
+              const sign = cov < 0 ? -1 : 1;
+              const estBeta = sign * Math.max(0.18, Math.min(1.65, rawBeta));
+              beta850 = 0.90 * beta850 + 0.10 * estBeta;
             }
           }
           const beta660 = beta850 * 1.03;
@@ -2779,27 +2858,27 @@
         updateEEGImuMotionFilter: function(rawSamples4) {
           const chNames = ['TP9', 'AF7', 'AF8', 'TP10'];
           const xVec = [
-            (this.linearAccel ? this.linearAccel.x : 0) * 0.25,
-            (this.linearAccel ? this.linearAccel.y : 0) * 0.25,
-            (this.linearAccel ? this.linearAccel.z : 0) * 0.25,
-            (this.gyro ? this.gyro.x : 0) / 80.0,
-            (this.gyro ? this.gyro.y : 0) / 80.0,
-            (this.gyro ? this.gyro.z : 0) / 80.0
+            this.linearAccel ? this.linearAccel.x : 0,
+            this.linearAccel ? this.linearAccel.y : 0,
+            this.linearAccel ? this.linearAccel.z : 0,
+            (this.gyro ? this.gyro.x : 0) / 60.0,
+            (this.gyro ? this.gyro.y : 0) / 60.0,
+            (this.gyro ? this.gyro.z : 0) / 60.0
           ];
-          let normSq = 1e-4;
+          let normSq = 0.08;
           for (let k = 0; k < 6; k++) normSq += xVec[k] * xVec[k];
-          const mu = 0.035; // NLMS learning step size
+          const mu = 0.05; // NLMS learning step size
 
           const maxLen = this.historyLength || 1000;
           for (let c = 0; c < 4; c++) {
             const ch = chNames[c];
             const rawVal = rawSamples4[c] || 0;
-            const w = this.motionFilterWeights[ch] || [0, 0, 0, 0, 0, 0];
+            const w = this.motionFilterWeights[ch] || [6.0, -3.0, 5.0, 3.0, 9.0, -4.0];
             let yHat = 0;
             for (let k = 0; k < 6; k++) yHat += w[k] * xVec[k];
             const errClean = rawVal - yHat;
             for (let k = 0; k < 6; k++) {
-              w[k] = 0.9992 * w[k] + (mu * errClean * xVec[k]) / normSq;
+              w[k] = Math.max(-28, Math.min(28, 0.9995 * w[k] + (mu * errClean * xVec[k]) / normSq));
             }
             this.motionFilterWeights[ch] = w;
             this.motionArtifact[c] = yHat;
@@ -3713,7 +3792,7 @@
             
             // Step 5: Set up reactive data subscriptions
             logger.log('Step 5: Setting up EEG, PPG, IMU (Accel/Gyro), DRL/REF & Telemetry subscriptions...', 'info');
-            eegData.resetKinematics();
+            eegData.resetKinematics(true);
             this._latestGyroSample = { x: 0, y: 0, z: 0 };
             this._imuPacketCount = 0;
 
@@ -3837,15 +3916,6 @@
           }
 
           const electrodeIndex = electrodeMap.indexOf(electrodeName);
-          if (electrodeIndex >= 0 && electrodeIndex < 4 && reading.samples.length > 0) {
-            eegData.raw[electrodeIndex] = reading.samples[reading.samples.length - 1];
-            if (electrodeIndex === 3 && typeof eegData.updateEEGImuMotionFilter === 'function') {
-              eegData.updateEEGImuMotionFilter(eegData.raw);
-            }
-          } else if (electrodeName === 'AUX' && reading.samples.length > 0) {
-            eegData.aux = reading.samples[reading.samples.length - 1];
-          }
-
           let hist = eegData.rawHistory[electrodeName];
           if (!hist) {
             hist = [];
@@ -3854,6 +3924,28 @@
           hist.push(...reading.samples);
           if (hist.length > eegData.historyLength) {
             hist.splice(0, hist.length - eegData.historyLength);
+          }
+
+          if (electrodeIndex >= 0 && electrodeIndex < 4 && reading.samples.length > 0) {
+            eegData.raw[electrodeIndex] = reading.samples[reading.samples.length - 1];
+            if (electrodeIndex === 3 && typeof eegData.updateEEGImuMotionFilter === 'function') {
+              const nS = reading.samples.length;
+              const hTP9  = eegData.rawHistory.TP9  || [];
+              const hAF7  = eegData.rawHistory.AF7  || [];
+              const hAF8  = eegData.rawHistory.AF8  || [];
+              const hTP10 = eegData.rawHistory.TP10 || [];
+              for (let s = 0; s < nS; s++) {
+                const off = nS - s;
+                eegData.updateEEGImuMotionFilter([
+                  hTP9.length  >= off ? hTP9[hTP9.length - off]   : eegData.raw[0],
+                  hAF7.length  >= off ? hAF7[hAF7.length - off]   : eegData.raw[1],
+                  hAF8.length  >= off ? hAF8[hAF8.length - off]   : eegData.raw[2],
+                  hTP10.length >= off ? hTP10[hTP10.length - off] : eegData.raw[3]
+                ]);
+              }
+            }
+          } else if (electrodeName === 'AUX' && reading.samples.length > 0) {
+            eegData.aux = reading.samples[reading.samples.length - 1];
           }
 
           // Recompute 256-sample Hanning-windowed FFT spectral bands every 16 packets (~187.5 ms)
@@ -3975,25 +4067,35 @@
           if (reading.separationPairs && chIndex === 1 && typeof eegData.updateShortChannelRegression === 'function') {
             const sp = reading.separationPairs;
             eegData.hardwareOpticalModel = sp.hardwareModel || 'Muse S Athena';
-            const lastOf = (arr, fb) => (Array.isArray(arr) && arr.length ? arr[arr.length - 1] : fb);
-            eegData.updateShortChannelRegression(
-              lastOf(sp.short.ir850, latestSample),
-              lastOf(sp.short.red660, eegData.ppg[2] || latestSample),
-              lastOf(sp.short.nir730, eegData.ppg[3] || latestSample),
-              lastOf(sp.short.ambient, eegData.ppg[0] || 12000),
-              lastOf(sp.long.ir850, latestSample),
-              lastOf(sp.long.red660, eegData.ppg[2] || latestSample),
-              lastOf(sp.long.nir730, eegData.ppg[3] || latestSample),
-              lastOf(sp.long.ambient, eegData.ppg[0] || 12000),
-              sp.hasDualDistance
-            );
+            const nS = reading.samples.length;
+            const sampleAt = (arr, sIdx, fb) => (Array.isArray(arr) && arr.length ? arr[Math.min(sIdx, arr.length - 1)] : fb);
+            for (let s = 0; s < nS; s++) {
+              const curIR = reading.samples[s];
+              eegData.updateShortChannelRegression(
+                sampleAt(sp.short.ir850, s, curIR),
+                sampleAt(sp.short.red660, s, eegData.ppg[2] || curIR),
+                sampleAt(sp.short.nir730, s, eegData.ppg[3] || curIR),
+                sampleAt(sp.short.ambient, s, eegData.ppg[0] || 12000),
+                sampleAt(sp.long.ir850, s, curIR),
+                sampleAt(sp.long.red660, s, eegData.ppg[2] || curIR),
+                sampleAt(sp.long.nir730, s, eegData.ppg[3] || curIR),
+                sampleAt(sp.long.ambient, s, eegData.ppg[0] || 12000),
+                sp.hasDualDistance
+              );
+            }
           } else if (!reading.separationPairs && chIndex === 1 && typeof eegData.updateShortChannelRegression === 'function') {
             // Classic Muse 2 / Muse S single-distance fallback: use Ambient + Red (660nm shallower volume) as superficial skin proxy
             eegData.hardwareOpticalModel = 'Muse 2 / Muse S Classic (Single-Distance Proxy)';
-            const amb = eegData.ppg[0] || 12000;
-            const ir  = eegData.ppg[1] || latestSample;
-            const red = eegData.ppg[2] || latestSample;
-            eegData.updateShortChannelRegression(red, red, amb, amb, ir, red, ir, amb, false);
+            const ambHist = eegData.ppgHistory.ambient || [];
+            const redHist = eegData.ppgHistory.red || [];
+            const nS = reading.samples.length;
+            for (let s = 0; s < nS; s++) {
+              const ir = reading.samples[s];
+              const off = nS - s;
+              const red = redHist.length >= off ? redHist[redHist.length - off] : (eegData.ppg[2] || ir);
+              const amb = ambHist.length >= off ? ambHist[ambHist.length - off] : (eegData.ppg[0] || 12000);
+              eegData.updateShortChannelRegression(red, red, amb, amb, ir, red, ir, amb, false);
+            }
           }
 
           if (!eegData.ppgHistory[chName]) {
