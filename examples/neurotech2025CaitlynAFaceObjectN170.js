@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025CaitlynAFaceObjectN170
  * @title N170 Faces vs. Star Objects ERP (Caitlyn Archibald)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 20
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

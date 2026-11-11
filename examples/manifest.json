@@ -17,6 +17,7 @@
     "EEGEdu Modules",
     "Classic p5.eegedu",
     "2025 Neurotech Class Catalogue",
+    "2025 Neurotech ERP Assignments",
     "2022 NeuroArt Class Gallery"
   ],
   "examples": [
@@ -657,12 +658,6 @@
       "category": "Classic p5.eegedu"
     },
     {
-      "id": "neurotech2025AliciaOCatErp",
-      "file": "neurotech2025AliciaOCatErp.js",
-      "title": "Cat Oddball ERP Monitor (Alicia Osorio)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025AliciaOHeelsRunner",
       "file": "neurotech2025AliciaOHeelsRunner.js",
       "title": "Sunset Heels Runner (Alicia Osorio)",
@@ -678,12 +673,6 @@
       "id": "neurotech2025AmnaKJellyfishSleepTrainer",
       "file": "neurotech2025AmnaKJellyfishSleepTrainer.js",
       "title": "Jellyfish Sleep Trainer & Bell Music (Amna Khan)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025AmnaKEmotionalFaceErp",
-      "file": "neurotech2025AmnaKEmotionalFaceErp.js",
-      "title": "Happy vs. Sad Emotional Face ERP (Amna Khan)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -705,21 +694,9 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025AngelNMmnErp",
-      "file": "neurotech2025AngelNMmnErp.js",
-      "title": "Moonlight Mismatch Negativity ERP (Angel Nwaka)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025AyaanJZenBloodParticles",
       "file": "neurotech2025AyaanJZenBloodParticles.js",
       "title": "Zen vs. Stress Particle Field (Ayaan Jimale)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025AyaanJP300OddballErp",
-      "file": "neurotech2025AyaanJP300OddballErp.js",
-      "title": "4-Channel P300 Oddball ERP (Ayaan Jimale)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -741,18 +718,6 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025BaniSP300SimErp",
-      "file": "neurotech2025BaniSP300SimErp.js",
-      "title": "Simulated P300 Oddball ERP (Bani Sekhon)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025BaniSBaselineP300Erp",
-      "file": "neurotech2025BaniSBaselineP300Erp.js",
-      "title": "Baseline-Corrected P300 ERP (Bani Sekhon)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025BaniSLilyGarden",
       "file": "neurotech2025BaniSLilyGarden.js",
       "title": "Lily of the Valley & Butterfly Garden (Bani Sekhon)",
@@ -771,33 +736,15 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025CaitlynAFaceObjectN170",
-      "file": "neurotech2025CaitlynAFaceObjectN170.js",
-      "title": "N170 Faces vs. Star Objects ERP (Caitlyn Archibald)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025ChloeSAlphaBetaRing",
       "file": "neurotech2025ChloeSAlphaBetaRing.js",
       "title": "Alpha/Beta Ratio Ring & Chime (Chloe Sorochan)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025ChloeSStroopErp",
-      "file": "neurotech2025ChloeSStroopErp.js",
-      "title": "Color-Word Stroop Oddball ERP (Chloe Sorochan)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025EllaTSolarSystem",
       "file": "neurotech2025EllaTSolarSystem.js",
       "title": "EEG Frequency Band Solar System (Ella Thorsen-Bell)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025EllaTOddballErpMonitor",
-      "file": "neurotech2025EllaTOddballErpMonitor.js",
-      "title": "Oddball ERP & Stimulus Monitor (Ella Thorsen-Bell)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -819,12 +766,6 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025GraceSP300Oddball",
-      "file": "neurotech2025GraceSP300Oddball.js",
-      "title": "P300 Oddball ERP Averager (Grace Shin)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025GraceSCalmnessWaves",
       "file": "neurotech2025GraceSCalmnessWaves.js",
       "title": "Calmness Bar & Ocean Neurofeedback (Grace Shin)",
@@ -834,12 +775,6 @@
       "id": "neurotech2025HamzaRNeuralFireflies",
       "file": "neurotech2025HamzaRNeuralFireflies.js",
       "title": "Neural Fireflies Swarm (Hamza Razzo)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025HamzaRP300Paradigm",
-      "file": "neurotech2025HamzaRP300Paradigm.js",
-      "title": "4-Channel P300 Oddball Display (Hamza Razzo)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -861,21 +796,9 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025HannahCAnnulusOddballErp",
-      "file": "neurotech2025HannahCAnnulusOddballErp.js",
-      "title": "Circle vs. Annulus Oddball ERP (Hannah Cooper)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025HardiPConnect3Math",
       "file": "neurotech2025HardiPConnect3Math.js",
       "title": "Connect-3 Match Game & Alpha/Beta Tracker (Hardi Patel)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025HardiPFaceObjectErp",
-      "file": "neurotech2025HardiPFaceObjectErp.js",
-      "title": "Face vs. Object ERP with Timing Axis (Hardi Patel)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -891,33 +814,9 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025IvanLP300N400Detector",
-      "file": "neurotech2025IvanLP300N400Detector.js",
-      "title": "P300 & N400 Component Detector (Ivan Espino Lopez)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025IvanLOddballHazardSim",
-      "file": "neurotech2025IvanLOddballHazardSim.js",
-      "title": "P300 Oddball & Hazard Overlay Simulator (Ivan Espino Lopez)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025IvanLThresholdErpDetector",
-      "file": "neurotech2025IvanLThresholdErpDetector.js",
-      "title": "P300/N400 Detector with Alpha/Beta Thresholds (Ivan Espino Lopez)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025JakeGEegFlappyBird",
       "file": "neurotech2025JakeGEegFlappyBird.js",
       "title": "Alpha-Controlled Flappy Bird (Jake Gannon)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025JakeGMmnErpDisplay",
-      "file": "neurotech2025JakeGMmnErpDisplay.js",
-      "title": "Mismatch Negativity (MMN) ERP Display (Jake Gannon)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -930,12 +829,6 @@
       "id": "neurotech2025JiaGNeonRibbons",
       "file": "neurotech2025JiaGNeonRibbons.js",
       "title": "Expanding Alpha Neon Ribbons (Jia Guina)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025JiaGFaceObjectErp",
-      "file": "neurotech2025JiaGFaceObjectErp.js",
-      "title": "Face vs. Object ERP Averager (Jia Guina)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -954,12 +847,6 @@
       "id": "neurotech2025KiaraRAlphaBetaParticles",
       "file": "neurotech2025KiaraRAlphaBetaParticles.js",
       "title": "Alpha/Beta Brain Particle Fountain (Kiara Ruda)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025KiaraREmotionalOddballErp",
-      "file": "neurotech2025KiaraREmotionalOddballErp.js",
-      "title": "Happy vs. Angry Emotional Oddball ERP (Kiara Ruda)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -987,33 +874,15 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025KoraBP300OddballErp",
-      "file": "neurotech2025KoraBP300OddballErp.js",
-      "title": "P300 Oddball & ERP Averager (Kora Budzyk)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025KyleCAttentionRain",
       "file": "neurotech2025KyleCAttentionRain.js",
       "title": "Beta Velocity Rainstorm & Attention Meter (Kyle Cordez)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025KyleCAuditoryN1Erp",
-      "file": "neurotech2025KyleCAuditoryN1Erp.js",
-      "title": "Auditory N1 High vs. Low Tone ERP (Kyle Cordez)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025KyleCStarFlowJourney",
       "file": "neurotech2025KyleCStarFlowJourney.js",
       "title": "Journey Through the Stars Flow Game (Kyle Cordez)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025MarinayaSN170FaceObject",
-      "file": "neurotech2025MarinayaSN170FaceObject.js",
-      "title": "4-Channel N170 Faces vs. Objects ERP (Marinaya Saigh)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -1029,12 +898,6 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025MohamedJP300OddballCsv",
-      "file": "neurotech2025MohamedJP300OddballCsv.js",
-      "title": "P300 Oddball ERP with CSV Export (Mohamed Jomha)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025MohamedJPitchDingTrainer",
       "file": "neurotech2025MohamedJPitchDingTrainer.js",
       "title": "Pitch-Scaled Audio Ding Calmness Trainer (Mohamed Jomha)",
@@ -1044,12 +907,6 @@
       "id": "neurotech2025NatashaCMeditationGarden",
       "file": "neurotech2025NatashaCMeditationGarden.js",
       "title": "Meditation Garden with Fireflies (Natasha Chemello)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025NatashaCN400SemanticErp",
-      "file": "neurotech2025NatashaCN400SemanticErp.js",
-      "title": "N400 Semantic Word Pair ERP (Natasha Chemello)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -1077,21 +934,9 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025PortiaWTwoCategoryErp",
-      "file": "neurotech2025PortiaWTwoCategoryErp.js",
-      "title": "Two-Category Oddball ERP Plotter (Portia Wainwright)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025RaissaSContrastBrainNetwork",
       "file": "neurotech2025RaissaSContrastBrainNetwork.js",
       "title": "High-Contrast Brain Particle Network (Raissa Shariff)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025RaissaSFourStateErpAverager",
-      "file": "neurotech2025RaissaSFourStateErpAverager.js",
-      "title": "4-Brain-State Stratified ERP Averager (Raissa Shariff)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -1104,12 +949,6 @@
       "id": "neurotech2025RanaRCaterpillarRace",
       "file": "neurotech2025RanaRCaterpillarRace.js",
       "title": "Five-Band Caterpillar Race (Rana Radiansyah)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025RanaRN170FaceObjectErp",
-      "file": "neurotech2025RanaRN170FaceObjectErp.js",
-      "title": "Multi-Channel N170 Face vs. Object ERP (Rana Radiansyah)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -1137,21 +976,9 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025RyanPClosedLoopMmnErp",
-      "file": "neurotech2025RyanPClosedLoopMmnErp.js",
-      "title": "Attention-Adaptive Closed-Loop MMN ERP (Ryan Park)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025SamirJWaveAffectMonitor",
       "file": "neurotech2025SamirJWaveAffectMonitor.js",
       "title": "4-Lane Wave & Stress/Relax Affect HUD (Samir Jaber)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025SamirJP300RareBeepErp",
-      "file": "neurotech2025SamirJP300RareBeepErp.js",
-      "title": "P300 Oddball ERP with Rare Trial Audio Beep (Samir Jaber)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -1161,21 +988,9 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025SarahBN400WordPairErp",
-      "file": "neurotech2025SarahBN400WordPairErp.js",
-      "title": "N400 Semantic Match vs. Mismatch ERP (Sarah Badran)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025SarahBAdaptiveFlowTrainer",
       "file": "neurotech2025SarahBAdaptiveFlowTrainer.js",
       "title": "Adaptive Flow Window Neurofeedback (Sarah Badran)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
-      "id": "neurotech2025ToriAN170DarkErp",
-      "file": "neurotech2025ToriAN170DarkErp.js",
-      "title": "Dark-Mode Neon N170 Face ERP (Tori Anderson)",
       "category": "2025 Neurotech Class Catalogue"
     },
     {
@@ -1197,12 +1012,6 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
-      "id": "neurotech2025YanLFaceObjectErpDemo",
-      "file": "neurotech2025YanLFaceObjectErpDemo.js",
-      "title": "Continuous Face vs. Object ERP Averager (Yan Luo)",
-      "category": "2025 Neurotech Class Catalogue"
-    },
-    {
       "id": "neurotech2025YanLOceanRainfallSplash",
       "file": "neurotech2025YanLOceanRainfallSplash.js",
       "title": "Alpha/Theta Ocean Rainfall & Adaptive Ripples (Yan Luo)",
@@ -1221,10 +1030,202 @@
       "category": "2025 Neurotech Class Catalogue"
     },
     {
+      "id": "neurotech2025AliciaOCatErp",
+      "file": "neurotech2025AliciaOCatErp.js",
+      "title": "Cat Oddball ERP Monitor (Alicia Osorio)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025AmnaKEmotionalFaceErp",
+      "file": "neurotech2025AmnaKEmotionalFaceErp.js",
+      "title": "Happy vs. Sad Emotional Face ERP (Amna Khan)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025AngelNMmnErp",
+      "file": "neurotech2025AngelNMmnErp.js",
+      "title": "Moonlight Mismatch Negativity ERP (Angel Nwaka)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025AyaanJP300OddballErp",
+      "file": "neurotech2025AyaanJP300OddballErp.js",
+      "title": "4-Channel P300 Oddball ERP (Ayaan Jimale)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025BaniSP300SimErp",
+      "file": "neurotech2025BaniSP300SimErp.js",
+      "title": "Simulated P300 Oddball ERP (Bani Sekhon)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025BaniSBaselineP300Erp",
+      "file": "neurotech2025BaniSBaselineP300Erp.js",
+      "title": "Baseline-Corrected P300 ERP (Bani Sekhon)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025CaitlynAFaceObjectN170",
+      "file": "neurotech2025CaitlynAFaceObjectN170.js",
+      "title": "N170 Faces vs. Star Objects ERP (Caitlyn Archibald)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025ChloeSStroopErp",
+      "file": "neurotech2025ChloeSStroopErp.js",
+      "title": "Color-Word Stroop Oddball ERP (Chloe Sorochan)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025EllaTOddballErpMonitor",
+      "file": "neurotech2025EllaTOddballErpMonitor.js",
+      "title": "Oddball ERP & Stimulus Monitor (Ella Thorsen-Bell)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025GraceSP300Oddball",
+      "file": "neurotech2025GraceSP300Oddball.js",
+      "title": "P300 Oddball ERP Averager (Grace Shin)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025HamzaRP300Paradigm",
+      "file": "neurotech2025HamzaRP300Paradigm.js",
+      "title": "4-Channel P300 Oddball Display (Hamza Razzo)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025HannahCAnnulusOddballErp",
+      "file": "neurotech2025HannahCAnnulusOddballErp.js",
+      "title": "Circle vs. Annulus Oddball ERP (Hannah Cooper)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025HardiPFaceObjectErp",
+      "file": "neurotech2025HardiPFaceObjectErp.js",
+      "title": "Face vs. Object ERP with Timing Axis (Hardi Patel)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025IvanLP300N400Detector",
+      "file": "neurotech2025IvanLP300N400Detector.js",
+      "title": "P300 & N400 Component Detector (Ivan Espino Lopez)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025IvanLOddballHazardSim",
+      "file": "neurotech2025IvanLOddballHazardSim.js",
+      "title": "P300 Oddball & Hazard Overlay Simulator (Ivan Espino Lopez)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025IvanLThresholdErpDetector",
+      "file": "neurotech2025IvanLThresholdErpDetector.js",
+      "title": "P300/N400 Detector with Alpha/Beta Thresholds (Ivan Espino Lopez)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025JakeGMmnErpDisplay",
+      "file": "neurotech2025JakeGMmnErpDisplay.js",
+      "title": "Mismatch Negativity (MMN) ERP Display (Jake Gannon)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025JiaGFaceObjectErp",
+      "file": "neurotech2025JiaGFaceObjectErp.js",
+      "title": "Face vs. Object ERP Averager (Jia Guina)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025KiaraREmotionalOddballErp",
+      "file": "neurotech2025KiaraREmotionalOddballErp.js",
+      "title": "Happy vs. Angry Emotional Oddball ERP (Kiara Ruda)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025KoraBP300OddballErp",
+      "file": "neurotech2025KoraBP300OddballErp.js",
+      "title": "P300 Oddball & ERP Averager (Kora Budzyk)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025KyleCAuditoryN1Erp",
+      "file": "neurotech2025KyleCAuditoryN1Erp.js",
+      "title": "Auditory N1 High vs. Low Tone ERP (Kyle Cordez)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025MarinayaSN170FaceObject",
+      "file": "neurotech2025MarinayaSN170FaceObject.js",
+      "title": "4-Channel N170 Faces vs. Objects ERP (Marinaya Saigh)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025MohamedJP300OddballCsv",
+      "file": "neurotech2025MohamedJP300OddballCsv.js",
+      "title": "P300 Oddball ERP with CSV Export (Mohamed Jomha)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025NatashaCN400SemanticErp",
+      "file": "neurotech2025NatashaCN400SemanticErp.js",
+      "title": "N400 Semantic Word Pair ERP (Natasha Chemello)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025PortiaWTwoCategoryErp",
+      "file": "neurotech2025PortiaWTwoCategoryErp.js",
+      "title": "Two-Category Oddball ERP Plotter (Portia Wainwright)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025RaissaSFourStateErpAverager",
+      "file": "neurotech2025RaissaSFourStateErpAverager.js",
+      "title": "4-Brain-State Stratified ERP Averager (Raissa Shariff)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025RanaRN170FaceObjectErp",
+      "file": "neurotech2025RanaRN170FaceObjectErp.js",
+      "title": "Multi-Channel N170 Face vs. Object ERP (Rana Radiansyah)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025RyanPClosedLoopMmnErp",
+      "file": "neurotech2025RyanPClosedLoopMmnErp.js",
+      "title": "Attention-Adaptive Closed-Loop MMN ERP (Ryan Park)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025SamirJP300RareBeepErp",
+      "file": "neurotech2025SamirJP300RareBeepErp.js",
+      "title": "P300 Oddball ERP with Rare Trial Audio Beep (Samir Jaber)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025SarahBN400WordPairErp",
+      "file": "neurotech2025SarahBN400WordPairErp.js",
+      "title": "N400 Semantic Match vs. Mismatch ERP (Sarah Badran)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025ToriAN170DarkErp",
+      "file": "neurotech2025ToriAN170DarkErp.js",
+      "title": "Dark-Mode Neon N170 Face ERP (Tori Anderson)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
+      "id": "neurotech2025YanLFaceObjectErpDemo",
+      "file": "neurotech2025YanLFaceObjectErpDemo.js",
+      "title": "Continuous Face vs. Object ERP Averager (Yan Luo)",
+      "category": "2025 Neurotech ERP Assignments"
+    },
+    {
       "id": "neurotech2025ZainabSMultiChannelFaceErp",
       "file": "neurotech2025ZainabSMultiChannelFaceErp.js",
       "title": "Multi-Channel Face vs. Object ERP Plotter (Zainab Samiuddin)",
-      "category": "2025 Neurotech Class Catalogue"
+      "category": "2025 Neurotech ERP Assignments"
     },
     {
       "id": "studentAhmedFTelekinesis",

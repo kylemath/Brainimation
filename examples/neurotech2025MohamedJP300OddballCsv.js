@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025MohamedJP300OddballCsv
  * @title P300 Oddball ERP with CSV Export (Mohamed Jomha)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 63
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

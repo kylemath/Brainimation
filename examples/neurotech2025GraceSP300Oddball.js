@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025GraceSP300Oddball
  * @title P300 Oddball ERP Averager (Grace Shin)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 28
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

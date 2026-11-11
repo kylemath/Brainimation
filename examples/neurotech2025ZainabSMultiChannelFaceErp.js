@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025ZainabSMultiChannelFaceErp
  * @title Multi-Channel Face vs. Object ERP Plotter (Zainab Samiuddin)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 95
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

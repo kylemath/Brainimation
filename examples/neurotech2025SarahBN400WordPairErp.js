@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025SarahBN400WordPairErp
  * @title N400 Semantic Match vs. Mismatch ERP (Sarah Badran)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 85
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

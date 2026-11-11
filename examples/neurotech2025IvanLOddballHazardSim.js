@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025IvanLOddballHazardSim
  * @title P300 Oddball & Hazard Overlay Simulator (Ivan Espino Lopez)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 41
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

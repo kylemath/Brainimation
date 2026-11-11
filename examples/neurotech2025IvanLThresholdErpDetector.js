@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025IvanLThresholdErpDetector
  * @title P300/N400 Detector with Alpha/Beta Thresholds (Ivan Espino Lopez)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 42
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025AyaanJP300OddballErp
  * @title 4-Channel P300 Oddball ERP (Ayaan Jimale)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 11
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

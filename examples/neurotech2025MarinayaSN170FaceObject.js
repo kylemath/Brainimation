@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025MarinayaSN170FaceObject
  * @title 4-Channel N170 Faces vs. Objects ERP (Marinaya Saigh)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 60
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025EllaTOddballErpMonitor
  * @title Oddball ERP & Stimulus Monitor (Ella Thorsen-Bell)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 24
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

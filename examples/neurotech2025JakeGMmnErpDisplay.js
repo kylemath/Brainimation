@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025JakeGMmnErpDisplay
  * @title Mismatch Negativity (MMN) ERP Display (Jake Gannon)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 44
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

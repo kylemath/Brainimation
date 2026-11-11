@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025RanaRN170FaceObjectErp
  * @title Multi-Channel N170 Face vs. Object ERP (Rana Radiansyah)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 76
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

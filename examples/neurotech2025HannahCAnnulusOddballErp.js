@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025HannahCAnnulusOddballErp
  * @title Circle vs. Annulus Oddball ERP (Hannah Cooper)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 35
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

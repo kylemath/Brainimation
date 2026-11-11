@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025BaniSBaselineP300Erp
  * @title Baseline-Corrected P300 ERP (Bani Sekhon)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 16
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

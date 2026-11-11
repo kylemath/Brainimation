@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025HardiPFaceObjectErp
  * @title Face vs. Object ERP with Timing Axis (Hardi Patel)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 37
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

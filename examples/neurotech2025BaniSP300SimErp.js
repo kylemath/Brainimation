@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025BaniSP300SimErp
  * @title Simulated P300 Oddball ERP (Bani Sekhon)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 15
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

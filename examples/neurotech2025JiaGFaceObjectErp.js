@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025JiaGFaceObjectErp
  * @title Face vs. Object ERP Averager (Jia Guina)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 47
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

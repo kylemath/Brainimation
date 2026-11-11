@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025YanLFaceObjectErpDemo
  * @title Continuous Face vs. Object ERP Averager (Yan Luo)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 91
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

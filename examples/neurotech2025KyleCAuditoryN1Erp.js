@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025KyleCAuditoryN1Erp
  * @title Auditory N1 High vs. Low Tone ERP (Kyle Cordez)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 58
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

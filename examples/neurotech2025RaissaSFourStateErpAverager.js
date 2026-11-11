@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025RaissaSFourStateErpAverager
  * @title 4-Brain-State Stratified ERP Averager (Raissa Shariff)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 73
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

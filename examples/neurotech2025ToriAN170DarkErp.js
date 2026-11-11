@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025ToriAN170DarkErp
  * @title Dark-Mode Neon N170 Face ERP (Tori Anderson)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 87
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

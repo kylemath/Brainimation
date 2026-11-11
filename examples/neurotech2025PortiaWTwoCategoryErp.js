@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025PortiaWTwoCategoryErp
  * @title Two-Category Oddball ERP Plotter (Portia Wainwright)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 71
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

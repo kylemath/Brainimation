@@ -7525,6 +7525,7 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
               'EEGEdu Modules':                     { icon: '🧬', color: '#818cf8', bg: 'rgba(129, 140, 248, 0.26)' },
               'Classic p5.eegedu':                  { icon: '🏛️', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.25)' },
               '2025 Neurotech Class Catalogue':     { icon: '🧠', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.26)' },
+              '2025 Neurotech ERP Assignments':     { icon: '⚡', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.28)' },
               '2022 NeuroArt Class Gallery':        { icon: '🎓', color: '#fb7185', bg: 'rgba(251, 113, 133, 0.25)' }
             };
             return themes[cat] || { icon: '🎬', color: '#4ecdc4', bg: 'rgba(78, 205, 196, 0.22)' };
@@ -7535,6 +7536,14 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
               const parts = ex.title.split('—');
               const student = parts.length > 1 ? parts[0].trim() : 'Student';
               return { badge: '🎓 ' + student.split(' ')[0], subtitle: parts.length > 1 ? `By ${student}` : ex.category, cleanTitle: parts.length > 1 ? parts.slice(1).join('—').trim() : ex.title };
+            }
+            if (ex.category === '2025 Neurotech ERP Assignments') {
+              const m = ex.title.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+              if (m) {
+                const student = m[2].trim();
+                return { badge: '⚡ ' + student.split(' ')[0], subtitle: `By ${student} (2025 ERP)`, cleanTitle: m[1].trim() };
+              }
+              return { badge: '⚡ ERP', subtitle: ex.category, cleanTitle: ex.title };
             }
             if (ex.category === '2025 Neurotech Class Catalogue') {
               const m = ex.title.match(/^(.*)\s*\(([^)]+)\)\s*$/);

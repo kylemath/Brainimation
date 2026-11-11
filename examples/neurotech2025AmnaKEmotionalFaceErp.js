@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025AmnaKEmotionalFaceErp
  * @title Happy vs. Sad Emotional Face ERP (Amna Khan)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 5
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

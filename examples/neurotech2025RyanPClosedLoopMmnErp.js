@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025RyanPClosedLoopMmnErp
  * @title Attention-Adaptive Closed-Loop MMN ERP (Ryan Park)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 81
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

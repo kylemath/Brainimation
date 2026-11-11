@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025AliciaOCatErp
  * @title Cat Oddball ERP Monitor (Alicia Osorio)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 1
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

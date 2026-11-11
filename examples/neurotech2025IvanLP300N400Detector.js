@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025IvanLP300N400Detector
  * @title P300 & N400 Component Detector (Ivan Espino Lopez)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 40
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

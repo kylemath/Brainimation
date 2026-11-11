@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025NatashaCN400SemanticErp
  * @title N400 Semantic Word Pair ERP (Natasha Chemello)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 66
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

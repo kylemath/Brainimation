@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025SamirJP300RareBeepErp
  * @title P300 Oddball ERP with Rare Trial Audio Beep (Samir Jaber)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 83
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

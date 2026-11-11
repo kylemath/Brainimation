@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025KoraBP300OddballErp
  * @title P300 Oddball & ERP Averager (Kora Budzyk)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 56
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.

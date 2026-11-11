@@ -1,7 +1,7 @@
 /**
  * @id neurotech2025AngelNMmnErp
  * @title Moonlight Mismatch Negativity ERP (Angel Nwaka)
- * @category 2025 Neurotech Class Catalogue
+ * @category 2025 Neurotech ERP Assignments
  * @order 9
  *
  * PSYCH 403A1 (Fall 2025) Student BrainImation Catalogue.
