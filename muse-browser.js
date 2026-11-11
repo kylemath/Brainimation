@@ -768,81 +768,45 @@
               }
               return out;
             };
-            // Map 16-ch (0x36: p1041/p1042), 8-ch (0x35: p1034), or 4-ch (0x34: p1035) optics:
-            //   - mappedChannels: 4 primary high-SNR channels [ambient, infrared(850nm), red(660nm), optics4(730nm)]
-            //   - separationPairs: explicit Short-Separation (~8-10mm Inner LI/RI) vs Long-Separation (~20-25mm Outer LO/RO)
-            let mappedChannels;
-            let separationPairs;
-            if (sub.values.length >= 16) {
-              mappedChannels = [
-                sub.values[14], // 0: ambient (LI_AMB)
-                sub.values[6],  // 1: infrared (LI_IR 850nm)
-                sub.values[12], // 2: red (LI_RED 660nm)
-                sub.values[4]   // 3: optics4 / nir (LI_NIR 730nm)
-              ];
-              separationPairs = {
-                hasDualDistance: true,
-                hardwareModel: 'Muse S Athena (16-ch Dual-Distance)',
-                short: {
-                  nir730: blendOptics(sub.values[4], sub.values[5], sub.values[4]),
-                  ir850:  blendOptics(sub.values[6], sub.values[7], sub.values[6]),
-                  red660: blendOptics(sub.values[12], sub.values[13], sub.values[12]),
-                  ambient: blendOptics(sub.values[14], sub.values[15], sub.values[14])
-                },
-                long: {
-                  nir730: blendOptics(sub.values[0], sub.values[1], sub.values[5] || sub.values[4]),
-                  ir850:  blendOptics(sub.values[2], sub.values[3], sub.values[7] || sub.values[6]),
-                  red660: blendOptics(sub.values[8], sub.values[9], sub.values[13] || sub.values[12]),
-                  ambient: blendOptics(sub.values[10], sub.values[11], sub.values[15] || sub.values[14])
-                }
-              };
-            } else if (sub.values.length >= 8) {
-              mappedChannels = [
-                sub.values[0],  // 0: LO_NIR
-                sub.values[6],  // 1: LI_IR 850nm
-                sub.values[7],  // 2: RI_IR 850nm
-                sub.values[4]   // 3: LI_NIR 730nm
-              ];
-              separationPairs = {
-                hasDualDistance: true,
-                hardwareModel: 'Muse S Athena (8-ch Dual-Distance)',
-                short: {
-                  nir730: blendOptics(sub.values[4], sub.values[5], sub.values[4]),
-                  ir850:  blendOptics(sub.values[6], sub.values[7], sub.values[6]),
-                  red660: blendOptics(sub.values[4], sub.values[5], sub.values[6]),
-                  ambient: sub.values[5] || sub.values[4]
-                },
-                long: {
-                  nir730: blendOptics(sub.values[0], sub.values[1], sub.values[4]),
-                  ir850:  blendOptics(sub.values[2], sub.values[3], sub.values[7] || sub.values[6]),
-                  red660: blendOptics(sub.values[0], sub.values[1], sub.values[6]),
-                  ambient: sub.values[1] || sub.values[0]
-                }
-              };
+            // Athena optics layout, MEASURED on-head + with a screen light source (Nov 2026, see tools/athena_*):
+            //   channels come in groups of 4 = one LED state, each group ordered
+            //     [short L, short R, long L, long R]   (short = inner detectors 0.75 cm, long = outer 2.8 cm)
+            //   16-ch (0x36, p1041/p1042): 0-3 RED 660 | 4-7 AMBIENT (LEDs off) | 8-11 NIR 730 | 12-15 IR 850
+            //    8-ch (0x35, p1034/p1043/p1044): 0-3 NIR 730 | 4-7 IR 850          (no red, no ambient)
+            //    4-ch (0x34, p1035/p1045/p1046/p4129): 0-1 NIR 730 short L/R | 2-3 IR 850 short L/R
+            //   Evidence: 8-11/12-15 in 16-ch match the 8-ch groups exactly (DC, pulsatility); long/short ratio and
+            //   pulsatility rank the wavelengths (red long ~300 counts = strongly absorbed); red/IR pulsatility -> SpO2 ~97 %.
+            //   Left/right from a screen-dot sweep (4,6 left; 5,7 right; 4,5 inner).
+            //   mappedChannels = [ambient, infrared(850), red(660), optics4(730)] -- short (high-SNR) channels, L/R averaged.
+            const V = sub.values;
+            const pair = (a, b) => blendOptics(V[a], V[b], V[a]);
+            const grp = (base) => ({ short: pair(base, base + 1), long: pair(base + 2, base + 3) });
+            const none = { short: null, long: null };
+            let red, amb, nir, ir, model, dual, layout;
+            if (V.length >= 16) {
+              red = grp(0); amb = grp(4); nir = grp(8); ir = grp(12);
+              model = 'Muse S Athena (16-ch: red/NIR/IR + ambient, dual-distance)'; dual = true;
+              layout = { red660: [0, 1, 2, 3], ambient: [4, 5, 6, 7], nir730: [8, 9, 10, 11], ir850: [12, 13, 14, 15] };
+            } else if (V.length >= 8) {
+              red = none; amb = none; nir = grp(0); ir = grp(4);
+              model = 'Muse S Athena (8-ch: NIR/IR, dual-distance)'; dual = true;
+              layout = { nir730: [0, 1, 2, 3], ir850: [4, 5, 6, 7] };
             } else {
-              mappedChannels = [
-                sub.values[0],  // 0: LI_NIR 730nm
-                sub.values[2] || sub.values[1], // 1: LI_IR 850nm
-                sub.values[3] || sub.values[2], // 2: RI_IR 850nm
-                sub.values[1]   // 3: RI_NIR 730nm
-              ];
-              separationPairs = {
-                hasDualDistance: false,
-                hardwareModel: 'Muse S Athena (4-ch Single-Distance)',
-                short: {
-                  nir730: sub.values[0],
-                  ir850:  sub.values[2] || sub.values[1] || sub.values[0],
-                  red660: sub.values[0],
-                  ambient: sub.values[0]
-                },
-                long: {
-                  nir730: sub.values[1] || sub.values[0],
-                  ir850:  sub.values[3] || sub.values[2] || sub.values[1],
-                  red660: sub.values[1] || sub.values[0],
-                  ambient: sub.values[0]
-                }
-              };
+              red = none; amb = none; nir = { short: pair(0, 1), long: null }; ir = { short: pair(2, 3), long: null };
+              model = 'Muse S Athena (4-ch: NIR/IR, short distance only)'; dual = false;
+              layout = { nir730: [0, 1], ir850: [2, 3] };
             }
+            const mappedChannels = [amb.long || amb.short, ir.short, red.short, nir.short];
+            const separationPairs = {
+              hasDualDistance: dual,
+              hasRed: Boolean(red.short),
+              hasAmbient: Boolean(amb.short),
+              hardwareModel: model,
+              layout,                                   // raw channel indices per wavelength: [shortL, shortR, longL, longR]
+              distancesCm: { short: 0.75, long: 2.8, shortIR: 0.79, longIR: 2.81 },  // IR LED sits 0.25 cm off-axis
+              short: { nir730: nir.short, ir850: ir.short, red660: red.short, ambient: amb.short },
+              long:  { nir730: nir.long,  ir850: ir.long,  red660: red.long,  ambient: amb.long }
+            };
             for (let ch = 0; ch < mappedChannels.length; ch++) {
               if (!mappedChannels[ch]) continue;
               this.ppgReadings.next({
@@ -909,7 +873,7 @@
       }
 
       const defaultAthenaPreset = this.enablePpg
-        ? 'p1041'
+        ? 'p1042'
         : (this.enableAux ? 'p1045' : ATHENA_DEFAULT_PRESET);
       const preset = this.preset || defaultAthenaPreset;
       this.preset = preset;
@@ -957,7 +921,7 @@
     /**
      * Dynamically switch PPG / bright Red LED optical mode on or off while connected.
      * On Muse S Athena:
-     *   - enabled=true  -> 'p1041' (16-ch optics + BRIGHT Red 660nm LED + 850nm IR + 730nm NIR)
+     *   - enabled=true  -> 'p1042' (16-ch optics, high drive: red 660 + NIR 730 + IR 850 + ambient)
      *   - enabled=false -> 'p1035' (4-ch dim IR-only sleep mode, Red LED off)
      * On Classic Muse 2 / Muse S:
      *   - enabled=true  -> 'p50' (EEG + 3-ch PPG, Red/IR LEDs on)
@@ -970,21 +934,7 @@
         return;
       }
       if (this.isAthena) {
-        const nextPreset = this.enablePpg ? 'p1041' : (this.enableAux ? 'p1045' : 'p1035');
-        this.preset = nextPreset;
-        await this.sendCommand('h');
-        await this.delay(150);
-        await this.sendCommand(nextPreset);
-        await this.delay(150);
-        await this.sendCommand('s');
-        await this.delay(150);
-        await this.sendCommand('dc001');
-        await this.delay(50);
-        await this.sendCommand('dc001');
-        await this.delay(100);
-        await this.sendCommand('L1');
-        await this.delay(150);
-        await this.sendCommand('s');
+        await this.setPreset(this.enablePpg ? 'p1042' : (this.enableAux ? 'p1045' : 'p1035'));
       } else {
         const nextPreset = this.enablePpg ? (this.enableAux ? 'p51' : 'p50') : (this.enableAux ? 'p20' : 'p21');
         this.preset = nextPreset;
@@ -996,6 +946,28 @@
         await this.delay(100);
         await this.sendCommand('d');
       }
+    }
+
+    /**
+     * Switch a connected Athena to any preset (p1034, p1035, p1041, p1042, p1043, p1044, p1045, p1046, p4129 ...).
+     * Same stop -> preset -> start sequence the connection handshake uses.
+     */
+    async setPreset(preset) {
+      this.preset = preset;
+      if (!this.isAthena || !this.controlChar || !this.gatt || !this.gatt.connected) return;
+      await this.sendCommand('h');
+      await this.delay(150);
+      await this.sendCommand(preset);
+      await this.delay(150);
+      await this.sendCommand('s');
+      await this.delay(150);
+      await this.sendCommand('dc001');
+      await this.delay(50);
+      await this.sendCommand('dc001');
+      await this.delay(100);
+      await this.sendCommand('L1');
+      await this.delay(150);
+      await this.sendCommand('s');
     }
 
     async deviceInfo() {

@@ -53,7 +53,7 @@
         --catalogue-width: 300px;
         --reference-width: 360px;
         display: grid;
-        grid-template-columns: minmax(340px, 1.3fr) minmax(320px, 1fr) var(--catalogue-width) var(--reference-width);
+        grid-template-columns: var(--canvas-col, minmax(340px, 1.3fr)) minmax(320px, 1fr) var(--catalogue-width) var(--reference-width);
         grid-template-rows: 60px 1fr auto;
         height: 100vh;
         gap: 2px;
@@ -62,16 +62,45 @@
       }
       
       .main-container.hide-reference {
-        grid-template-columns: minmax(340px, 1.3fr) minmax(320px, 1fr) var(--catalogue-width);
+        grid-template-columns: var(--canvas-col, minmax(340px, 1.3fr)) minmax(320px, 1fr) var(--catalogue-width);
       }
 
       .main-container.hide-catalogue {
-        grid-template-columns: minmax(340px, 1.3fr) minmax(320px, 1fr) var(--reference-width);
+        grid-template-columns: var(--canvas-col, minmax(340px, 1.3fr)) minmax(320px, 1fr) var(--reference-width);
       }
 
       .main-container.hide-catalogue.hide-reference {
-        grid-template-columns: minmax(340px, 1.3fr) minmax(320px, 1fr);
+        grid-template-columns: var(--canvas-col, minmax(340px, 1.3fr)) minmax(320px, 1fr);
       }
+
+      /* Drag handle between the animation (canvas) pane and the code pane */
+      .canvas-resizer {
+        position: absolute;
+        top: 0;
+        left: -3px;
+        width: 8px;
+        height: 100%;
+        cursor: col-resize;
+        z-index: 12;
+        background: transparent;
+        transition: background 0.15s ease;
+      }
+      .canvas-resizer::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 3px;
+        transform: translateY(-50%);
+        width: 2px;
+        height: 36px;
+        border-radius: 1px;
+        background: rgba(78, 205, 196, 0.35);
+        transition: background 0.15s ease, height 0.15s ease;
+      }
+      .canvas-resizer:hover,
+      .canvas-resizer.dragging { background: rgba(78, 205, 196, 0.3); }
+      .canvas-resizer:hover::after,
+      .canvas-resizer.dragging::after { background: var(--accent-2); height: 56px; }
 
       /* Modern Resizable Grid Catalogue Window (Right of Code Editor) */
       .catalogue-panel {
@@ -636,6 +665,7 @@
       }
 
       .code-panel {
+        position: relative;
         grid-column: 2;
         grid-row: 2 / 4;
         background: var(--bg-2);
@@ -1476,7 +1506,7 @@
 
       @media (max-width: 1200px) {
         .main-container {
-          grid-template-columns: minmax(280px, 1.2fr) minmax(260px, 1fr) var(--catalogue-width);
+          grid-template-columns: var(--canvas-col, minmax(280px, 1.2fr)) minmax(260px, 1fr) var(--catalogue-width);
         }
         .reference-panel {
           display: none;
@@ -1628,6 +1658,7 @@
         }
 
         .catalogue-resizer,
+        .canvas-resizer,
         .reference-resizer,
         .catalogue-width-Presets {
           display: none !important;
@@ -1717,7 +1748,22 @@
             <span id="status-text">Disconnected</span>
           </div>
           <button class="btn btn-primary" id="connect-btn">Connect Muse</button>
-          <button class="btn btn-secondary" id="ppg-mode-btn" title="Toggle PPG / Optical Red LED Mode (p1041 Bright Red vs p1035 Dim on Athena)">💓 PPG: ON</button>
+          <button class="btn btn-secondary" id="ppg-mode-btn" title="Toggle PPG / Optical Red LED Mode (p1042 16-ch red/NIR/IR + ambient vs p1035 4-ch on Athena)">💓 PPG: ON</button>
+          <select class="btn btn-secondary" id="athena-preset-select" title="Muse S Athena optics preset (sent to the headband; restarts the stream). 'high'/'low' are the labels used by community docs - what they change is not documented (LED current? gain?) so compare them in the Raw Optics Channel Map sketch.">
+            <option value="">Preset: auto</option>
+            <option value="p1035">p1035 · EEG4 + Optics4</option>
+            <option value="p1045">p1045 · Optics4 · low (MindMonitor default)</option>
+            <option value="p1046">p1046 · Optics4 · high</option>
+            <option value="p4129">p4129 · Optics4</option>
+            <option value="p1034">p1034 · Optics8 (amused-py "full sensors")</option>
+            <option value="p1043">p1043 · Optics8 · low</option>
+            <option value="p1044">p1044 · Optics8 · high</option>
+            <option value="p1041">p1041 · Optics16 · low</option>
+            <option value="p1042">p1042 · Optics16 · high</option>
+          </select>
+          <button class="btn btn-secondary" id="line-filter-btn" title="EEG line-noise filter: click to cycle 60 Hz notch / 50 Hz notch / Off (eegData.setLineFilter)">〰️ Notch: 60 Hz</button>
+          <button class="btn btn-secondary" id="ppg-bp-btn" title="PPG band-pass 0.5-4 Hz (eegData.setPPGFilter({bandpass}))">💓 Band-pass: ON</button>
+          <button class="btn btn-secondary" id="ppg-amb-btn" title="PPG ambient-referenced flicker cancellation (eegData.setPPGFilter({ambientCancel}))">💡 Amb. cancel: ON</button>
           <button class="btn btn-secondary" id="simulate-btn">Simulate Data</button>
           <button class="btn btn-success" id="run-btn">Run Code</button>
           <button class="btn btn-secondary" id="save-btn">💾 Save</button>
@@ -1737,6 +1783,7 @@
 
       <!-- Code Editor Panel -->
       <div class="code-panel">
+        <div class="canvas-resizer" id="canvas-resizer" title="Drag to resize animation / code panes (double-click to reset)"></div>
         <div class="code-panel-tabs">
           <div class="code-panel-tab active" data-panel="code">💻 Code Editor</div>
           <div class="code-panel-tab" data-panel="log">📋 System Log</div>
@@ -2194,11 +2241,198 @@
         historyLength: 1000,  // ~4 seconds at 256Hz
         sampleRate: 256,      // Samples per second
 
+        // Mains line-noise + drift filter, applied to every live EEG sample BEFORE it reaches
+        // eegData.raw / rawHistory / FFT bands / IMU NLMS, so all sketches get cleaned data.
+        //   eegData.setLineFilter(60)      -> 60 Hz notch (North America)   eegData.setLineFilter(50) -> 50 Hz
+        //   eegData.setLineFilter(false)   -> disable all filtering (raw hardware samples)
+        lineFilter: {
+          enabled: true,
+          notchHz: 60,        // 50 or 60; harmonic at 2x is also notched (120 / 100 Hz)
+          notchQ: 30,         // notch sharpness (~2 Hz wide at 60 Hz)
+          highpassHz: 0.5,    // slow-drift / DC removal (0 = off)
+          _state: {}          // per-channel biquad state (managed internally)
+        },
+
+        _biquadCoeffs: function(type, f0, Q, fs) {
+          const w0 = 2 * Math.PI * f0 / fs, c = Math.cos(w0), a = Math.sin(w0) / (2 * Q);
+          const a0 = 1 + a;
+          let b0, b1, b2;
+          if (type === 'notch') { b0 = 1; b1 = -2 * c; b2 = 1; }
+          else if (type === 'lowpass') { b0 = (1 - c) / 2; b1 = 1 - c; b2 = (1 - c) / 2; }
+          else { b0 = (1 + c) / 2; b1 = -(1 + c); b2 = (1 + c) / 2; } // highpass
+          return { b0: b0 / a0, b1: b1 / a0, b2: b2 / a0, a1: (-2 * c) / a0, a2: (1 - a) / a0 };
+        },
+
+        // Filter an array of raw samples for one channel; returns a new filtered array (stateful across calls)
+        applyLineFilter: function(channel, samples) {
+          const lf = this.lineFilter;
+          if (!lf || !lf.enabled || !samples || !samples.length) return samples;
+          const fs = this.sampleRate || 256;
+          const key = lf.notchHz + '|' + lf.notchQ + '|' + lf.highpassHz + '|' + fs;
+          let st = lf._state[channel];
+          if (!st || st.key !== key) {
+            const stages = [];
+            if (lf.notchHz > 0) {
+              stages.push(this._biquadCoeffs('notch', lf.notchHz, lf.notchQ, fs));
+              if (lf.notchHz * 2 < fs / 2 - 1) stages.push(this._biquadCoeffs('notch', lf.notchHz * 2, lf.notchQ, fs));
+            }
+            if (lf.highpassHz > 0) stages.push(this._biquadCoeffs('highpass', lf.highpassHz, Math.SQRT1_2, fs));
+            st = { key, stages: stages.map(c => ({ c, z1: 0, z2: 0 })), primed: false };
+            lf._state[channel] = st;
+          }
+          const run = (x) => {
+            for (let i = 0; i < st.stages.length; i++) {
+              const q = st.stages[i], c = q.c;
+              const y = c.b0 * x + q.z1;           // transposed direct form II
+              q.z1 = c.b1 * x - c.a1 * y + q.z2;
+              q.z2 = c.b2 * x - c.a2 * y;
+              x = y;
+            }
+            return x;
+          };
+          if (!st.primed) {                        // settle on first sample so there is no start-up transient
+            for (let i = 0; i < 1024; i++) run(samples[0]);
+            st.primed = true;
+          }
+          const out = new Array(samples.length);
+          for (let i = 0; i < samples.length; i++) out[i] = run(samples[i]);
+          return out;
+        },
+
+        // setLineFilter(60 | 50 | false | true) or setLineFilter({ notchHz, notchQ, highpassHz, enabled })
+        setLineFilter: function(opts) {
+          const lf = this.lineFilter;
+          if (opts === false || opts === 0 || opts === 'off') lf.enabled = false;
+          else if (opts === true) lf.enabled = true;
+          else if (typeof opts === 'number') { lf.enabled = true; lf.notchHz = opts; }
+          else if (opts && typeof opts === 'object') Object.assign(lf, opts);
+          lf._state = {};
+          if (typeof window.syncLineFilterBtn === 'function') window.syncLineFilterBtn();
+          return Object.assign({}, lf, { _state: undefined });
+        },
+
         // PPG / Optical channels (Muse 2, Muse S, Muse S Athena @ 64 Hz)
         ppg: [0, 0, 0, 0],           // Current raw optical values: [ambient, infrared, red, optics4]
         ppgNormalized: [0, 0, 0, 0], // AC-coupled 0.0-1.0 normalized pulse wave per channel
         ppgPulse: 0,                 // 0.0-1.0 normalized heartbeat pulse wave (infrared channel)
         heartRate: 0,                // Estimated heart rate in BPM (from PPG systolic peaks)
+        // Un-mapped optics: every raw Athena optical channel (up to 16) exactly as it arrives in the BLE packet,
+        // BEFORE any wavelength / distance labelling. Use this to verify what each channel index really is.
+        optics: { count: 0, raw: [], history: [], maxLen: 512 },
+        pushOpticsRaw: function(all) {
+          const o = this.optics;
+          if (!Array.isArray(all)) return;
+          o.count = all.length;
+          for (let c = 0; c < all.length; c++) {
+            const arr = all[c];
+            if (!Array.isArray(arr) || !arr.length) continue;
+            if (!o.history[c]) o.history[c] = [];
+            const h = o.history[c];
+            for (let i = 0; i < arr.length; i++) h.push(arr[i]);
+            if (h.length > o.maxLen) h.splice(0, h.length - o.maxLen);
+            o.raw[c] = arr[arr.length - 1];
+          }
+        },
+        getOpticsChannel: function(index, numSamples = 256) {
+          const h = this.optics.history[index];
+          return h ? h.slice(-numSamples) : [];
+        },
+
+        // ---- PPG / optical cleaning (two independent options; raw eegData.ppg / ppgHistory are never modified) ----
+        //   eegData.ppgClean[4], eegData.ppgCleanHistory{ambient,infrared,red,optics4}, eegData.getCleanPPGChannel(name, n)
+        //   1) bandpass:      0.5-4 Hz 4th-order band-pass (removes slow drift + screen/LED PWM flicker > 4 Hz).
+        //                     Output is AC-coupled (no DC); use eegData.ppg for DC levels.
+        //   2) ambientCancel: adaptive (NLMS) subtraction of the ambient channel's >4 Hz content from the other
+        //                     channels. Leaves the cardiac band untouched, tracks drifting flicker frequencies.
+        //   eegData.setPPGFilter({bandpass:true, ambientCancel:true})  /  setPPGFilter(false)  /  setPPGFilter({bandpass:{highHz:3}})
+        ppgFilter: {
+          bandpass:      { enabled: true, lowHz: 0.5, highHz: 4 },
+          ambientCancel: { enabled: true, refHz: 4, taps: 4, mu: 0.02, refChannel: 0 },
+          _state: {}
+        },
+        ppgClean: [0, 0, 0, 0],
+        ppgCleanHistory: { ambient: [], infrared: [], red: [], optics4: [] },
+        getCleanPPGChannel: function(channel, numSamples = 128) {
+          const names = ['ambient', 'infrared', 'red', 'optics4'];
+          const key = typeof channel === 'number' ? names[channel] : channel;
+          return ((this.ppgCleanHistory && this.ppgCleanHistory[key]) || []).slice(-numSamples);
+        },
+        setPPGFilter: function(opts) {
+          const f = this.ppgFilter;
+          const set = (k, v) => {
+            if (v === undefined) return;
+            if (typeof v === 'boolean') f[k].enabled = v;
+            else if (v && typeof v === 'object') Object.assign(f[k], v);
+          };
+          if (opts === false || opts === 'off') { f.bandpass.enabled = false; f.ambientCancel.enabled = false; }
+          else if (opts === true) { f.bandpass.enabled = true; f.ambientCancel.enabled = true; }
+          else if (opts && typeof opts === 'object') { set('bandpass', opts.bandpass); set('ambientCancel', opts.ambientCancel); }
+          f._state = {};
+          this.ppgCleanHistory = { ambient: [], infrared: [], red: [], optics4: [] };
+          if (typeof window.syncPPGFilterBtns === 'function') window.syncPPGFilterBtns();
+          return { bandpass: Object.assign({}, f.bandpass), ambientCancel: Object.assign({}, f.ambientCancel) };
+        },
+        // Clean one packet of raw samples for PPG channel chIndex (0..3). packetId lets the ambient reference
+        // be matched to the same time samples; pass null to skip ambient cancellation.
+        applyPPGFilter: function(chIndex, samples, packetId) {
+          const f = this.ppgFilter, bp = f.bandpass, ac = f.ambientCancel;
+          if (!samples || !samples.length) return samples;
+          if (!bp.enabled && !ac.enabled) return samples;
+          const fs = this.ppgSampleRate || 64;
+          const key = [bp.enabled, bp.lowHz, bp.highHz, ac.enabled, ac.refHz, ac.taps, ac.mu, fs].join('|');
+          let st = f._state[chIndex];
+          if (!st || st.key !== key) {
+            const mk = (cs) => cs.map(c => ({ c, z1: 0, z2: 0 }));
+            const bpStages = [];
+            if (bp.enabled) {
+              if (bp.lowHz > 0) bpStages.push(this._biquadCoeffs('highpass', bp.lowHz, Math.SQRT1_2, fs));
+              if (bp.highHz > 0 && bp.highHz < fs / 2) {          // 4th-order Butterworth low-pass = two biquads
+                bpStages.push(this._biquadCoeffs('lowpass', bp.highHz, 0.5412, fs));
+                bpStages.push(this._biquadCoeffs('lowpass', bp.highHz, 1.3066, fs));
+              }
+            }
+            st = {
+              key, bp: mk(bpStages), primed: false,
+              // >refHz band is defined as x - LP(x) with a 4th-order Butterworth LP, so the split is sharp and exactly complementary
+              hp: mk([this._biquadCoeffs('lowpass', ac.refHz, 0.5412, fs), this._biquadCoeffs('lowpass', ac.refHz, 1.3066, fs)]),
+              w: new Array(ac.taps).fill(0), rbuf: new Array(ac.taps).fill(0)
+            };
+            f._state[chIndex] = st;
+          }
+          const run = (stages, x) => {
+            for (let i = 0; i < stages.length; i++) {
+              const q = stages[i], c = q.c, y = c.b0 * x + q.z1;
+              q.z1 = c.b1 * x - c.a1 * y + q.z2; q.z2 = c.b2 * x - c.a2 * y; x = y;
+            }
+            return x;
+          };
+          if (!st.primed) {
+            for (let i = 0; i < 1024; i++) { run(st.bp, samples[0]); run(st.hp, samples[0]); }
+            st.primed = true;
+          }
+          // Reference = ambient channel's >refHz band, produced when channel `refChannel` was processed for the same packet
+          const refPkt = f._refPacket;
+          const useCancel = ac.enabled && chIndex !== ac.refChannel && refPkt &&
+            refPkt.id === packetId && packetId != null && refPkt.hp.length === samples.length;
+          const out = new Array(samples.length);
+          for (let n = 0; n < samples.length; n++) {
+            let x = samples[n];
+            const xh = x - run(st.hp, x);                          // this channel's >refHz band
+            if (chIndex === ac.refChannel) {
+              if (n === 0) f._refPacket = { id: packetId, hp: [] };
+              f._refPacket.hp.push(xh);
+            } else if (useCancel) {
+              st.rbuf.pop(); st.rbuf.unshift(refPkt.hp[n]);
+              let est = 0, pw = 1e-6;
+              for (let k = 0; k < st.w.length; k++) { est += st.w[k] * st.rbuf[k]; pw += st.rbuf[k] * st.rbuf[k]; }
+              const e = xh - est;                                  // residual after removing ambient-correlated flicker
+              for (let k = 0; k < st.w.length; k++) st.w[k] += ac.mu * e * st.rbuf[k] / pw;
+              x = (x - xh) + e;                                    // keep the low band (DC + cardiac) untouched, replace the >refHz band with its cancelled residual
+            }
+            out[n] = bp.enabled ? run(st.bp, x) : x;
+          }
+          return out;
+        },
         ppgSampleRate: 64,           // PPG sample rate in Hz
         ppgHistoryLength: 512,       // ~8 seconds at 64Hz
         ppgHistory: {
@@ -2631,10 +2865,10 @@
         // Helper functions for accessing PPG / Optical sensor data in animations
         getPPGChannel: function(channel = 'infrared', numSamples = 64) {
           const aliasMap = {
-            0: 'ambient', '0': 'ambient', 'ambient': 'ambient', 'ppg1': 'ambient', 'li_730': 'ambient',
-            1: 'infrared', '1': 'infrared', 'infrared': 'infrared', 'ir': 'infrared', '850': 'infrared', '850nm': 'infrared', 'ppg2': 'infrared', 'ri_730': 'infrared',
-            2: 'red', '2': 'red', 'red': 'red', '660': 'red', '660nm': 'red', 'ppg3': 'red', 'li_850': 'red',
-            3: 'optics4', '3': 'optics4', 'optics4': 'optics4', 'nir': 'optics4', '730': 'optics4', '730nm': 'optics4', 'ppg4': 'optics4', 'ri_850': 'optics4'
+            0: 'ambient', '0': 'ambient', 'ambient': 'ambient', 'amb': 'ambient', 'ppg1': 'ambient',
+            1: 'infrared', '1': 'infrared', 'infrared': 'infrared', 'ir': 'infrared', 'ir850': 'infrared', '850': 'infrared', '850nm': 'infrared', 'ppg2': 'infrared',
+            2: 'red', '2': 'red', 'red': 'red', 'red660': 'red', '660': 'red', '660nm': 'red', 'ppg3': 'red',
+            3: 'optics4', '3': 'optics4', 'optics4': 'optics4', 'nir': 'optics4', 'nir730': 'optics4', '730': 'optics4', '730nm': 'optics4', 'ppg4': 'optics4'
           };
           const key = aliasMap[typeof channel === 'string' ? channel.toLowerCase() : channel] || channel;
           const channelData = (this.ppgHistory && this.ppgHistory[key]) || [];
@@ -2680,7 +2914,7 @@
         },
 
         // Real-time Short-Separation Skin Artifact Regression (OLS/RLS + Modified Beer-Lambert Law)
-        updateShortChannelRegression: function(shortIR, shortRed, shortNIR, shortAmb, longIR, longRed, longNIR, longAmb, hasDual = true) {
+        updateShortChannelRegression: function(shortIR, shortRed, shortNIR, shortAmb, longIR, longRed, longNIR, longAmb, hasDual = true, secondWavelength = 660) {
           this.hasDualDistancePPG = Boolean(hasDual);
           const sIRVal  = shortIR > 0 ? shortIR : (longIR > 0 ? longIR : 180000);
           const lIRVal  = longIR  > 0 ? longIR  : sIRVal;
@@ -2699,6 +2933,10 @@
             arr.push(v);
             if (arr.length > maxN) arr.splice(0, arr.length - maxN);
           };
+          // Second wavelength for the 2x2 Beer-Lambert inversion (the "660" slots below): 730 nm NIR on Athena, 660 nm red on Classic
+          const use730 = secondWavelength === 730;
+          const sBVal = use730 ? sNIRVal : sRedVal;
+          const lBVal = use730 ? lNIRVal : lRedVal;
           pushCap(this.ppgShortHistory.ir850, sIRVal);
           pushCap(this.ppgShortHistory.red660, sRedVal);
           pushCap(this.ppgShortHistory.nir730, sNIRVal);
@@ -2716,18 +2954,18 @@
             return 0.9995 * prev + 0.0005 * cur;
           };
           if (!this._fnirsBase) {
-            this._fnirsBase = { sIR: sIRVal, sRed: sRedVal, lIR: lIRVal, lRed: lRedVal };
+            this._fnirsBase = { sIR: sIRVal, sRed: sBVal, lIR: lIRVal, lRed: lBVal };
           } else {
             this._fnirsBase.sIR  = adaptBase(this._fnirsBase.sIR, sIRVal);
-            this._fnirsBase.sRed = adaptBase(this._fnirsBase.sRed, sRedVal);
+            this._fnirsBase.sRed = adaptBase(this._fnirsBase.sRed, sBVal);
             this._fnirsBase.lIR  = adaptBase(this._fnirsBase.lIR, lIRVal);
-            this._fnirsBase.lRed = adaptBase(this._fnirsBase.lRed, lRedVal);
+            this._fnirsBase.lRed = adaptBase(this._fnirsBase.lRed, lBVal);
           }
 
           const rawSOD850 = -Math.log(Math.max(1, sIRVal)  / Math.max(1, this._fnirsBase.sIR));
-          const rawSOD660 = -Math.log(Math.max(1, sRedVal) / Math.max(1, this._fnirsBase.sRed));
+          const rawSOD660 = -Math.log(Math.max(1, sBVal)   / Math.max(1, this._fnirsBase.sRed));
           const rawLOD850 = -Math.log(Math.max(1, lIRVal)  / Math.max(1, this._fnirsBase.lIR));
-          const rawLOD660 = -Math.log(Math.max(1, lRedVal) / Math.max(1, this._fnirsBase.lRed));
+          const rawLOD660 = -Math.log(Math.max(1, lBVal)   / Math.max(1, this._fnirsBase.lRed));
 
           if (!this._fnirsRawOD) {
             this._fnirsRawOD = { s850: [], s660: [], l850: [], l660: [] };
@@ -2799,8 +3037,9 @@
           const cleanOD850 = lOD850 - skinFit850;
           const cleanOD660 = lOD660 - skinFit660;
 
-          // Invert 2x2 Modified Beer-Lambert system (660 nm & 850 nm, d_long = 2.0 cm) for Raw, Skin, and Clean Δ[HbO2] & Δ[HHb] (µM)
-          const a11 = 0.3196 * 13.0, a12 = 3.2266 * 13.0;
+          // Invert 2x2 Modified Beer-Lambert system (second wavelength & 850 nm) for Raw, Skin, and Clean Δ[HbO2] & Δ[HHb] (µM)
+          // extinction (mM^-1 cm^-1, Prahl): 660 HbO2 0.3196 / HHb 3.2266; 730 HbO2 0.3904 / HHb 1.1022; 850 HbO2 1.0580 / HHb 0.6913
+          const a11 = use730 ? 0.3904 * 12.4 : 0.3196 * 13.0, a12 = use730 ? 1.1022 * 12.4 : 3.2266 * 13.0;
           const a21 = 1.0580 * 11.6, a22 = 0.6913 * 11.6;
           const det = a11 * a22 - a12 * a21;
 
@@ -2872,6 +3111,7 @@
 
           this.fnirsRegression = {
             mode: hasDual ? 'athena' : 'classic',
+            secondWavelength: use730 ? 730 : 660,   // the *660 fields hold this wavelength
             beta850, beta660,
             rawOD850: lOD850, rawOD660: lOD660,
             shortOD850: sOD850, shortOD660: sOD660,
@@ -3653,6 +3893,13 @@
                   ? Math.max(0, Math.min(1, 0.5 + respMod + (Math.random() - 0.5) * 0.1))
                   : pulse01;
                 const pName = ppgNames[p];
+                {
+                  const cs = eegData.applyPPGFilter(p, [rawPpg], null);
+                  const ch = eegData.ppgCleanHistory[pName] || (eegData.ppgCleanHistory[pName] = []);
+                  ch.push(cs[0]);
+                  if (ch.length > eegData.ppgHistoryLength) ch.splice(0, ch.length - eegData.ppgHistoryLength);
+                  eegData.ppgClean[p] = cs[0];
+                }
                 if (!eegData.ppgHistory[pName]) eegData.ppgHistory[pName] = [];
                 const pHist = eegData.ppgHistory[pName];
                 pHist.push(rawPpg);
@@ -3813,7 +4060,8 @@
             // Step 3: Create MuseClient instance
             logger.log('Step 3: Creating MuseClient instance...', 'info');
             this.muse = new window.muse.MuseClient();
-            this.muse.enablePpg = this.enablePpg; // 'p1041' (Bright Red LED + 16-ch optics) on Athena, 'p50' on Classic
+            this.muse.enablePpg = this.enablePpg;
+            if (this.opticsPreset) this.muse.preset = this.opticsPreset; // 'p1042' (16-ch optics, high drive) on Athena, 'p50' on Classic
             this.ppgPacketCount = 0;
             logger.log(`✅ MuseClient created successfully (PPG Optical Mode: ${this.enablePpg ? 'ON [Bright Red LED]' : 'OFF [Dim]'})`, 'success');
             
@@ -3929,6 +4177,9 @@
           if (!electrodeName) return;
 
           this.packetCount++;
+
+          // Mains notch + drift high-pass (eegData.lineFilter) - applied once here so every consumer sees clean data
+          reading = Object.assign({}, reading, { samples: eegData.applyLineFilter(electrodeName, reading.samples) });
 
           if (this.packetCount <= 4) {
             logger.log(`📊 EEG data received from ${electrodeName}: ${reading.samples.length} samples, first value: ${reading.samples[0]?.toFixed(2)} µV`, 'success');
@@ -4094,6 +4345,14 @@
 
           const latestSample = reading.samples[reading.samples.length - 1];
           eegData.ppg[chIndex] = latestSample;
+          if (chIndex === 1 && Array.isArray(reading.allOptics)) eegData.pushOpticsRaw(reading.allOptics);
+          {
+            const cleaned = eegData.applyPPGFilter(chIndex, reading.samples, reading.index);
+            const cHist = eegData.ppgCleanHistory[chName] || (eegData.ppgCleanHistory[chName] = []);
+            for (let i = 0; i < cleaned.length; i++) cHist.push(cleaned[i]);
+            if (cHist.length > eegData.ppgHistoryLength) cHist.splice(0, cHist.length - eegData.ppgHistoryLength);
+            eegData.ppgClean[chIndex] = cleaned[cleaned.length - 1];
+          }
 
           // Update Short-Separation vs Long-Separation regression (Athena dual-distance or Classic single-distance proxy)
           if (reading.separationPairs && chIndex === 1 && typeof eegData.updateShortChannelRegression === 'function') {
@@ -4101,18 +4360,24 @@
             eegData.hardwareOpticalModel = sp.hardwareModel || 'Muse S Athena';
             const nS = reading.samples.length;
             const sampleAt = (arr, sIdx, fb) => (Array.isArray(arr) && arr.length ? arr[Math.min(sIdx, arr.length - 1)] : fb);
+            // Modes without red / ambient (8-ch, 4-ch): drop stale values left over from a previous 16-ch session
+            if (sp.hasRed === false && eegData.ppgHistory.red && eegData.ppgHistory.red.length) { eegData.ppgHistory.red = []; eegData.ppg[2] = 0; }
+            if (sp.hasAmbient === false && eegData.ppgHistory.ambient && eegData.ppgHistory.ambient.length) { eegData.ppgHistory.ambient = []; eegData.ppg[0] = 0; }
             for (let s = 0; s < nS; s++) {
               const curIR = reading.samples[s];
+              const sNIR = sampleAt(sp.short.nir730, s, curIR);
+              const lNIR = sampleAt(sp.long.nir730, s, sNIR);
               eegData.updateShortChannelRegression(
                 sampleAt(sp.short.ir850, s, curIR),
-                sampleAt(sp.short.red660, s, eegData.ppg[2] || curIR),
-                sampleAt(sp.short.nir730, s, eegData.ppg[3] || curIR),
-                sampleAt(sp.short.ambient, s, eegData.ppg[0] || 12000),
+                sampleAt(sp.short.red660, s, sNIR),
+                sNIR,
+                sampleAt(sp.short.ambient, s, 0),
                 sampleAt(sp.long.ir850, s, curIR),
-                sampleAt(sp.long.red660, s, eegData.ppg[2] || curIR),
-                sampleAt(sp.long.nir730, s, eegData.ppg[3] || curIR),
-                sampleAt(sp.long.ambient, s, eegData.ppg[0] || 12000),
-                sp.hasDualDistance
+                sampleAt(sp.long.red660, s, lNIR),
+                lNIR,
+                sampleAt(sp.long.ambient, s, 0),
+                sp.hasDualDistance,
+                730   // Athena: long-path red (660) is ~300 counts (absorbed), so Beer-Lambert uses 730 + 850 nm
               );
             }
           } else if (!reading.separationPairs && chIndex === 1 && typeof eegData.updateShortChannelRegression === 'function') {
@@ -4161,7 +4426,9 @@
                 // Fallback during initial 8-sample warmup
                 eegData.ppgPulse = norm;
               }
-              if (this.ppgPacketCount % 6 === 0) {
+              // count infrared packets (not all channel calls) so the estimate runs whatever the channel count per packet
+              this._hrTick = (this._hrTick || 0) + 1;
+              if (this._hrTick % 3 === 0) {
                 if (cHist && cHist.length >= 96) {
                   this.estimateHeartRateFromPPG(cHist.slice(-192), true);
                 } else if (hist.length >= 128) {
@@ -4453,16 +4720,32 @@
           }
         }
 
+        async setOpticsPreset(preset) {
+          this.opticsPreset = preset || null;
+          if (preset) this.enablePpg = preset !== 'p1035';   // any optics-rich preset counts as PPG on
+          // channel layout changes with the preset, so drop the old un-mapped optics history
+          eegData.optics = { count: 0, raw: [], history: [], maxLen: 512 };
+          if (this.muse && this.isConnected && this.muse.isAthena && typeof this.muse.setPreset === 'function') {
+            logger.log(`🎛️ Switching Athena preset to ${preset || 'auto'}...`, 'info');
+            await this.muse.setPreset(preset || (this.enablePpg ? 'p1042' : 'p1035'));
+            this.updateStatus(`Connected to ${this.muse.deviceName || 'Muse'} [Athena (${this.muse.preset})]`, 'connected');
+            logger.log(`✅ Athena preset is now ${this.muse.preset}`, 'success');
+          } else {
+            logger.log(`🎛️ Athena preset set to ${preset || 'auto'} for next connection`, 'info');
+          }
+          return this.enablePpg;
+        }
+
         async togglePPGMode() {
           this.enablePpg = !this.enablePpg;
           if (this.muse && this.isConnected && typeof this.muse.setPPGMode === 'function') {
-            logger.log(`💓 Switching Muse PPG / Optical Red LED mode to ${this.enablePpg ? 'ON (Bright Red LED - p1041/p50)' : 'OFF (Dim/EEG-only - p1035/p21)'}...`, 'info');
+            logger.log(`💓 Switching Muse PPG / Optical Red LED mode to ${this.enablePpg ? 'ON (16-ch optics - p1042/p50)' : 'OFF (Dim/EEG-only - p1035/p21)'}...`, 'info');
             await this.muse.setPPGMode(this.enablePpg);
             const modeLabel = this.muse.isAthena ? `Athena (${this.muse.preset})` : `Classic (${this.muse.preset})`;
             this.updateStatus(`Connected to ${this.muse.deviceName || 'Muse'} [${modeLabel}]`, 'connected');
             logger.log(`✅ PPG Optical Mode is now ${this.enablePpg ? 'ON' : 'OFF'} [${modeLabel}]`, 'success');
           } else {
-            logger.log(`💓 PPG Optical Mode set to ${this.enablePpg ? 'ON (p1041/p50)' : 'OFF (p1035/p21)'} for next connection`, 'info');
+            logger.log(`💓 PPG Optical Mode set to ${this.enablePpg ? 'ON (p1042/p50)' : 'OFF (p1035/p21)'} for next connection`, 'info');
           }
           return this.enablePpg;
         }
@@ -4951,6 +5234,26 @@
             signature: 'eegData.getChannelBand(band, channelIndex)',
             description: 'Get per-electrode band power (0.0 - 1.0) for band ("delta", "theta", "alpha", "beta", "gamma") and channel index (0=TP9, 1=AF7, 2=AF8, 3=TP10).'
           },
+          'eegData.optics': {
+            signature: 'eegData.optics { count, raw[], history[][] }  /  eegData.getOpticsChannel(index, n)',
+            description: 'Un-mapped raw Athena optical channels (up to 16, 64 Hz) straight from the BLE packet. Measured layout, groups of 4 = [short L, short R, long L, long R] (short 0.75 cm, long 2.8 cm): 16-ch 0-3 red 660, 4-7 ambient (LEDs off), 8-11 NIR 730, 12-15 IR 850; 8-ch 0-3 NIR 730, 4-7 IR 850; 4-ch 0-1 NIR short, 2-3 IR short.'
+          },
+          'eegData.setPPGFilter': {
+            signature: 'eegData.setPPGFilter({bandpass: bool|{lowHz,highHz}, ambientCancel: bool|{refHz,taps,mu}}) | false',
+            description: 'Two independent PPG cleaning options (both on by default): 0.5-4 Hz band-pass, and adaptive ambient-channel flicker cancellation. Results in eegData.ppgClean / getCleanPPGChannel(); raw eegData.ppg is untouched.'
+          },
+          'eegData.getCleanPPGChannel': {
+            signature: 'eegData.getCleanPPGChannel(channel, numSamples)',
+            description: 'Cleaned (filtered, AC-coupled) optical samples for "ambient" | "infrared" | "red" | "optics4" (or 0..3).'
+          },
+          'eegData.setAthenaPreset': {
+            signature: 'await eegData.setAthenaPreset("p1041" | ... | "")  /  eegData.getAthenaPreset()',
+            description: 'Switch the connected Muse S Athena to another optics/EEG preset (restarts the stream ~1.5 s). Empty string = auto.'
+          },
+          'eegData.setLineFilter': {
+            signature: 'eegData.setLineFilter(60 | 50 | false | {notchHz, notchQ, highpassHz})',
+            description: 'Configure the built-in EEG line-noise filter (60/50 Hz notch + harmonic, 0.5 Hz high-pass) applied to all live Muse EEG before eegData.raw/rawHistory/FFT. On by default at 60 Hz; pass false for raw hardware samples.'
+          },
           'eegData.getSpectrum': {
             signature: 'eegData.getSpectrum(channelIndex)',
             description: 'Get 1–60 Hz FFT power spectrum array (length 60) for a specific electrode (0=TP9, 1=AF7, 2=AF8, 3=TP10).'
@@ -4995,7 +5298,7 @@
           },
           'eegData.getPPGChannel': {
             signature: 'eegData.getPPGChannel(channel, numSamples)',
-            description: 'Get recent 64 Hz PPG samples for a channel: "ambient" (0), "infrared" (1), "red" (2), or "optics4" (3).'
+            description: 'Get recent 64 Hz PPG samples for a channel: "ambient" (0, LEDs off), "infrared" (1, 850 nm), "red" (2, 660 nm), or "optics4"/"nir" (3, 730 nm). Athena: short-distance channels, left/right averaged. Red and ambient exist only in 16-ch presets (default p1042).'
           },
           'eegData.getAllPPGChannels': {
             signature: 'eegData.getAllPPGChannels(numSamples)',
@@ -6933,6 +7236,10 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
 
       function initApp() {
         museManager = new MuseEEGManager();
+        window.museManager = museManager;
+        // Lets sketches switch the Athena optics preset (used by the preset sweep diagnostic)
+        eegData.setAthenaPreset = (preset) => museManager.setOpticsPreset(preset);
+        eegData.getAthenaPreset = () => (museManager.muse && museManager.muse.preset) || museManager.opticsPreset || null;
         eegSimulator = new EEGSimulator();
         codeEditor = new CodeEditor();
         referencePanel = new ReferencePanel();
@@ -7013,6 +7320,47 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
             resizerEl.classList.remove('dragging');
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
+            window.dispatchEvent(new Event('resize'));
+          });
+        }
+
+        // Drag handle between the animation pane and the code pane
+        const canvasResizerEl = document.getElementById('canvas-resizer');
+        if (canvasResizerEl) {
+          let isResizingCanvas = false, rafPending = false;
+          const MIN_CANVAS = 240, MIN_CODE = 320;
+          const fireResize = () => {
+            if (rafPending) return;
+            rafPending = true;
+            requestAnimationFrame(() => { rafPending = false; window.dispatchEvent(new Event('resize')); });
+          };
+          canvasResizerEl.addEventListener('mousedown', (e) => {
+            isResizingCanvas = true;
+            canvasResizerEl.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+          });
+          window.addEventListener('mousemove', (e) => {
+            if (!isResizingCanvas) return;
+            const rect = mainContainerEl.getBoundingClientRect();
+            const codeRect = document.querySelector('.code-panel').getBoundingClientRect();
+            const rightWidth = rect.right - codeRect.right;   // catalogue + reference + gaps
+            const maxW = Math.max(MIN_CANVAS, rect.width - rightWidth - MIN_CODE - 4);
+            const w = Math.max(MIN_CANVAS, Math.min(maxW, e.clientX - rect.left));
+            mainContainerEl.style.setProperty('--canvas-col', `${Math.round(w)}px`);
+            fireResize();
+          });
+          window.addEventListener('mouseup', () => {
+            if (!isResizingCanvas) return;
+            isResizingCanvas = false;
+            canvasResizerEl.classList.remove('dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            window.dispatchEvent(new Event('resize'));
+          });
+          canvasResizerEl.addEventListener('dblclick', () => {
+            mainContainerEl.style.removeProperty('--canvas-col');
             window.dispatchEvent(new Event('resize'));
           });
         }
@@ -7129,6 +7477,10 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
           ppgModeBtn.addEventListener('click', async () => {
             ppgModeBtn.disabled = true;
             try {
+              museManager.opticsPreset = null;
+              const presetSel = document.getElementById('athena-preset-select');
+              if (presetSel) presetSel.value = '';
+              eegData.optics = { count: 0, raw: [], history: [], maxLen: 512 };
               const enabled = await museManager.togglePPGMode();
               ppgModeBtn.textContent = enabled ? '💓 PPG: ON' : '💓 PPG: OFF';
             } finally {
@@ -7137,6 +7489,46 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
           });
         }
         
+        const athenaPresetSel = document.getElementById('athena-preset-select');
+        if (athenaPresetSel) {
+          athenaPresetSel.addEventListener('change', async () => {
+            athenaPresetSel.disabled = true;
+            try {
+              const on = await museManager.setOpticsPreset(athenaPresetSel.value);
+              if (ppgModeBtn) ppgModeBtn.textContent = on ? '💓 PPG: ON' : '💓 PPG: OFF';
+            } finally {
+              athenaPresetSel.disabled = false;
+            }
+          });
+        }
+
+        const ppgBpBtn = document.getElementById('ppg-bp-btn');
+        const ppgAmbBtn = document.getElementById('ppg-amb-btn');
+        window.syncPPGFilterBtns = () => {
+          const f = eegData.ppgFilter;
+          if (ppgBpBtn) ppgBpBtn.textContent = '💓 Band-pass: ' + (f.bandpass.enabled ? 'ON' : 'OFF');
+          if (ppgAmbBtn) ppgAmbBtn.textContent = '💡 Amb. cancel: ' + (f.ambientCancel.enabled ? 'ON' : 'OFF');
+        };
+        if (ppgBpBtn) ppgBpBtn.addEventListener('click', () => eegData.setPPGFilter({ bandpass: !eegData.ppgFilter.bandpass.enabled }));
+        if (ppgAmbBtn) ppgAmbBtn.addEventListener('click', () => eegData.setPPGFilter({ ambientCancel: !eegData.ppgFilter.ambientCancel.enabled }));
+        window.syncPPGFilterBtns();
+
+        const lineFilterBtn = document.getElementById('line-filter-btn');
+        window.syncLineFilterBtn = () => {
+          if (!lineFilterBtn) return;
+          const lf = eegData.lineFilter;
+          lineFilterBtn.textContent = lf.enabled ? `〰️ Notch: ${lf.notchHz} Hz` : '〰️ Notch: OFF';
+        };
+        if (lineFilterBtn) {
+          lineFilterBtn.addEventListener('click', () => {
+            const lf = eegData.lineFilter;
+            if (!lf.enabled) eegData.setLineFilter(60);
+            else if (lf.notchHz === 60) eegData.setLineFilter(50);
+            else eegData.setLineFilter(false);
+          });
+          window.syncLineFilterBtn();
+        }
+
         connectBtn.addEventListener('click', async () => {
           // If already connected, disconnect
           if (currentDataSource === 'muse' && museManager.isConnected) {

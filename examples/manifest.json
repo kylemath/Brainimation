@@ -1,5 +1,6 @@
 {
   "categoryOrder": [
+    "Signal Quality & Diagnostics",
     "Getting Started",
     "Brain Wave Visualizations",
     "PPG & Optical (fNIRS)",
@@ -22,9 +23,27 @@
   ],
   "examples": [
     {
+      "id": "athenaPresetSweep",
+      "file": "athenaPresetSweep.js",
+      "title": "Athena Preset Sweep (auto-compare optics presets)",
+      "category": "Signal Quality & Diagnostics"
+    },
+    {
+      "id": "athenaOpticsChannelMap",
+      "file": "athenaOpticsChannelMap.js",
+      "title": "Athena Raw Optics Channel Map (what is each channel?)",
+      "category": "Signal Quality & Diagnostics"
+    },
+    {
+      "id": "ppgSpectraNoiseFinder",
+      "file": "ppgSpectraNoiseFinder.js",
+      "title": "PPG Raw Detector Spectra (Noise Source Finder)",
+      "category": "Signal Quality & Diagnostics"
+    },
+    {
       "id": "museAthenaSpO2FusedEstimator",
       "file": "museAthenaSpO2FusedEstimator.js",
-      "title": "\ud83e\uddea Muse S Athena Multi-Sensor SpO2 & rSO2 Calibrated Estimator (1st Dev)",
+      "title": "🧪 Muse S Athena Multi-Sensor SpO2 & rSO2 Calibrated Estimator (1st Dev)",
       "category": "Getting Started"
     },
     {
@@ -102,7 +121,7 @@
     {
       "id": "ppgStackedDerivation",
       "file": "ppgStackedDerivation.js",
-      "title": "Stacked Derivation: Long/Short LEDs -> \u0394OD -> Short-Ch Regression -> Oxy/Deoxy & HR",
+      "title": "Stacked Derivation: Long/Short LEDs -> ΔOD -> Short-Ch Regression -> Oxy/Deoxy & HR",
       "category": "PPG & Optical (fNIRS)"
     },
     {
@@ -174,31 +193,31 @@
     {
       "id": "imuStackedKinematicsDerivation",
       "file": "imuStackedKinematicsDerivation.js",
-      "title": "Stacked IMU Kinematics: Accel & Gyro \u2192 Velocity \u2192 2nd-Order Position",
+      "title": "Stacked IMU Kinematics: Accel & Gyro → Velocity → 2nd-Order Position",
       "category": "Motion, IMU & Broadcast Sensors"
     },
     {
       "id": "imuHeadTheremin",
       "file": "imuHeadTheremin.js",
-      "title": "\ud83c\udfb5 Cosmic Head Theremin (Pitch/Roll Antennas + Alpha Vibrato)",
+      "title": "🎵 Cosmic Head Theremin (Pitch/Roll Antennas + Alpha Vibrato)",
       "category": "Motion, IMU & Broadcast Sensors"
     },
     {
       "id": "imuTiltLabyrinthGame",
       "file": "imuTiltLabyrinthGame.js",
-      "title": "\ud83c\udfae Head-Tilt Neon Labyrinth (IMU Balance Game)",
+      "title": "🎮 Head-Tilt Neon Labyrinth (IMU Balance Game)",
       "category": "Motion, IMU & Broadcast Sensors"
     },
     {
       "id": "imuStarfieldFlight",
       "file": "imuStarfieldFlight.js",
-      "title": "\ud83d\ude80 Head-Steered Warp Cockpit (6-DOF IMU + 2nd-Order Parallax)",
+      "title": "🚀 Head-Steered Warp Cockpit (6-DOF IMU + 2nd-Order Parallax)",
       "category": "Motion, IMU & Broadcast Sensors"
     },
     {
       "id": "imuHeadBopSynth",
       "file": "imuHeadBopSynth.js",
-      "title": "\ud83e\udd41 Head-Bop Kinetic Drum Pad & Gyro Filter Synth",
+      "title": "🥁 Head-Bop Kinetic Drum Pad & Gyro Filter Synth",
       "category": "Motion, IMU & Broadcast Sensors"
     },
     {

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen test suite</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  #dot { position: fixed; border-radius: 50%; background: #fff; display: none; }
+  #msg { position: fixed; left: 12px; top: 10px; font: 12px monospace; color: #222; }
+</style>
+</head>
+<body>
+<div id="dot"></div>
+<div id="msg">waiting for recorder...</div>
+<script>
+// Generic schedule player. The recorder writes flash_t0.json = {t0_ms, schedule:[{dur, kind, color?, hz?, x?, y?, size?}]}
+// kinds: solid (colour), flicker (colour square wave at ~hz, frame-locked), dot (white disc at x,y on black; size = diameter / viewport height)
+const msg = document.getElementById('msg'), dot = document.getElementById('dot');
+let t0 = null, sched = null, starts = [], total = 0;
+let lastTs = 0, avgDt = 16.7, cur = -1, stepFrames = 0, lastDrawn = '';
+
+async function poll() {
+  try {
+    const r = await fetch('flash_t0.json?x=' + Date.now(), { cache: 'no-store' });
+    if (r.ok) {
+      const j = await r.json();
+      if (j.schedule && j.t0_ms !== t0) {             // new (or first) schedule: (re)start
+        t0 = j.t0_ms; sched = j.schedule; cur = -1; let a = 0;
+        starts = sched.map(s => { const v = a; a += s.dur; return v; }); total = a;
+        msg.textContent = '';
+      }
+    }
+  } catch (e) {}
+  setTimeout(poll, 400);
+}
+
+function setBg(c) { if (document.body.style.background !== c) document.body.style.background = c; }
+
+function frame(ts) {
+  if (lastTs) avgDt = avgDt * 0.95 + (ts - lastTs) * 0.05;
+  lastTs = ts;
+  if (t0 !== null) {
+    const sec = (Date.now() - t0) / 1000;
+    if (sec < 0) { setBg('#000'); dot.style.display = 'none'; }
+    else if (sec >= total) { setBg('#000'); dot.style.display = 'none'; msg.textContent = 'done'; }
+    else {
+      let i = cur >= 0 ? cur : 0;
+      while (i + 1 < sched.length && sec >= starts[i + 1]) i++;
+      if (i !== cur) { cur = i; stepFrames = 0; }
+      const s = sched[i];
+      dot.style.display = 'none';
+      if (s.kind === 'solid') setBg(s.color);
+      else if (s.kind === 'flicker') {
+        const fps = 1000 / avgDt, h = Math.max(1, Math.round(fps / (2 * s.hz)));
+        setBg(Math.floor(stepFrames / h) % 2 === 0 ? s.color : '#000');
+      } else if (s.kind === 'dot') {
+        setBg('#000');
+        const d = s.size * innerHeight;
+        dot.style.cssText = `position:fixed;border-radius:50%;background:#fff;display:block;width:${d}px;height:${d}px;` +
+          `left:${s.x * innerWidth - d / 2}px;top:${s.y * innerHeight - d / 2}px`;
+      }
+      stepFrames++;
+    }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+poll();
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen flash test</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  #msg { position: fixed; left: 12px; bottom: 10px; font: 12px monospace; color: #333; }
+</style>
+</head>
+<body>
+<div id="msg">waiting for recorder...</div>
+<script>
+// Schedule must match tools/athena_screen_flash_test.py. Seconds from t0.
+const BLOCKS = [['black', 8], ['white', 8], ['black', 8], ['white', 8], ['flash', 10], ['black', 8]];
+const msg = document.getElementById('msg');
+let t0 = null;
+
+async function poll() {
+  try {
+    const r = await fetch('flash_t0.json?x=' + Date.now(), { cache: 'no-store' });
+    if (r.ok) { t0 = (await r.json()).t0_ms; msg.textContent = ''; return; }
+  } catch (e) {}
+  setTimeout(poll, 300);
+}
+
+function colourAt(sec) {
+  let t = sec;
+  for (const [kind, len] of BLOCKS) {
+    if (t < len) {
+      if (kind === 'flash') return Math.floor(t / 0.5) % 2 === 0 ? '#fff' : '#000';   // 1 Hz square wave
+      return kind === 'white' ? '#fff' : '#000';
+    }
+    t -= len;
+  }
+  return null;
+}
+
+setInterval(() => {
+  if (t0 === null) { document.body.style.background = '#000'; return; }
+  const sec = (Date.now() - t0) / 1000;
+  const c = sec < 0 ? '#000' : colourAt(sec);
+  if (c === null) { document.body.style.background = '#000'; msg.textContent = 'done'; return; }
+  document.body.style.background = c;
+  msg.textContent = '';
+}, 20);
+
+poll();
+</script>
+</body>
+</html>

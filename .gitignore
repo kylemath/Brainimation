@@ -23,3 +23,11 @@ Thumbs.db
 *.log
 *.tmp
 
+
+# raw physiological recordings from tools/athena_preset_sweep.py
+athena_sweep*.json
+tools/flash_t0.json
+athena_screen_flash.json
+athena_screen_suite.json
+athena_spot_fine.json
+__pycache__/
