@@ -11,7 +11,7 @@ An interactive web platform that combines real-time EEG brain data from Muse hea
 
 ## 🎓 Provenance
 
-BrainImation was developed as part of **Kyle Mathewson's** neuroscience and brain-computer interface course to provide students with hands-on experience in:
+BrainImation was developed as part of **Kyle Mathewson's** neuroscience and brain-computer interface course at the University of Alberta—with **Tamari Shalamberidze** (Neuroscience and Mental Health Institute, University of Alberta; [shalambe@ualberta.ca](mailto:shalambe@ualberta.ca)) and **Claire J. Scavuzzo** (Department of Psychology, University of Alberta; [scavuzzo@ualberta.ca](mailto:scavuzzo@ualberta.ca)) contributing to development and classroom deployment, refining the platform for students based on pedagogical design and iterative student feedback—to provide learners with hands-on experience in:
 - Real-time EEG data processing and visualization
 - Brain-computer interface (BCI) development
 - Creative applications of neuroscience
@@ -261,11 +261,16 @@ The `netlify.toml` configuration automatically:
 - **[p5.sound](https://p5js.org/reference/#/libraries/p5.sound)** - Audio synthesis and analysis
 - **[Monaco Editor](https://microsoft.github.io/monaco-editor/)** - Code editor (VS Code engine)
 
-### Course Information
+### Course Information & Citation
 Developed for teaching brain-computer interfaces and computational neuroscience.  
-**Instructor:** Kyle Mathewson  
-**Institution:** [Add your institution]  
-**Course:** [Add course name/number]
+**Instructor:** Kyle E. Mathewson ([kyle.mathewson@ualberta.ca](mailto:kyle.mathewson@ualberta.ca)) — Department of Psychology & Neuroscience and Mental Health Institute, University of Alberta, Edmonton, AB, Canada  
+**Researcher & Teaching Assistant:** Tamari Shalamberidze ([shalambe@ualberta.ca](mailto:shalambe@ualberta.ca) · [Google Scholar](http://scholar.google.com/scholar?q=author:%22Tamari%20Shalamberidze%22)) — Neuroscience and Mental Health Institute, University of Alberta, Edmonton, AB, Canada  
+**Co-Author & Researcher:** Claire J. Scavuzzo ([scavuzzo@ualberta.ca](mailto:scavuzzo@ualberta.ca)) — Department of Psychology, University of Alberta, Edmonton, AB, Canada  
+**Institution:** University of Alberta, Edmonton, AB, Canada  
+**Course:** PSYCH 403 (Cognitive Neuroscience Laboratory)
+
+**Paper Citation:**  
+Mathewson, K. E., Shalamberidze, T., & Scavuzzo, C. J. (2026). *BrainImation: A Browser-Based Teaching Environment for Learning Creative Coding with Live EEG, Optical PPG/fNIRS, and Head Motion Sensors*.
 
 ---
 
@@ -325,6 +330,7 @@ Check out what's possible with BrainImation:
 ## 🙏 Acknowledgments
 
 Special thanks to:
+- **Tamari Shalamberidze** (Neuroscience and Mental Health Institute, University of Alberta) and **Claire J. Scavuzzo** (Department of Psychology, University of Alberta) for their contributions during development and classroom deployment, refining BrainImation for students based on user feedback and pedagogical design
 - Uri Shaked for creating muse-js and making EEG accessible on the web
 - The P5.js community for the incredible creative coding tools
 - Students and beta testers who provided feedback and bug reports

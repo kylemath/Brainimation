@@ -1,0 +1,162 @@
+\begin{thebibliography}{}
+
+\bibitem[Chowning, 1973]{chowning1973synthesis}
+Chowning, J.~M. (1973).
+\newblock The synthesis of complex audio spectra by means of frequency
+  modulation.
+\newblock {\em Journal of the Audio Engineering Society}, 21(7):526--534.
+
+\bibitem[de~Leeuw, 2015]{deleeuw2015jspsych}
+de~Leeuw, J.~R. (2015).
+\newblock {jsPsych}: A {J}ava{S}cript library for creating behavioral
+  experiments in a {W}eb browser.
+\newblock {\em Behavior Research Methods}, 47(1):1--12.
+
+\bibitem[Delorme and Makeig, 2004]{delorme2004eeglab}
+Delorme, A. and Makeig, S. (2004).
+\newblock {EEGLAB}: an open source toolbox for analysis of single-trial {EEG}
+  dynamics including independent component analysis.
+\newblock {\em Journal of Neuroscience Methods}, 134(1):9--21.
+
+\bibitem[Delpy et~al., 1988]{delpy1988estimation}
+Delpy, D.~T., Cope, M., van~der Zee, P., Arridge, S., Wray, S., and Wyatt, J.
+  (1988).
+\newblock Estimation of optical pathlength through tissue from direct time of
+  flight measurement.
+\newblock {\em Physics in Medicine \& Biology}, 33(12):1433--1442.
+
+\bibitem[Enriquez-Geppert et~al., 2017]{enriquez2017eeg}
+Enriquez-Geppert, S., Huster, R.~J., and Herrmann, C.~S. (2017).
+\newblock {EEG}-based neurofeedback: a systematic review of designs,
+  methodologies and clinical applications.
+\newblock {\em Current Behavioral Neuroscience Reports}, 4(2):156--168.
+
+\bibitem[Keil et~al., 2014]{keil2014committee}
+Keil, A., Debener, S., Gratton, G., Jungh{\"o}fer, M., Kappenman, E.~S., Luck,
+  S.~J., Luu, P., Miller, G.~A., and Yee, C.~M. (2014).
+\newblock Committee report: Publication guidelines and recommendations for
+  studies using electroencephalography and magnetoencephalography.
+\newblock {\em Psychophysiology}, 51(1):1--21.
+
+\bibitem[Krigolson et~al., 2017]{krigolson2017choosing}
+Krigolson, O.~E., Williams, C.~C., Norton, A., Hassall, C.~D., and Colino,
+  F.~L. (2017).
+\newblock Choosing {MUSE}: Validation of a low-cost, portable {EEG} system for
+  {ERP} research.
+\newblock {\em Frontiers in Neuroscience}, 11:109.
+
+\bibitem[Kuziek et~al., 2018]{kuziek2018increasing}
+Kuziek, J.~W., Redman, E.~X., Splinter, G.~D., and Mathewson, K.~E. (2018).
+\newblock Increasing the mobility of {EEG} data collection using a
+  {L}atte{P}anda computer.
+\newblock {\em Journal of Neuroscience Methods}, 308:34--47.
+
+\bibitem[Kuziek et~al., 2017]{kuziek2017transitioning}
+Kuziek, J.~W., Shienh, A., and Mathewson, K.~E. (2017).
+\newblock Transitioning {EEG} experiments away from the laboratory using a
+  {R}aspberry {P}i 2.
+\newblock {\em Journal of Neuroscience Methods}, 277:75--82.
+
+\bibitem[Lotte et~al., 2013]{lotte2013flaws}
+Lotte, F., Larrue, F., and M{\"u}hl, C. (2013).
+\newblock Flaws in current human training protocols for spontaneous
+  {Brain--Computer} interfaces: lessons learned from instructional design.
+\newblock {\em Frontiers in Human Neuroscience}, 7:568.
+
+\bibitem[Luck, 2014]{luck2014introduction}
+Luck, S.~J. (2014).
+\newblock {\em An Introduction to the Event-Related Potential Technique}.
+\newblock MIT Press, 2nd edition.
+
+\bibitem[Luck et~al., 2021]{luck2021standardized}
+Luck, S.~J., Stewart, A.~X., Simmons, A.~M., and Rhemtulla, M. (2021).
+\newblock Standardized measurement error: A universal metric of data quality
+  for averaged event-related potentials.
+\newblock {\em Psychophysiology}, 58(6):e13793.
+
+\bibitem[Mathewson, 2024]{mathewson2024moving}
+Mathewson, K.~E. (2024).
+\newblock The moving wave: Applications of the mobile {EEG} approach to study
+  human attention.
+\newblock {\em Psychophysiology}, 61(10):e14635.
+
+\bibitem[Mathewson, 2026]{mathewson2026eegedu}
+Mathewson, K.~E. (2026).
+\newblock {EEGEdu}: A zero-install, reactive {WebBluetooth} platform for human
+  electrophysiology, time--frequency signal processing, and brain--computer
+  interfaces.
+\newblock {\em PsyArXiv}.
+\newblock Preprint available at \url{https://eegedu.com}.
+
+\bibitem[Mathewson et~al., 2017]{mathewson2017high}
+Mathewson, K.~E., Harrison, T.~J., and Kizuk, S.~A. (2017).
+\newblock High and dry? {C}omparing active dry {EEG} electrodes to active and
+  passive wet electrodes.
+\newblock {\em Psychophysiology}, 54(1):74--82.
+
+\bibitem[McCarthy et~al., 2015]{mccarthy2015p5}
+McCarthy, L., Reas, C., and Fry, B. (2015).
+\newblock {\em Make: Getting Started with {p5.js}: Making Interactive Graphics
+  in {JavaScript} and {Processing}}.
+\newblock Maker Media, San Francisco, CA.
+
+\bibitem[Miranda and Castet, 2014]{miranda2014brain}
+Miranda, E.~R. and Castet, J. (2014).
+\newblock {Brain--computer} music interfacing: Interdisciplinary milestone in
+  music and neuroscience.
+\newblock In {\em Guide to {Brain--Computer} Music Interfacing}, pages 1--27.
+  Springer.
+
+\bibitem[Papert, 1980]{papert1980mindstorms}
+Papert, S. (1980).
+\newblock {\em Mindstorms: Children, Computers, and Powerful Ideas}.
+\newblock Basic Books.
+
+\bibitem[Picton et~al., 2000]{picton2000guidelines}
+Picton, T.~W., Bentin, S., Berg, P., Donchin, E., Hillyard, S.~A., Johnson, Jr,
+  R., Miller, G.~A., Ritter, W., Ruchkin, D.~S., Rugg, M.~D., and Taylor, M.~J.
+  (2000).
+\newblock Guidelines for using human event-related potentials to study
+  cognition: Recording standards and publication criteria.
+\newblock {\em Psychophysiology}, 37(2):127--152.
+
+\bibitem[Reas and Fry, 2007]{reas2007processing}
+Reas, C. and Fry, B. (2007).
+\newblock {\em Processing: A Programming Handbook for Visual Designers and
+  Artists}.
+\newblock MIT Press.
+
+\bibitem[Resnick et~al., 2009]{resnick2009scratch}
+Resnick, M., Maloney, J., Monroy-Hern{\'a}ndez, A., Rusk, N., Eastmond, E.,
+  Brennan, K., Millner, A., Rosenbaum, E., Silver, J., Silverman, B., and
+  Kafai, Y. (2009).
+\newblock Scratch: Programming for all.
+\newblock {\em Communications of the ACM}, 52(11):60--67.
+
+\bibitem[Saager and Berger, 2005]{saager2005direct}
+Saager, R.~B. and Berger, A.~J. (2005).
+\newblock Direct characterization and removal of interfering absorption trends
+  in two-layer turbid media.
+\newblock {\em Journal of the Optical Society of America A}, 22(9):1874--1882.
+
+\bibitem[Scholkmann et~al., 2014]{scholkmann2014review}
+Scholkmann, F., Kleiser, S., Metz, A.~J., Zimmermann, R., Mata~Pavia, J., Wolf,
+  U., and Wolf, M. (2014).
+\newblock A review on continuous wave functional near-infrared spectroscopy and
+  imaging instrumentation and methodology.
+\newblock {\em NeuroImage}, 85:6--27.
+
+\bibitem[Sitaram et~al., 2017]{sitaram2017closed}
+Sitaram, R., Ros, T., Stoeckel, L., Haller, S., Scharnowski, F., Lewis-Peacock,
+  J., Weiskopf, N., Blefari, M.~L., Rana, M., Oblak, E., Birbaumer, N., and
+  Sulzer, J. (2017).
+\newblock Closed-loop brain training: the science of neurofeedback.
+\newblock {\em Nature Reviews Neuroscience}, 18(2):86--100.
+
+\bibitem[Widrow et~al., 1975]{widrow1975adaptive}
+Widrow, B., Glover, J.~R., McCool, J.~M., Kaunitz, J., Williams, C.~S., Hearn,
+  R.~H., Zeidler, J.~R., Dong, E., and Goodlin, R.~C. (1975).
+\newblock Adaptive noise cancelling: Principles and applications.
+\newblock {\em Proceedings of the IEEE}, 63(12):1692--1716.
+
+\end{thebibliography}

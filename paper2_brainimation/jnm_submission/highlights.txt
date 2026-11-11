@@ -1,0 +1,7 @@
+Highlights (Journal of Neuroscience Methods — <= 85 characters per bullet including spaces)
+
+• Browser-based coding tool for teaching EEG, optical PPG/fNIRS, and head motion.
+• Connects Muse 2016, Muse 2, Muse S, and Muse S Athena with no software install.
+• Built-in simulator lets students write and test code at home without hardware.
+• Visual Catalogue of 226 example and student sketches across 18 categories.
+• Evaluated on 69 neurofeedback and ERP projects from 30 students (p < 10^-11).

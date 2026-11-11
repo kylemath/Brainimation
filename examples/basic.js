@@ -6,17 +6,16 @@
  *
  * Auto-split from index.html.
  */
-// Basic animated background
+// Basic animated circle controlled by alpha and attention
 function setup() {
-  console.log('User setup() function called!');
   colorMode(HSB, 360, 100, 100);
 }
 
 function draw() {
-  let hue = map(eegData.alpha, 0, 1, 180, 300);
-  background(hue, 50, 20);
-  
-  fill(hue + 60, 80, 90);
-  let size = 50 + eegData.attention * 100;
-  ellipse(width/2, height/2, size);
+  background(0, 0, 10);
+  let size = map(eegData.alpha, 0, 1, 50, 300);
+  let hue = map(eegData.attention, 0, 1, 180, 360);
+  fill(hue, 80, 90);
+  noStroke();
+  ellipse(width/2, height/2, size, size);
 }

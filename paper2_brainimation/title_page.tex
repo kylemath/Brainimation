@@ -1,0 +1,63 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{linkblue}{HTML}{1F4E78}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=linkblue,
+    citecolor=linkblue,
+    urlcolor=linkblue
+}
+
+\input{stats_macros.tex}
+
+\begin{document}
+
+\begin{center}
+{\LARGE \textbf{BrainImation: A Browser-Based Teaching Environment for Learning Creative Coding with Live EEG, Optical PPG/fNIRS, and Head Motion Sensors}}\\[16pt]
+
+{\large \textbf{Kyle E. Mathewson}$^{\text{a,b,*}}$, \textbf{Tamari Shalamberidze}$^{\text{b}}$, \textbf{Claire J. Scavuzzo}$^{\text{a}}$}\\[10pt]
+$^{\text{a}}$Department of Psychology, Faculty of Science, P-217 Biological Sciences Building, University of Alberta, Edmonton, AB, T6G 2E9, Canada\\
+$^{\text{b}}$Neuroscience and Mental Health Institute, Faculty of Medicine and Dentistry, University of Alberta, Edmonton, AB, T6G 2E1, Canada\\[12pt]
+\end{center}
+
+\noindent\textbf{Corresponding Author:}\\
+Kyle E. Mathewson, Ph.D.\\
+Department of Psychology, Faculty of Science\\
+P-217 Biological Sciences Building\\
+University of Alberta, Edmonton, AB, T6G 2E9, Canada\\
+Email: \texttt{kyle.mathewson@ualberta.ca} (K.E. Mathewson), \texttt{shalambe@ualberta.ca} (T. Shalamberidze), \texttt{scavuzzo@ualberta.ca} (C.J. Scavuzzo)\\
+Live Tool: \url{https://kylemath.github.io/Brainimation/}\\
+Source Repository: \url{https://github.com/kylemath/Brainimation}
+
+\vspace{14pt}
+\noindent\textbf{Article Type:} Full Length Article (Research Article / New Method)\\[6pt]
+\noindent\textbf{Keywords (6):} neuroscience education; electroencephalography (EEG); functional near-infrared spectroscopy (fNIRS); photoplethysmography (PPG); brain--computer interface (BCI); event-related potential (ERP)
+
+\vspace{14pt}
+\noindent\textbf{Highlights ($\le 85$ characters per bullet point including spaces):}
+\begin{itemize}
+\setlength\itemsep{2pt}
+\item Browser-based coding tool for teaching EEG, optical PPG/fNIRS, and head motion. (79 chars)
+\item Connects Muse 2016, Muse 2, Muse S, and Muse S Athena with no software install. (79 chars)
+\item Built-in simulator lets students write and test code at home without hardware. (78 chars)
+\item Visual Catalogue of \NCatalogueSketches\ example and student sketches across \NCatalogueCategories\ categories. (74 chars)
+\item Evaluated on \NStudentSketches\ neurofeedback and ERP projects from \NUniqueStudents\ students ($p < 10^{-11}$). (77 chars)
+\end{itemize}
+
+\vspace{14pt}
+\subsection*{Declarations}
+\noindent\textbf{Ethics and SAGER Statement:} Classroom code artifacts from \texttt{PSYCH 403} were analyzed in de-identified form in accordance with procedures approved by the University of Alberta Research Ethics Board (Protocol \texttt{Pro00050069}). Because software source files were analyzed in de-identified archival form without demographic linkage, participant sex and gender dimensions were not recorded and do not affect the deterministic signal-processing benchmarks.\\[6pt]
+\noindent\textbf{Data and Code Availability:} The live BrainImation environment is available at \url{https://kylemath.github.io/Brainimation/}. Source code (\texttt{muse-browser.js}, \texttt{index.html}, and all \NCatalogueSketches\ catalogue sketches and thumbnails in \texttt{examples/}) and analysis scripts are archived at \url{https://github.com/kylemath/Brainimation} and \url{https://github.com/kylemath/eegeduPaper}.\\[6pt]
+\noindent\textbf{Funding:} This work was supported by a Natural Sciences and Engineering Research Council of Canada (NSERC) Discovery Grant to K.E.M. The funding source had no involvement in study design; in the collection, analysis, and interpretation of data; in the writing of the report; or in the decision to submit the article for publication.\\[6pt]
+\noindent\textbf{Declaration of Competing Interest:} The authors declare that there are no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.\\[6pt]
+\noindent\textbf{CRediT Authorship Contribution Statement:} \textbf{Kyle E. Mathewson:} Conceptualization, Methodology, Software, Validation, Formal analysis, Investigation, Resources, Data curation, Writing -- original draft, Writing -- review \& editing, Visualization, Supervision, Project administration, Funding acquisition. \textbf{Tamari Shalamberidze:} Methodology, Software, Validation, Investigation, Data curation, Writing -- review \& editing. \textbf{Claire J. Scavuzzo:} Conceptualization, Methodology, Investigation, Supervision, Writing -- review \& editing.\\[6pt]
+\noindent\textbf{Declaration of Generative AI and AI-Assisted Technologies in the Manuscript Preparation Process:} During the preparation of this work the authors used large language model coding and editing assistants to verify code-to-manuscript consistency and polish prose formatting. After using these tools, the authors reviewed and edited the content as needed and take full responsibility for the content of the published article.\\[6pt]
+\noindent\textbf{Acknowledgements:} The authors thank the undergraduate students and teaching assistants of \texttt{PSYCH 403} and the NeuroArt and Neurotech laboratory cohorts at the University of Alberta for testing BrainImation in the classroom.
+
+\end{document}

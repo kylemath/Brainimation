@@ -31,23 +31,23 @@ function draw() {
     pendingCapture = false;
     let rawEpoch = eegData.getRecentEpoch(epochLength);
     if (rawEpoch.length >= epochLength) {
-      let baseMean = [0, 0, 0, 0];
-      for (let j = 0; j < preSamples; j++) {
-        for (let ch = 0; ch < 4; ch++) {
-          baseMean[ch] += (rawEpoch[j][ch] || 0) / preSamples;
+      let hasBlink = false, baseMean = [0, 0, 0, 0], corrected = [];
+      for (let ch = 0; ch < 4; ch++) {
+        let minV = Infinity, maxV = -Infinity;
+        for (let i = 0; i < epochLength; i++) {
+          let v = rawEpoch[i][ch] || 0;
+          if (i < preSamples) baseMean[ch] += v / preSamples;
+          minV = Math.min(minV, v); maxV = Math.max(maxV, v);
         }
+        if (maxV - minV > 100) hasBlink = true;
       }
-      let corrected = [];
-      for (let i = 0; i < epochLength; i++) {
-        corrected.push([
-          (rawEpoch[i][0] || 0) - baseMean[0],
-          (rawEpoch[i][1] || 0) - baseMean[1],
-          (rawEpoch[i][2] || 0) - baseMean[2],
-          (rawEpoch[i][3] || 0) - baseMean[3]
-        ]);
+      if (!hasBlink) {
+        for (let i = 0; i < epochLength; i++) {
+          corrected.push([(rawEpoch[i][0] || 0) - baseMean[0], (rawEpoch[i][1] || 0) - baseMean[1], (rawEpoch[i][2] || 0) - baseMean[2], (rawEpoch[i][3] || 0) - baseMean[3]]);
+        }
+        epochData.push({ data: corrected, attention: eegData.attention, timestamp: millis() });
+        if (epochData.length > 20) epochData.shift();
       }
-      epochData.push({ data: corrected, attention: eegData.attention, timestamp: millis() });
-      if (epochData.length > 20) epochData.shift();
     }
   }
   // Render visual stimulus indicator during 100 ms flash window

@@ -21,6 +21,12 @@
   ],
   "examples": [
     {
+      "id": "museAthenaSpO2FusedEstimator",
+      "file": "museAthenaSpO2FusedEstimator.js",
+      "title": "\ud83e\uddea Muse S Athena Multi-Sensor SpO2 & rSO2 Calibrated Estimator (1st Dev)",
+      "category": "Getting Started"
+    },
+    {
       "id": "basic",
       "file": "basic.js",
       "title": "Basic Animation",
@@ -95,7 +101,7 @@
     {
       "id": "ppgStackedDerivation",
       "file": "ppgStackedDerivation.js",
-      "title": "Stacked Derivation: Raw LEDs -> \u0394OD -> Oxy/Deoxy/Total Hb",
+      "title": "Stacked Derivation: Long/Short LEDs -> \u0394OD -> Short-Ch Regression -> Oxy/Deoxy & HR",
       "category": "PPG & Optical (fNIRS)"
     },
     {

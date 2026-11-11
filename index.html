@@ -1450,6 +1450,18 @@
         border-radius: 4px;
       }
 
+      .readme { max-width: 760px; margin: 0 auto; color: #e6e6f0; font-size: 14px; line-height: 1.6; }
+      .readme h1 { font-size: 26px; font-weight: 700; color: #fff; margin: 0 0 4px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+      .readme h2 { font-size: 18px; font-weight: 600; color: #fff; margin: 22px 0 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .readme p { margin: 0 0 10px; color: #cfd0e0; }
+      .readme .readme-tagline { font-size: 15px; margin-top: 10px; }
+      .readme .readme-badges span { display: inline-block; font-size: 11px; padding: 2px 8px; margin: 0 6px 6px 0; border-radius: 10px; background: rgba(78,205,196,0.14); color: var(--accent-2); border: 1px solid rgba(78,205,196,0.35); }
+      .readme ul { margin: 0 0 10px 22px; color: #cfd0e0; }
+      .readme li { margin-bottom: 4px; }
+      .readme a { color: var(--accent-2); text-decoration: none; }
+      .readme a:hover { text-decoration: underline; }
+      .readme code { font-family: 'Monaco','Menlo',monospace; font-size: 12px; background: rgba(255,255,255,0.1); padding: 1px 5px; border-radius: 4px; }
+
       .about-modal-footer {
         display: flex;
         align-items: center;
@@ -1893,79 +1905,39 @@
           </div>
 
           <div class="about-modal-body" id="about-modal-body">
-            <!-- Simple Top Welcome View -->
-            <div class="about-hero">
-              <div class="about-hero-headline">Live Brain, Heart &amp; Motion Data Meets Creative Coding</div>
-              <div class="about-hero-sub">
-                An interactive, zero-install browser studio that connects real-time <strong>EEG</strong>, <strong>fNIRS / PPG optical hemodynamics</strong>, and <strong>IMU motion</strong> from Muse headsets directly to <code>p5.js</code> and <code>p5.sound</code>.
-              </div>
+                        <article class="readme">
+              <h1>BrainImation</h1>
+              <p class="readme-tagline">Live brain, heart &amp; motion data meets creative coding — in your browser.</p>
+              <p class="readme-badges">
+                <span>WebBluetooth</span><span>Muse 2 / S / Athena</span><span>p5.js</span><span>No install</span>
+              </p>
 
-              <div class="about-quick-steps">
-                <div class="about-step-card">
-                  <div class="about-step-num">Step 1 · Stream</div>
-                  <div class="about-step-title">🔌 Connect or Simulate</div>
-                  <div class="about-step-desc">Pair a Muse 2016, Muse 2, Muse S, or Muse S Athena via WebBluetooth—or click <strong>Simulate Data</strong> to stream hardware-free 256 Hz EEG + 64 Hz PPG + 52 Hz IMU.</div>
-                </div>
-                <div class="about-step-card">
-                  <div class="about-step-num">Step 2 · Explore</div>
-                  <div class="about-step-title">🎬 Browse the Catalogue</div>
-                  <div class="about-step-desc">Click any visual card in the <strong>Catalogue</strong> window to load brainwave art, stacked HbO₂/HHb derivations, 3D head diagrams, closed-loop games, or student galleries.</div>
-                </div>
-                <div class="about-step-card">
-                  <div class="about-step-num">Step 3 · Create</div>
-                  <div class="about-step-title">💻 Live-Code &amp; Share</div>
-                  <div class="about-step-desc">Edit JavaScript in the Monaco editor with live <code>eegData.</code> autocomplete, insert snippets from the <strong>Reference</strong> drawer, and share via URL or file export.</div>
-                </div>
-              </div>
+              <h2>About</h2>
+              <p>
+                BrainImation is a zero-install browser studio for turning live EEG, PPG and motion data from a Muse headband into creative code. Guided dashboards like <a href="https://eegedu.com" target="_blank" rel="noopener">EEGEdu</a> let students watch pre-built charts; BrainImation lets them write their own <code>p5.js</code> sketches, sounds and neurofeedback games driven by <code>eegData</code>. A built-in simulator means everything runs without hardware.
+              </p>
 
-              <div class="about-cta-row">
-                <button class="btn btn-primary" id="about-start-sim-btn">▶ Start with Simulated Brain Data</button>
+              <h2>Quick start</h2>
+              <p>Click <strong>Simulate Data</strong> (or connect a Muse), pick a sketch from the Catalogue, then edit the code live.</p>
+              <div class="about-cta-row" style="justify-content: flex-start;">
+                <button class="btn btn-primary" id="about-start-sim-btn">▶ Start with Simulated Data</button>
                 <button class="btn btn-secondary" id="about-explore-btn">🚀 View Live Animation</button>
               </div>
 
-              <div>
-                <span class="about-scroll-cue" id="about-scroll-more-btn">↓ Scroll down for the full Goal, Purpose, Architecture &amp; Research Plan</span>
-              </div>
-            </div>
+              <h2>Built with / inspired by</h2>
+              <ul>
+                <li><a href="https://github.com/kylemath/EEGEdu" target="_blank" rel="noopener">EEGEdu</a> — browser-based EEG teaching curriculum this project follows on from</li>
+                <li><a href="https://github.com/urish/muse-js" target="_blank" rel="noopener">muse-js</a> — Muse WebBluetooth client</li>
+                <li><a href="https://github.com/neurosity/eeg-pipes" target="_blank" rel="noopener">eeg-pipes</a> — Neurosity's EEG signal-processing pipes</li>
+                <li><a href="https://p5js.org" target="_blank" rel="noopener">p5.js</a> — creative-coding library for the sketches</li>
+              </ul>
 
-            <!-- Scrollable Deep-Dive Sections from EEGEDUPaper/Brainimation -->
-            <div id="about-deep-dive">
-              <div class="about-section">
-                <h3>🎯 Goal &amp; Pedagogical Purpose</h3>
-                <p>
-                  While browser-based electrophysiology dashboards such as <strong>EEGEdu</strong> (<a href="https://eegedu.com" target="_blank" rel="noopener" style="color: var(--accent-2);">eegedu.com</a>) allow students to inspect live waveforms, power spectra, and frequency bands through pre-built charts, a fundamental pedagogical bottleneck remains at the end of any guided curriculum: <em>how can students, artists, and novice researchers transition from passively observing pre-configured charts to actively programming their own closed-loop neurofeedback environments, audio synthesizers, and cognitive neuroscience experiments?</em>
-                </p>
-                <p>
-                  Rooted in Seymour Papert's constructionism and the creative-coding pedagogy of <code>Processing</code> and <code>p5.js</code>, <strong>BrainImation</strong> provides a <strong>low floor</strong> (author a working closed-loop brain visualization in 11 lines of code with zero software installation), a <strong>high ceiling</strong> (online 4-channel ERP ensemble averaging, Modified Beer–Lambert Law fNIRS hemodynamics, Chowning FM audio synthesis, and 3D WebGL shaders), and <strong>wide walls</strong> spanning neuro-art, biofeedback gaming, sonification, and experimental psychology.
-                </p>
-              </div>
-
-              <div class="about-section">
-                <h3>⚡ Core Engineering &amp; Multimodal Signal Architecture</h3>
-                <p>
-                  Traditionally, modulating a visual shape or sound with live EEG required stitching together an OS-specific Bluetooth daemon, Lab Streaming Layer (LSL) sockets, a Python/C++ DSP backend, and a separate rendering engine. BrainImation replaces that entire multi-process stack inside a single browser tab:
-                </p>
-                <ul>
-                  <li><strong>Two-Phase Lazy-GATT WebBluetooth Client (<code>muse-browser.js</code>):</strong> A zero-dependency 19.2 KB WebBluetooth driver (24.6× smaller than legacy <code>muse-js</code>) that resolves the lazy characteristic advertisement deadlock on modern Muse 2, Muse S, and Muse S Athena firmware while supporting both classic and Athena multi-wavelength optical presets (<code>p21</code>, <code>p50</code>, <code>p1035</code>, <code>p1041</code>).</li>
-                  <li><strong>256 Hz 4-Channel EEG + Artifact-Rejected Hanning FFT:</strong> Streams microvolt time series across <code>TP9</code>, <code>AF7</code>, <code>AF8</code>, and <code>TP10</code>, screens 1.0 s (256-sample) windows for &gt;150 μV EOG/EMG blink or muscle bursts, and computes 1/f-compensated relative band powers (<code>delta</code>, <code>theta</code>, <code>alpha</code>, <code>beta</code>, <code>gamma</code>) and composite <code>attention</code> and <code>meditation</code> indices.</li>
-                  <li><strong>64 Hz Multi-Wavelength PPG / fNIRS &amp; Cerebral Oxygenation:</strong> Streams Red (660 nm), Near-Infrared (730 nm), Infrared (850 nm), and Ambient optical channels to derive arterial pulse waves (<code>eegData.ppgPulse</code>), systolic Heart Rate (<code>eegData.heartRate</code> BPM), SpO₂ ratio-of-ratios, and Modified Beer–Lambert Law oxyhemoglobin ($\Delta[\text{HbO}_2]$), deoxyhemoglobin ($\Delta[\text{HHb}]$), and total hemoglobin ($\Delta[\text{HbT}]$).</li>
-                  <li><strong>52 Hz 6-Axis IMU &amp; Device Telemetry:</strong> Exposes 3-axis accelerometer and gyroscope kinematics, complementary-filtered head <code>pitch</code> and <code>roll</code> angles, and battery/temperature telemetry.</li>
-                  <li><strong>Hardware-Free Physiological Simulator (<code>EEGSimulator</code>):</strong> Synthesizes coupled 256 Hz 4-channel EEG (with realistic frontal blinks and N170/P300 evoked potentials), 64 Hz forward Beer–Lambert optical PPG waveforms, and 52 Hz IMU head motion so every sketch runs identically with or without a physical headset.</li>
-                </ul>
-              </div>
-
-              <div class="about-section">
-                <h3>📊 Classroom Validation &amp; Research Plan</h3>
-                <p>
-                  Developed by <strong>Kyle E. Mathewson</strong> at the <em>Department of Psychology</em> and <em>Neuroscience and Mental Health Institute, University of Alberta</em>, BrainImation serves as the hands-on creative-coding and BCI studio following the guided EEGEdu curriculum.
-                </p>
-                <ul>
-                  <li><strong>Empirical Classroom Evaluation:</strong> Across $N = 69$ verified programs authored by $N = 30$ undergraduate learners in <code>PSYCH 403</code>, students expanded the concise 32-LOC starter scaffolds fivefold (median 155–164 LOC, $p &lt; 10^{-11}$) to create custom closed-loop neurofeedback games, multi-band Web Audio synthesizers, and online 4-channel ERP oddball paradigms.</li>
-                  <li><strong>Unified Catalogue &amp; Living Curriculum:</strong> BrainImation now unites over 90 interactive sketches across 14 categories—including progressive starter tutorials, stacked PPG/fNIRS hemodynamic derivations, 3D Muse S Athena / Muse 2 optode anatomy diagrams, multimodal Brain–Heart–Motion games, classic <code>p5.eegedu</code> sketches, and the <em>2022 NeuroArt Class Gallery</em>.</li>
-                  <li><strong>Ongoing Roadmap:</strong> Expanding multimodal neurovascular coupling (EEG + fNIRS + HRV + kinematics), serverless URL &amp; Data-URI portfolio sharing (<code>?sketch=</code>), and open-access classroom modules for reproducible neuroscience education.</li>
-                </ul>
-              </div>
-            </div>
+              <h2>Source &amp; author</h2>
+              <p>
+                <a href="https://github.com/kylemath/Brainimation" target="_blank" rel="noopener">github.com/kylemath/Brainimation</a><br>
+                Kyle E. Mathewson, University of Alberta
+              </p>
+            </article>
           </div>
 
           <div class="about-modal-footer">
@@ -2255,11 +2227,17 @@
           rawHbO2: 0, rawHHb: 0,      // Uncorrected MBLL Δ[HbO2] and Δ[HHb] (µM, contaminated by scalp pulse & Mayer waves)
           skinHbO2: 0, skinHHb: 0,    // Estimated superficial scalp hemodynamic artifact (µM)
           cleanHbO2: 0, cleanHHb: 0,  // Regressed deep prefrontal cortical Δ[HbO2] and Δ[HHb] (µM)
+          smoothOD850: 0,             // Low-pass smoothed optical attenuation ΔOD (850nm)
+          smoothHbO2: 0,              // Low-pass smoothed vascular Oxy-Hb Δ[HbO2] (µM)
+          smoothHHb: 0,               // Low-pass smoothed vascular Deoxy-Hb Δ[HHb] (µM)
+          cardiacWave: 0,             // Cardiac band-passed (0.5-3.5 Hz) smoothed Oxy-Hb / ΔOD pulse wave (µM)
           suppressionDb: 0            // Superficial artifact attenuation in dB
         },
         fnirsRegressionHistory: {
           rawOD850: [], shortOD850: [], skinFit850: [], cleanOD850: [],
+          rawOD660: [], shortOD660: [], cleanOD660: [],
           rawHbO2: [], rawHHb: [], skinHbO2: [], cleanHbO2: [], cleanHHb: [],
+          smoothOD850: [], smoothHbO2: [], cardiacWave: [],
           beta850: []
         },
 
@@ -2271,12 +2249,19 @@
         ppgMotionClean: 0,            // Motion-decontaminated infrared PPG signal
         ppgMotionArtifact: 0,         // Estimated IMU motion artifact on the PPG optical trace
         ppgMotionHistory: { raw: [], artifact: [], clean: [] },
-        motionFilterWeights: {
-          AF7: [9.5, -4.2, 7.8, 4.5, 14.2, -6.4],     // Adaptive weights [w_ax, w_ay, w_az, w_gx, w_gy, w_gz]
-          AF8: [9.2, 4.4, 7.5, -4.2, 13.8, 6.2],
-          TP9: [-6.4, 10.5, 5.2, 11.4, -6.8, 14.5],
-          TP10: [-6.2, -10.8, 5.4, -11.2, -6.5, -14.2]
-        },
+        motionFilterWeights: (() => {
+          const w = {
+            TP9:  [-6.4,  10.5, 5.2,  11.4, -6.8,  14.5],
+            AF7:  [ 9.5,  -4.2, 7.8,   4.5, 14.2,  -6.4],
+            AF8:  [ 9.2,   4.4, 7.5,  -4.2, 13.8,   6.2],
+            TP10: [-6.2, -10.8, 5.4, -11.2, -6.5, -14.2]
+          };
+          w[0] = w.TP9;
+          w[1] = w.AF7;
+          w[2] = w.AF8;
+          w[3] = w.TP10;
+          return w;
+        })(),
 
         // 6-DOF IMU Broadcast Sensors (Accelerometer & Gyroscope @ 52 Hz)
         imuSampleRate: 52,
@@ -2472,11 +2457,15 @@
             this.motionArtifactHistory = { TP9: [], AF7: [], AF8: [], TP10: [] };
             this.drlRefHistory = { drl: [], ref: [] };
             this.motionFilterWeights = {
-              AF7: [9.5, -4.2, 7.8, 4.5, 14.2, -6.4],
-              AF8: [9.2, 4.4, 7.5, -4.2, 13.8, 6.2],
-              TP9: [-6.4, 10.5, 5.2, 11.4, -6.8, 14.5],
+              TP9:  [-6.4,  10.5, 5.2,  11.4, -6.8,  14.5],
+              AF7:  [ 9.5,  -4.2, 7.8,   4.5, 14.2,  -6.4],
+              AF8:  [ 9.2,   4.4, 7.5,  -4.2, 13.8,   6.2],
               TP10: [-6.2, -10.8, 5.4, -11.2, -6.5, -14.2]
             };
+            this.motionFilterWeights[0] = this.motionFilterWeights.TP9;
+            this.motionFilterWeights[1] = this.motionFilterWeights.AF7;
+            this.motionFilterWeights[2] = this.motionFilterWeights.AF8;
+            this.motionFilterWeights[3] = this.motionFilterWeights.TP10;
           }
         },
 
@@ -2724,7 +2713,7 @@
           const adaptBase = (prev, cur) => {
             if (!prev || prev <= 0) return cur;
             if (Math.abs(cur - prev) / prev > 0.06) return cur;
-            return 0.985 * prev + 0.015 * cur;
+            return 0.9995 * prev + 0.0005 * cur;
           };
           if (!this._fnirsBase) {
             this._fnirsBase = { sIR: sIRVal, sRed: sRedVal, lIR: lIRVal, lRed: lRedVal };
@@ -2764,18 +2753,19 @@
           const mL850 = meanOf(this._fnirsRawOD.l850);
           const mL660 = meanOf(this._fnirsRawOD.l660);
 
-          let sOD850 = rawSOD850 - mS850;
-          let sOD660 = rawSOD660 - mS660;
-          let lOD850 = rawLOD850 - mL850;
-          let lOD660 = rawLOD660 - mL660;
+          let sOD850 = rawSOD850;
+          let sOD660 = rawSOD660;
+          let lOD850 = rawLOD850;
+          let lOD660 = rawLOD660;
 
           // Compute rolling covariance and variances over the centered window
           const N = this._fnirsRawOD.s850.length;
-          let varS = 0, varL = 0, varS660 = 0;
+          let varS = 0, varL = 0, varS660 = 0, cov = 0;
           for (let i = 0; i < N; i++) {
             const ds = this._fnirsRawOD.s850[i] - mS850;
             const dl = this._fnirsRawOD.l850[i] - mL850;
             const ds6 = this._fnirsRawOD.s660[i] - mS660;
+            cov += dl * ds;
             varS += ds * ds;
             varL += dl * dl;
             varS660 += ds6 * ds6;
@@ -2795,22 +2785,12 @@
           pushCap(hist.shortOD850, sOD850);
 
           // Rolling OLS regression weight β = Cov(ΔOD_long, ΔOD_short) / (Var(ΔOD_short) + ε)
-          const W = Math.min(96, hist.rawOD850.length);
           let beta850 = this.fnirsRegression.beta850 || 0.78;
-          if (W >= 8) {
-            let cov = 0, vS = 0;
-            for (let i = hist.rawOD850.length - W; i < hist.rawOD850.length; i++) {
-              const dl = hist.rawOD850[i];
-              const ds = hist.shortOD850[i];
-              cov += dl * ds;
-              vS += ds * ds;
-            }
-            if (vS > 1e-12) {
-              const rawBeta = Math.abs(cov) / (vS + 1e-12);
-              const sign = cov < 0 ? -1 : 1;
-              const estBeta = sign * Math.max(0.18, Math.min(1.65, rawBeta));
-              beta850 = 0.90 * beta850 + 0.10 * estBeta;
-            }
+          if (N >= 8 && varS > 1e-12) {
+            const rawBeta = Math.abs(cov) / (varS + 1e-12);
+            const sign = cov < 0 ? -1 : 1;
+            const estBeta = sign * Math.max(0.18, Math.min(1.65, rawBeta));
+            beta850 = 0.90 * beta850 + 0.10 * estBeta;
           }
           const beta660 = beta850 * 1.03;
 
@@ -2833,12 +2813,62 @@
 
           pushCap(hist.skinFit850, skinFit850);
           pushCap(hist.cleanOD850, cleanOD850);
+          if (hist.rawOD660) pushCap(hist.rawOD660, lOD660);
+          if (hist.shortOD660) pushCap(hist.shortOD660, sOD660);
+          if (hist.cleanOD660) pushCap(hist.cleanOD660, cleanOD660);
           pushCap(hist.rawHbO2, rawHbO2);
           pushCap(hist.rawHHb, rawHHb);
           pushCap(hist.skinHbO2, skinHbO2);
           pushCap(hist.cleanHbO2, cleanHbO2);
           pushCap(hist.cleanHHb, cleanHHb);
           pushCap(hist.beta850, beta850);
+
+          // Two-stage low-pass + cardiac band-pass filter on ΔOD and vascular Oxy-Hb (Δ[HbO2])
+          // Eliminates raw BLE packet step quantization and single-channel shot noise for clean heartbeat & BPM estimation
+          if (!this._cardiacFilter) {
+            this._cardiacFilter = {
+              od1: lOD850, od2: lOD850,
+              oxy1: rawHbO2, oxy2: rawHbO2,
+              deoxy1: rawHHb,
+              baseOxy: rawHbO2,
+              pulseEma: 0.5
+            };
+          }
+          const cf = this._cardiacFilter;
+          const alphaLP = 0.24;   // ~2.8 Hz low-pass cutoff at 64 Hz (2-pole cascaded EMA)
+          const alphaBase = 0.04; // ~0.42 Hz slow baseline tracker to remove respiratory & Mayer wave drift
+
+          // Combine total vascular Oxy-Hb and superficial arterial Oxy-Hb + ΔOD_850 for systolic pulse tracking
+          const arterialOxy = 0.65 * rawHbO2 + 0.35 * skinHbO2 + lOD850 * 220.0;
+          cf.od1 = cf.od1 + alphaLP * (lOD850 - cf.od1);
+          cf.od2 = cf.od2 + alphaLP * (cf.od1 - cf.od2);
+          cf.oxy1 = cf.oxy1 + alphaLP * (arterialOxy - cf.oxy1);
+          cf.oxy2 = cf.oxy2 + alphaLP * (cf.oxy1 - cf.oxy2);
+          cf.deoxy1 = cf.deoxy1 + alphaLP * (rawHHb - cf.deoxy1);
+          cf.baseOxy = cf.baseOxy + alphaBase * (cf.oxy2 - cf.baseOxy);
+
+          const smoothOD850 = cf.od2;
+          const smoothHbO2 = cf.oxy2;
+          const smoothHHb = cf.deoxy1;
+          const cardiacWave = smoothHbO2 - cf.baseOxy; // Band-passed (0.42 - 2.8 Hz) arterial Oxy-Hb / ΔOD cardiac wave
+
+          if (hist.smoothOD850) pushCap(hist.smoothOD850, smoothOD850);
+          if (hist.smoothHbO2) pushCap(hist.smoothHbO2, smoothHbO2);
+          if (hist.cardiacWave) pushCap(hist.cardiacWave, cardiacWave);
+
+          // Normalize smoothed cardiac Oxy-Hb / ΔOD wave over rolling 2-second window (128 samples @ 64 Hz) for eegData.ppgPulse
+          if (hist.cardiacWave && hist.cardiacWave.length >= 8) {
+            const cWin = hist.cardiacWave.slice(-128);
+            let cMin = Infinity, cMax = -Infinity;
+            for (let i = 0; i < cWin.length; i++) {
+              if (cWin[i] < cMin) cMin = cWin[i];
+              if (cWin[i] > cMax) cMax = cWin[i];
+            }
+            const cSpan = cMax - cMin;
+            const rawNorm = cSpan > 1e-5 ? Math.max(0, Math.min(1, (cardiacWave - cMin) / cSpan)) : 0.5;
+            cf.pulseEma = cf.pulseEma + 0.38 * (rawNorm - cf.pulseEma);
+            this.ppgPulse = Math.max(0, Math.min(1, cf.pulseEma));
+          }
 
           this.fnirsRegression = {
             mode: hasDual ? 'athena' : 'classic',
@@ -2850,6 +2880,7 @@
             rawHbO2, rawHHb,
             skinHbO2, skinHHb,
             cleanHbO2, cleanHHb,
+            smoothOD850, smoothHbO2, smoothHHb, cardiacWave,
             suppressionDb: Math.max(0, 10 * Math.log10((rawHbO2 * rawHbO2 + 1e-4) / (cleanHbO2 * cleanHbO2 + 1e-4)))
           };
         },
@@ -2858,29 +2889,30 @@
         updateEEGImuMotionFilter: function(rawSamples4) {
           const chNames = ['TP9', 'AF7', 'AF8', 'TP10'];
           const xVec = [
-            this.linearAccel ? this.linearAccel.x : 0,
-            this.linearAccel ? this.linearAccel.y : 0,
-            this.linearAccel ? this.linearAccel.z : 0,
-            (this.gyro ? this.gyro.x : 0) / 60.0,
-            (this.gyro ? this.gyro.y : 0) / 60.0,
-            (this.gyro ? this.gyro.z : 0) / 60.0
+            (this.linearAccel ? this.linearAccel.x : 0) * 0.25,
+            (this.linearAccel ? this.linearAccel.y : 0) * 0.25,
+            (this.linearAccel ? this.linearAccel.z : 0) * 0.25,
+            (this.gyro ? this.gyro.x : 0) / 80.0,
+            (this.gyro ? this.gyro.y : 0) / 80.0,
+            (this.gyro ? this.gyro.z : 0) / 80.0
           ];
-          let normSq = 0.08;
+          let normSq = 1e-4;
           for (let k = 0; k < 6; k++) normSq += xVec[k] * xVec[k];
-          const mu = 0.05; // NLMS learning step size
+          const mu = 0.035; // Aligned NLMS learning step size
 
           const maxLen = this.historyLength || 1000;
           for (let c = 0; c < 4; c++) {
             const ch = chNames[c];
             const rawVal = rawSamples4[c] || 0;
-            const w = this.motionFilterWeights[ch] || [6.0, -3.0, 5.0, 3.0, 9.0, -4.0];
+            const w = this.motionFilterWeights[ch] || this.motionFilterWeights[c] || [6.0, -3.0, 5.0, 3.0, 9.0, -4.0];
             let yHat = 0;
             for (let k = 0; k < 6; k++) yHat += w[k] * xVec[k];
             const errClean = rawVal - yHat;
             for (let k = 0; k < 6; k++) {
-              w[k] = Math.max(-28, Math.min(28, 0.9995 * w[k] + (mu * errClean * xVec[k]) / normSq));
+              w[k] = Math.max(-28, Math.min(28, 0.9992 * w[k] + (mu * errClean * xVec[k]) / normSq));
             }
             this.motionFilterWeights[ch] = w;
+            this.motionFilterWeights[c]  = w;
             this.motionArtifact[c] = yHat;
             this.clean[c] = errClean;
 
@@ -4121,11 +4153,20 @@
             const norm = span > 1e-3 ? Math.max(0, Math.min(1, (latestSample - minVal) / span)) : 0.5;
             eegData.ppgNormalized[chIndex] = norm;
 
-            // Use infrared (ch 1) or red (ch 2) as primary heartbeat pulse wave and BPM estimator
+            // Drive heartbeat pulse (eegData.ppgPulse) and heart rate (eegData.heartRate) from the
+            // smoothed optical attenuation (ΔOD) & vascular Oxy-Hb (Δ[HbO2]) cardiac wave instead of noisy step-like raw ADC counts
             if (chIndex === 1 || (chIndex === 2 && (!eegData.ppgHistory.infrared || eegData.ppgHistory.infrared.length === 0))) {
-              eegData.ppgPulse = norm;
-              if (hist.length >= 128 && this.ppgPacketCount % 8 === 0) {
-                this.estimateHeartRateFromPPG(hist.slice(-192));
+              const cHist = eegData.fnirsRegressionHistory && eegData.fnirsRegressionHistory.cardiacWave;
+              if (!cHist || cHist.length < 8) {
+                // Fallback during initial 8-sample warmup
+                eegData.ppgPulse = norm;
+              }
+              if (this.ppgPacketCount % 6 === 0) {
+                if (cHist && cHist.length >= 96) {
+                  this.estimateHeartRateFromPPG(cHist.slice(-192), true);
+                } else if (hist.length >= 128) {
+                  this.estimateHeartRateFromPPG(hist.slice(-192), false);
+                }
               }
               const ppgEl = document.getElementById('ppg-value');
               const hrEl = document.getElementById('hr-value');
@@ -4135,23 +4176,51 @@
           }
         }
 
-        estimateHeartRateFromPPG(samples) {
+        /**
+         * Estimate Heart Rate (BPM) from smoothed Oxy-Hb (Δ[HbO2]) / optical attenuation (ΔOD) cardiac wave.
+         * When isHemodynamicWave = true, `samples` is already the smoothed Δ[HbO2]/ΔOD cardiac wave;
+         * otherwise, raw intensity I(t) is first converted to optical attenuation ΔOD(t) = -ln(I(t)/I0) and low-pass smoothed.
+         */
+        estimateHeartRateFromPPG(samples, isHemodynamicWave = false) {
           const N = samples.length;
           if (N < 96) return;
-          // Smooth with 5-point moving average and remove DC trend
+
+          // Step 1: Convert raw intensity to ΔOD = -ln(I/I0) if raw samples were passed
+          const odWave = new Float64Array(N);
           let mean = 0;
           for (let i = 0; i < N; i++) mean += samples[i];
           mean /= N;
-          const smoothed = new Float64Array(N);
-          let maxAbs = 0;
-          for (let i = 2; i < N - 2; i++) {
-            const v = (samples[i - 2] + samples[i - 1] + samples[i] + samples[i + 1] + samples[i + 2]) / 5.0 - mean;
-            smoothed[i] = v;
-            if (Math.abs(v) > maxAbs) maxAbs = Math.abs(v);
+
+          if (isHemodynamicWave) {
+            for (let i = 0; i < N; i++) odWave[i] = samples[i] - mean;
+          } else {
+            const baseI0 = Math.max(1, mean);
+            for (let i = 0; i < N; i++) {
+              odWave[i] = -Math.log(Math.max(1, samples[i]) / baseI0);
+            }
           }
-          if (maxAbs < 1e-3) return;
-          const threshold = maxAbs * 0.25;
-          const minPeakDist = Math.round(0.38 * eegData.ppgSampleRate); // Max ~158 BPM
+
+          // Step 2: Zero-phase forward-backward EMA low-pass + slow baseline removal (0.5 - 3.2 Hz cardiac passband)
+          const smoothed = new Float64Array(N);
+          let lp = odWave[0], slow = odWave[0];
+          for (let i = 0; i < N; i++) {
+            lp = lp + 0.26 * (odWave[i] - lp);
+            slow = slow + 0.045 * (lp - slow);
+            smoothed[i] = lp - slow;
+          }
+          // Backward smoothing pass to eliminate high-frequency inflection noise while preserving peak timing
+          let maxAbs = 0;
+          let bp = smoothed[N - 1];
+          for (let i = N - 1; i >= 0; i--) {
+            bp = bp + 0.32 * (smoothed[i] - bp);
+            smoothed[i] = bp;
+            if (Math.abs(bp) > maxAbs) maxAbs = Math.abs(bp);
+          }
+          if (maxAbs < 1e-5) return;
+
+          // Step 3: Systolic peak detection with prominence threshold & refractory period (0.40s = max 150 BPM)
+          const threshold = maxAbs * 0.22;
+          const minPeakDist = Math.round(0.40 * eegData.ppgSampleRate);
           const peaks = [];
           for (let i = 3; i < N - 3; i++) {
             if (
@@ -4159,26 +4228,46 @@
               smoothed[i] >= smoothed[i - 1] &&
               smoothed[i] >= smoothed[i + 1] &&
               smoothed[i] >= smoothed[i - 2] &&
-              smoothed[i] >= smoothed[i + 2]
+              smoothed[i] >= smoothed[i + 2] &&
+              smoothed[i] > smoothed[i - 3]
             ) {
-              if (peaks.length === 0 || i - peaks[peaks.length - 1] >= minPeakDist) {
-                peaks.push(i);
+              // Sub-sample parabolic peak refinement for higher BPM precision
+              const yL = smoothed[i - 1], yC = smoothed[i], yR = smoothed[i + 1];
+              const denom = 2 * (2 * yC - yL - yR);
+              const frac = Math.abs(denom) > 1e-9 ? Math.max(-0.5, Math.min(0.5, (yL - yR) / denom)) : 0;
+              const refinedIdx = i + frac;
+
+              if (peaks.length === 0 || refinedIdx - peaks[peaks.length - 1] >= minPeakDist) {
+                peaks.push(refinedIdx);
+              } else if (yC > smoothed[Math.round(peaks[peaks.length - 1])]) {
+                // Keep the taller peak within the same refractory window (ignores pre-systolic/dicrotic shoulder)
+                peaks[peaks.length - 1] = refinedIdx;
               }
             }
           }
+
           if (peaks.length >= 2) {
-            let ibiSum = 0;
-            let validIntervals = 0;
+            const ibis = [];
             for (let k = 1; k < peaks.length; k++) {
               const ibiSec = (peaks[k] - peaks[k - 1]) / eegData.ppgSampleRate;
-              if (ibiSec >= 0.38 && ibiSec <= 1.5) {
-                ibiSum += ibiSec;
-                validIntervals++;
+              if (ibiSec >= 0.40 && ibiSec <= 1.50) {
+                ibis.push(ibiSec);
               }
             }
-            if (validIntervals > 0) {
-              const bpm = 60.0 / (ibiSum / validIntervals);
-              eegData.heartRate = Math.round(eegData.heartRate > 0 ? eegData.heartRate * 0.7 + bpm * 0.3 : bpm);
+            if (ibis.length > 0) {
+              ibis.sort((a, b) => a - b);
+              const medianIbi = ibis[Math.floor(ibis.length / 2)];
+              let ibiSum = 0, validCount = 0;
+              for (let k = 0; k < ibis.length; k++) {
+                // Reject outlier intervals >28% away from median IBI
+                if (Math.abs(ibis[k] - medianIbi) <= 0.28 * medianIbi) {
+                  ibiSum += ibis[k];
+                  validCount++;
+                }
+              }
+              const meanIbi = validCount > 0 ? (ibiSum / validCount) : medianIbi;
+              const bpm = 60.0 / meanIbi;
+              eegData.heartRate = Math.round(eegData.heartRate > 0 ? eegData.heartRate * 0.72 + bpm * 0.28 : bpm);
             }
           }
         }
@@ -7584,6 +7673,11 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
           }
 
           renderCatalogueGrid();
+          const urlParams = new URLSearchParams(window.location.search);
+          const initialExample = urlParams.get('example') || (window.location.hash ? window.location.hash.slice(1) : '');
+          if (initialExample && registry.has(initialExample)) {
+            codeEditor.loadExample(initialExample);
+          }
           console.log(
             `Loaded ${registry.count()} example animations across ${orderedCategories.length} categories`
           );
@@ -7923,6 +8017,10 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
               AF8:  [0, 0, 0, 0, 0, 0],
               TP10: [0, 0, 0, 0, 0, 0]
             };
+            eegData[key][0] = eegData[key].TP9;
+            eegData[key][1] = eegData[key].AF7;
+            eegData[key][2] = eegData[key].AF8;
+            eegData[key][3] = eegData[key].TP10;
           } else if (key === 'accel') {
             eegData[key] = { x: 0, y: 0, z: 1.0, magnitude: 1.0 };
           } else if (key === 'gyro' || key === 'linearAccel' || key === 'velocity' || key === 'position') {

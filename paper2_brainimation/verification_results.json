@@ -1,0 +1,261 @@
+{
+  "catalogue_sum_check": {
+    "n_core": 36,
+    "n_studios_ppg_imu_multi": 26,
+    "n_games_and_eegedu": 43,
+    "n_archival_2022_2025": 121,
+    "sum_subgroups": 226,
+    "manifest_total": 226,
+    "exact_match": true
+  },
+  "student_cohort_sum_check": {
+    "n_cohort1_nf": 40,
+    "n_cohort2_erp": 29,
+    "sum_cohorts": 69,
+    "reported_total": 69,
+    "exact_match": true,
+    "cohort1_alpha_pct_check": 92.5,
+    "cohort2_raw_pct_check": 93.1,
+    "cohort1_cond_pct_check": 57.5,
+    "cohort2_cond_pct_check": 79.3
+  },
+  "table2_loc_quantiles_check": {
+    "subgroups": {
+      "core_scaffolds": {
+        "n": 36,
+        "med": 32,
+        "q1": 27,
+        "q3": 36,
+        "min": 11,
+        "max": 111,
+        "expected": [
+          36,
+          32,
+          27,
+          36,
+          11,
+          111
+        ]
+      },
+      "studios": {
+        "n": 26,
+        "med": 200,
+        "q1": 130,
+        "q3": 245,
+        "min": 69,
+        "max": 510,
+        "expected": [
+          26,
+          200,
+          130,
+          245,
+          69,
+          510
+        ]
+      },
+      "games_and_eegedu": {
+        "n": 43,
+        "med": 131,
+        "q1": 38,
+        "q3": 438,
+        "min": 17,
+        "max": 758,
+        "expected": [
+          43,
+          131,
+          38,
+          438,
+          17,
+          758
+        ]
+      },
+      "archival_galleries": {
+        "n": 121,
+        "med": 126,
+        "q1": 50,
+        "q3": 174,
+        "min": 12,
+        "max": 414,
+        "expected": [
+          121,
+          126,
+          50,
+          174,
+          12,
+          414
+        ]
+      },
+      "full_catalogue": {
+        "n": 226,
+        "med": 111,
+        "q1": 38,
+        "q3": 185,
+        "min": 11,
+        "max": 758,
+        "expected": [
+          226,
+          111,
+          38,
+          185,
+          11,
+          758
+        ]
+      },
+      "cohort1_nf": {
+        "n": 40,
+        "med": 121,
+        "q1": 99,
+        "q3": 171,
+        "min": 38,
+        "max": 378,
+        "expected": [
+          40,
+          121,
+          99,
+          171,
+          38,
+          378
+        ]
+      },
+      "cohort2_erp": {
+        "n": 29,
+        "med": 176,
+        "q1": 153,
+        "q3": 221,
+        "min": 117,
+        "max": 306,
+        "expected": [
+          29,
+          176,
+          153,
+          221,
+          117,
+          306
+        ]
+      },
+      "per_student_clustered": {
+        "n": 30,
+        "med": 164,
+        "q1": 122,
+        "q3": 173,
+        "min": 87,
+        "max": 302,
+        "expected": [
+          30,
+          164,
+          122,
+          173,
+          87,
+          302
+        ]
+      },
+      "all_student_combined": {
+        "n": 69,
+        "med": 155,
+        "q1": 116,
+        "q3": 189,
+        "min": 38,
+        "max": 378,
+        "expected": [
+          69,
+          155,
+          116,
+          189,
+          38,
+          378
+        ]
+      }
+    },
+    "subgroup_pass": {
+      "core_scaffolds": true,
+      "studios": true,
+      "games_and_eegedu": true,
+      "archival_galleries": true,
+      "full_catalogue": true,
+      "cohort1_nf": true,
+      "cohort2_erp": true,
+      "per_student_clustered": true,
+      "all_student_combined": true
+    },
+    "all_subgroups_passed": true
+  },
+  "feature_adoption_disaggregated_check": {
+    "checks": {
+      "cohort1_alpha_cnt_pct": true,
+      "cohort1_beta_cnt_pct": true,
+      "cohort1_att_cnt_pct": true,
+      "cohort1_particles_cnt_pct": true,
+      "cohort2_raw_cnt_pct": true,
+      "cohort2_erp_cnt_pct": true,
+      "cohort2_particles_cnt_pct": true,
+      "combined_conditioning_cnt_pct": true,
+      "combined_alpha_cnt_pct": true,
+      "combined_theta_cnt_pct": true,
+      "combined_erp_cnt_pct": true
+    },
+    "all_checks_passed": true
+  },
+  "wilcoxon_epochs_test_check": {
+    "statistic": 435.0,
+    "pvalue": 1.862645149230957e-09,
+    "epochs_template_loc": 85,
+    "epochs_exceed_pct": 100.0,
+    "epochs_expansion_factor": 2.07,
+    "exact_match": true
+  },
+  "muse_browser_size_check": {
+    "file_bytes": 38899,
+    "reported_kb": 38.0,
+    "legacy_muse_kb": 473.0,
+    "bundle_reduction_factor": 12.5,
+    "exact_match": true
+  },
+  "signal_processing_metrics_check": {
+    "fnirs_reported_db": 20.1,
+    "fnirs_recomputed_db_from_3d_rmse": 20.1,
+    "fnirs_recomputed_db_from_rounded_rmse": 20.4,
+    "nlms_reported_db": 19.2,
+    "nlms_recomputed_db_from_rounded_rmse": 19.2,
+    "erp_snr_k1_check": 0.55,
+    "erp_snr_k5_check": 1.67,
+    "erp_snr_k20_check": 3.52,
+    "erp_k1_rms_div_sqrt20": 3.89,
+    "erp_k20_empirical_single_seed_rms": 2.7,
+    "erp_mc_1000runs_rms_k1_k5_k20": [
+      13.7,
+      6.1,
+      3.1
+    ],
+    "erp_mc_ratios_k5_k20": [
+      2.25,
+      4.42
+    ],
+    "erp_sme_p300_k1_k5_k20_uv": [
+      8.7,
+      3.6,
+      1.9
+    ],
+    "erp_blink_rejection_check": {
+      "blink_trial_ptp_uv": 166.2,
+      "p300_peak_bias_unrejected_uv": 6.7,
+      "p300_rmse_unrejected_uv": 4.52,
+      "p300_rmse_rejected_uv": 3.33
+    },
+    "trigger_jitter_lowpass_check": {
+      "fc_30ms_hz": 14.8,
+      "fc_45ms_hz": 9.8,
+      "retention_30ms_narrow_n170_p300_pct": [
+        65.5,
+        94.7,
+        98.9
+      ]
+    }
+  },
+  "nonparametric_effect_size_check": {
+    "u_cluster": 1074.0,
+    "max_possible_u": 1080,
+    "r_rb_reported": 0.99,
+    "r_rb_recomputed": 0.99,
+    "exact_match": true
+  }
+}
