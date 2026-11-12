@@ -5181,6 +5181,8 @@
       };
 
       // EEG Data Reference
+      // Single source of truth: every property is listed exactly once. The EEG Data tab and the Sensors / IMU tab
+      // show different groups of it (see eegTabGroups / sensorsTabGroups below); autocomplete uses all of it.
       const eegReference = {
         'Frequency Bands': {
           'eegData.alpha': {
@@ -5214,7 +5216,7 @@
             description: 'Meditation/relaxation level derived from alpha and theta activity.'
           }
         },
-        'Raw Data Access': {
+        'Raw EEG (256 Hz, 4 channels)': {
           'eegData.raw': {
             signature: 'eegData.raw [TP9, AF7, AF8, TP10]',
             description: 'Array of the 4 most recent raw EEG values (µV) for TP9, AF7, AF8, and TP10.'
@@ -5239,52 +5241,36 @@
             signature: 'eegData.getChannelBand(band, channelIndex)',
             description: 'Get per-electrode band power (0.0 - 1.0) for band ("delta", "theta", "alpha", "beta", "gamma") and channel index (0=TP9, 1=AF7, 2=AF8, 3=TP10).'
           },
-          'eegData.optics': {
-            signature: 'eegData.optics { count, raw[], history[][] }  /  eegData.getOpticsChannel(index, n)',
-            description: 'Un-mapped raw Athena optical channels (up to 16, 64 Hz) straight from the BLE packet. Measured layout, groups of 4 = [short L, short R, long L, long R] (short 0.75 cm, long 2.8 cm): 16-ch 0-3 red 660, 4-7 ambient (LEDs off), 8-11 NIR 730, 12-15 IR 850; 8-ch 0-3 NIR 730, 4-7 IR 850; 4-ch 0-1 NIR short, 2-3 IR short.'
-          },
-          'eegData.setPPGFilter': {
-            signature: 'eegData.setPPGFilter({bandpass: bool|{lowHz,highHz}, ambientCancel: bool|{refHz,taps,mu}}) | false',
-            description: 'Two independent PPG cleaning options (both on by default): 0.5-4 Hz band-pass, and adaptive ambient-channel flicker cancellation. Results in eegData.ppgClean / getCleanPPGChannel(); raw eegData.ppg is untouched.'
-          },
-          'eegData.getCleanPPGChannel': {
-            signature: 'eegData.getCleanPPGChannel(channel, numSamples)',
-            description: 'Cleaned (filtered, AC-coupled) optical samples for "ambient" | "infrared" | "red" | "optics4" (or 0..3).'
-          },
-          'eegData.setAthenaPreset': {
-            signature: 'await eegData.setAthenaPreset("p1041" | ... | "")  /  eegData.getAthenaPreset()',
-            description: 'Switch the connected Muse S Athena to another optics/EEG preset (restarts the stream ~1.5 s). Empty string = auto.'
-          },
-          'eegData.setLineFilter': {
-            signature: 'eegData.setLineFilter(60 | 50 | false | {notchHz, notchQ, highpassHz})',
-            description: 'Configure the built-in EEG line-noise filter (60/50 Hz notch + harmonic, 0.5 Hz high-pass) applied to all live Muse EEG before eegData.raw/rawHistory/FFT. On by default at 60 Hz; pass false for raw hardware samples.'
-          },
           'eegData.getSpectrum': {
             signature: 'eegData.getSpectrum(channelIndex)',
             description: 'Get 1–60 Hz FFT power spectrum array (length 60) for a specific electrode (0=TP9, 1=AF7, 2=AF8, 3=TP10).'
-          },
-          'eegData.clean': {
-            signature: 'eegData.clean [TP9, AF7, AF8, TP10]',
-            description: 'Real-time IMU-filtered EEG values (µV) after subtracting head-movement artifacts via 6-DOF NLMS adaptive filtering.'
-          },
-          'eegData.motionArtifact': {
-            signature: 'eegData.motionArtifact [TP9, AF7, AF8, TP10]',
-            description: 'Estimated head-movement EEG artifact (µV) modeled from 6-DOF linear acceleration and angular velocity.'
-          },
-          'eegData.getCleanChannel': {
-            signature: 'eegData.getCleanChannel(channel, numSamples)',
-            description: 'Get recent motion-regressed (clean) EEG samples for "TP9", "AF7", "AF8", or "TP10".'
-          },
-          'eegData.getMotionArtifactChannel': {
-            signature: 'eegData.getMotionArtifactChannel(channel, numSamples)',
-            description: 'Get recent estimated IMU head-movement artifact trace (µV) for "TP9", "AF7", "AF8", or "TP10".'
-          },
-          'eegData.motionFilterWeights': {
-            signature: 'eegData.motionFilterWeights { TP9, AF7, AF8, TP10 }',
-            description: 'Live 6-tap NLMS adaptive filter weights [w_ax, w_ay, w_az, w_gx, w_gy, w_gz] mapping IMU motion to electrode artifact.'
           }
         },
-        'PPG / Optical Channels': {
+        'EEG Filtering': {
+          'eegData.setLineFilter': {
+            signature: 'eegData.setLineFilter(60 | 50 | false | {notchHz, notchQ, highpassHz})',
+            description: 'Configure the built-in EEG line-noise filter (60/50 Hz notch + harmonic, 0.5 Hz high-pass) applied to all live Muse EEG before eegData.raw/rawHistory/FFT. On by default at 60 Hz; pass false for raw hardware samples.'
+          }
+        },
+        'Connection & Device': {
+          'eegData.connected': {
+            signature: 'eegData.connected (boolean)',
+            description: 'True if Muse is connected or simulation is running, false otherwise.'
+          },
+          'eegData.sampleRate': {
+            signature: 'eegData.sampleRate (256)',
+            description: 'EEG sample rate in Hz (256 samples per second).'
+          },
+          'eegData.imuSampleRate': {
+            signature: 'eegData.imuSampleRate (52)',
+            description: 'IMU (Accelerometer & Gyroscope) sample rate in Hz (52 samples per second).'
+          },
+          'eegData.setAthenaPreset': {
+            signature: 'await eegData.setAthenaPreset("p1042" | "p1044" | ... | "")  /  eegData.getAthenaPreset()',
+            description: 'Switch the connected Muse S Athena to another optics/EEG preset (restarts the stream ~1.5 s). Empty string = auto.'
+          }
+        },
+        'PPG / Optical (64 Hz Photoplethysmography)': {
           'eegData.ppgPulse': {
             signature: 'eegData.ppgPulse (0.0 - 1.0)',
             description: 'Normalized real-time cardiac pulse wave (0.0 to 1.0) from the infrared PPG sensor. Peaks near 1.0 on each heartbeat.'
@@ -5316,6 +5302,18 @@
           'eegData.ppgSampleRate': {
             signature: 'eegData.ppgSampleRate (64)',
             description: 'PPG / optical sensor sample rate in Hz (64 samples per second).'
+          },
+          'eegData.optics': {
+            signature: 'eegData.optics { count, raw[], history[][] }  /  eegData.getOpticsChannel(index, n)',
+            description: 'Un-mapped raw Athena optical channels (up to 16, 64 Hz) straight from the BLE packet. Measured layout, groups of 4 = [short L, short R, long L, long R] (short 0.75 cm, long 2.8 cm): 16-ch 0-3 red 660, 4-7 ambient (LEDs off), 8-11 NIR 730, 12-15 IR 850; 8-ch 0-3 NIR 730, 4-7 IR 850; 4-ch 0-1 NIR short, 2-3 IR short.'
+          },
+          'eegData.getCleanPPGChannel': {
+            signature: 'eegData.getCleanPPGChannel(channel, numSamples)',
+            description: 'Cleaned (filtered, AC-coupled) optical samples for "ambient" | "infrared" | "red" | "optics4" (or 0..3).'
+          },
+          'eegData.setPPGFilter': {
+            signature: 'eegData.setPPGFilter({bandpass: bool|{lowHz,highHz}, ambientCancel: bool|{refHz,taps,mu}}) | false',
+            description: 'Two independent PPG cleaning options (both on by default): 0.5-4 Hz band-pass, and adaptive ambient-channel flicker cancellation. Results in eegData.ppgClean / getCleanPPGChannel(); raw eegData.ppg is untouched.'
           }
         },
         'Short-Channel PPG & fNIRS Skin Regression': {
@@ -5348,7 +5346,7 @@
             description: 'Real-time short-channel fNIRS regression metrics (ΔOD_clean = ΔOD_long − β·ΔOD_short) separating superficial scalp pulse from prefrontal cortical oxygenation.'
           }
         },
-        'Accelerometer (3-Axis Gravity & G-Force)': {
+        'Accelerometer (52 Hz 3-Axis G-Force)': {
           'eegData.accel': {
             signature: 'eegData.accel { x, y, z, magnitude }',
             description: 'Real-time 52 Hz 3-axis accelerometer vector in g-units (1.0 g = 9.81 m/s²). x = forward/back, y = left/right, z = vertical.'
@@ -5378,7 +5376,7 @@
             description: 'Get recent 52 Hz accelerometer history for all axes: { x, y, z, magnitude }.'
           }
         },
-        'Gyroscope (3-Axis Angular Velocity)': {
+        'Gyroscope (52 Hz Angular Velocity)': {
           'eegData.gyro': {
             signature: 'eegData.gyro { x, y, z, magnitude }',
             description: 'Real-time 52 Hz 3-axis gyroscope angular rate in degrees/second (°/s).'
@@ -5408,7 +5406,7 @@
             description: 'Get recent 52 Hz gyroscope history for all axes: { x, y, z, magnitude }.'
           }
         },
-        'Head Orientation & 2nd-Order Kinematics': {
+        '3D Orientation & 2nd-Order Position Kinematics': {
           'eegData.pitch': {
             signature: 'eegData.pitch (degrees)',
             description: 'Fused head pitch angle in degrees (-90° to +90°, nodding up/down) via complementary filter.'
@@ -5450,7 +5448,29 @@
             description: 'Zeroes out integrated yaw, velocity, and 2nd-order position state.'
           }
         },
-        'Telemetry, DRL/REF & Auxiliary Broadcast': {
+        'Adaptive IMU Head-Movement Filter (NLMS)': {
+          'eegData.clean': {
+            signature: 'eegData.clean [TP9, AF7, AF8, TP10]',
+            description: 'Real-time IMU-filtered EEG values (µV) after subtracting head-movement artifacts via 6-DOF NLMS adaptive filtering.'
+          },
+          'eegData.motionArtifact': {
+            signature: 'eegData.motionArtifact [TP9, AF7, AF8, TP10]',
+            description: 'Estimated head-movement EEG artifact (µV) modeled from 6-DOF linear acceleration and angular velocity.'
+          },
+          'eegData.getCleanChannel': {
+            signature: 'eegData.getCleanChannel(channel, numSamples)',
+            description: 'Get recent motion-regressed (clean) EEG samples for "TP9", "AF7", "AF8", or "TP10".'
+          },
+          'eegData.getMotionArtifactChannel': {
+            signature: 'eegData.getMotionArtifactChannel(channel, numSamples)',
+            description: 'Get recent estimated IMU head-movement artifact trace (µV) for "TP9", "AF7", "AF8", or "TP10".'
+          },
+          'eegData.motionFilterWeights': {
+            signature: 'eegData.motionFilterWeights { TP9, AF7, AF8, TP10 }',
+            description: 'Live 6-tap NLMS adaptive filter weights [w_ax, w_ay, w_az, w_gx, w_gy, w_gz] mapping IMU motion to electrode artifact.'
+          }
+        },
+        'Telemetry, DRL/REF & Contact Quality': {
           'eegData.telemetry': {
             signature: 'eegData.telemetry { batteryLevel, fuelGaugeVoltage, adcVoltage, temperature }',
             description: 'Headset hardware broadcast telemetry: battery percentage (%), fuel-gauge voltage (mV), ADC voltage, and die temperature (°C).'
@@ -5475,39 +5495,15 @@
             signature: 'eegData.aux (µV)',
             description: 'Latest microvolt reading from the 5th auxiliary (AUX) electrode channel.'
           }
-        },
-        'Connection Status': {
-          'eegData.connected': {
-            signature: 'eegData.connected (boolean)',
-            description: 'True if Muse is connected or simulation is running, false otherwise.'
-          },
-          'eegData.sampleRate': {
-            signature: 'eegData.sampleRate (256)',
-            description: 'EEG sample rate in Hz (256 samples per second).'
-          },
-          'eegData.imuSampleRate': {
-            signature: 'eegData.imuSampleRate (52)',
-            description: 'IMU (Accelerometer & Gyroscope) sample rate in Hz (52 samples per second).'
-          }
         }
       };
 
-      // Dedicated Broadcast Sensors / IMU / Kinematics Reference (for the Sensors / IMU tab)
-      const sensorsReference = {
-        'Accelerometer (52 Hz 3-Axis G-Force)': eegReference['Accelerometer (3-Axis Gravity & G-Force)'],
-        'Gyroscope (52 Hz Angular Velocity)': eegReference['Gyroscope (3-Axis Angular Velocity)'],
-        '3D Orientation & 2nd-Order Position Kinematics': eegReference['Head Orientation & 2nd-Order Kinematics'],
-        'Adaptive IMU Head-Movement Filter (NLMS)': {
-          'eegData.clean': eegReference['Raw Data Access']['eegData.clean'],
-          'eegData.motionArtifact': eegReference['Raw Data Access']['eegData.motionArtifact'],
-          'eegData.getCleanChannel': eegReference['Raw Data Access']['eegData.getCleanChannel'],
-          'eegData.getMotionArtifactChannel': eegReference['Raw Data Access']['eegData.getMotionArtifactChannel'],
-          'eegData.motionFilterWeights': eegReference['Raw Data Access']['eegData.motionFilterWeights']
-        },
-        'Short-Channel PPG & fNIRS Skin Regression': eegReference['Short-Channel PPG & fNIRS Skin Regression'],
-        'Telemetry, DRL/REF & Contact Quality': eegReference['Telemetry, DRL/REF & Auxiliary Broadcast'],
-        'PPG / Optical (64 Hz Photoplethysmography)': eegReference['PPG / Optical Channels']
-      };
+      const eegTabGroups = ['Frequency Bands', 'Derived Metrics', 'Raw EEG (256 Hz, 4 channels)', 'EEG Filtering', 'Connection & Device'];
+      const sensorsTabGroups = ['PPG / Optical (64 Hz Photoplethysmography)', 'Short-Channel PPG & fNIRS Skin Regression', 'Accelerometer (52 Hz 3-Axis G-Force)', 'Gyroscope (52 Hz Angular Velocity)', '3D Orientation & 2nd-Order Position Kinematics', 'Adaptive IMU Head-Movement Filter (NLMS)', 'Telemetry, DRL/REF & Contact Quality'];
+      const pickGroups = (names) => Object.fromEntries(names.map(n => [n, eegReference[n]]));
+      const eegTabReference = pickGroups(eegTabGroups);
+      const sensorsReference = pickGroups(sensorsTabGroups);
+
 
       // Monaco Editor setup and management
       class CodeEditor {
@@ -6633,7 +6629,7 @@ function draw() {
             } else if (tabName === 'input') {
               contentDiv.innerHTML = this.renderReference(inputReference);
             } else if (tabName === 'eeg') {
-              contentDiv.innerHTML = this.renderReference(eegReference);
+              contentDiv.innerHTML = this.renderReference(eegTabReference);
             } else if (tabName === 'sensors') {
               contentDiv.innerHTML = this.renderReference(sensorsReference);
             }
@@ -6721,7 +6717,7 @@ function draw() {
             } else if (this.currentTab === 'input') {
               reference = inputReference;
             } else if (this.currentTab === 'eeg') {
-              reference = eegReference;
+              reference = eegTabReference;
             } else if (this.currentTab === 'sensors') {
               reference = sensorsReference;
             }
