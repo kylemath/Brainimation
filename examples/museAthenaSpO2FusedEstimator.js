@@ -132,6 +132,35 @@ var historyLog = {
   sqi: []
 };
 
+// Whole-recording log for Tier 1. One point per "bucket" of frames; when it fills up, neighbouring points are
+// averaged and the bucket doubles, so the entire session always fits on screen (no scrolling window).
+var FULL_MAX = 1200;
+var fullLog = { cal: [], ref: [], raw: [], stride: 1, n: 0, sCal: 0, sRef: 0, sRaw: 0, startMs: null, lastMs: 0 };
+var gaugeValue = null;   // eased needle position (% SpO2)
+
+function pushFullLog(cal, ref, raw) {
+  const f = fullLog;
+  if (f.startMs === null) f.startMs = millis();
+  f.lastMs = millis();
+  f.sCal += cal; f.sRef += ref; f.sRaw += raw; f.n++;
+  if (f.n < f.stride) return;
+  f.cal.push(f.sCal / f.n); f.ref.push(f.sRef / f.n); f.raw.push(f.sRaw / f.n);
+  f.sCal = f.sRef = f.sRaw = 0; f.n = 0;
+  if (f.cal.length >= FULL_MAX) {
+    for (const k of ['cal', 'ref', 'raw']) {
+      const a = f[k], out = [];
+      for (let i = 0; i + 1 < a.length; i += 2) out.push((a[i] + a[i + 1]) / 2);
+      f[k] = out;
+    }
+    f.stride *= 2;
+  }
+}
+
+function fmtElapsed(ms) {
+  const sec = Math.max(0, Math.round(ms / 1000));
+  return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+}
+
 var uiBtns = [];
 var statusToast = { text: '', until: 0 };
 var wasLiveStream = false;
@@ -624,16 +653,28 @@ function stepMultiSensorSpO2(isWarmup = false) {
 
   estState.hrBpm = (hasLive && eegData.heartRate > 35) ? eegData.heartRate : 72;
 
-  let cleanAF7 = 0;
-  if (hasLive && Array.isArray(eegData.clean)) {
-    cleanAF7 = eegData.clean[1] || 0;
+  // EEG arrives at 256 Hz in packets, but this runs once per frame: fetch exactly the samples that arrived since
+  // the last frame (eegData.cleanCount is a monotonic sample counter), so nothing is repeated or skipped.
+  let cleanBlock = [];
+  const cc = hasLive && eegData.cleanCount ? eegData.cleanCount.AF7 : undefined;
+  const hist = hasLive && eegData.cleanHistory ? eegData.cleanHistory.AF7 : undefined;
+  if (cc !== undefined && hist && hist.length) {
+    let nNew = estState.lastEegCount === undefined ? 0 : cc - estState.lastEegCount;
+    estState.lastEegCount = cc;
+    nNew = Math.max(0, Math.min(nNew, hist.length));
+    if (nNew > 0) cleanBlock = hist.slice(-nNew);
   } else {
-    cleanAF7 = 14.0 * Math.sin(2 * Math.PI * 10.0 * t) + 7.0 * Math.sin(2 * Math.PI * 20.0 * t);
+    estState.lastEegCount = undefined;
+    for (let i = 0; i < 4; i++) {
+      const ts = t - (3 - i) / 256;
+      cleanBlock.push(14.0 * Math.sin(2 * Math.PI * 10.0 * ts) + 7.0 * Math.sin(2 * Math.PI * 20.0 * ts));
+    }
   }
 
   pushBounded(historyLog.spo2Cal,     estState.spo2Calibrated, SPO2_HIST_LEN);
   pushBounded(historyLog.spo2Raw,     estState.spo2RawEmpirical, SPO2_HIST_LEN);
   pushBounded(historyLog.fingerRef,   fingerRefSpO2, SPO2_HIST_LEN);
+  pushFullLog(estState.spo2Calibrated, fingerRefSpO2, estState.spo2RawEmpirical);
   pushBounded(historyLog.rSO2,        estState.rSO2Cortical, SPO2_HIST_LEN);
   pushBounded(historyLog.acShort660,  fS660.cleanAcOd * 1000.0, SPO2_HIST_LEN);
   pushBounded(historyLog.acShort850,  fS850.cleanAcOd * 1000.0, SPO2_HIST_LEN);
@@ -641,7 +682,7 @@ function stepMultiSensorSpO2(isWarmup = false) {
   pushBounded(historyLog.cleanHbO2,   estState.cleanHbO2, SPO2_HIST_LEN);
   pushBounded(historyLog.cleanHHb,    estState.cleanHHb, SPO2_HIST_LEN);
   pushBounded(historyLog.imuMotion,   imuMotionMag, SPO2_HIST_LEN);
-  pushBounded(historyLog.eegCleanAF7, cleanAF7, SPO2_HIST_LEN);
+  for (let i = 0; i < cleanBlock.length; i++) pushBounded(historyLog.eegCleanAF7, cleanBlock[i], SPO2_HIST_LEN * 3);
   pushBounded(historyLog.sqi,         estState.sqiTotal, SPO2_HIST_LEN);
 }
 
@@ -695,30 +736,26 @@ function draw() {
   // 2. TOP METRIC & FINGERTIP CALIBRATION ROW (5 CARDS)
   // =========================================================================
   const cardY = 54;
-  const cardH = 66;
+  const cardH = 98;          // row height (the gauge card uses all of it, the other cards are centred 66 px cards)
+  const smallH = 66, smallY = cardY + (cardH - smallH) / 2;
   const gap = 6;
   const availW = width - pad * 2 - gap * 4;
   const calCardW = Math.max(138, availW * 0.25);
   const stdCardW = (availW - calCardW) / 4;
+  const gaugeW = Math.max(stdCardW, Math.min(190, availW * 0.26));
+  const restW = (availW - gaugeW - calCardW) / 3;
 
   // Card 1: Calibrated Fused SpO2 (%)
-  drawMetricCard(
-    pad, cardY, stdCardW, cardH,
-    'FUSED SpO₂',
-    `${estState.spo2Calibrated.toFixed(1)}%`,
-    `Raw:${estState.spo2RawEmpirical.toFixed(1)}% R=${estState.rFused.toFixed(2)}`,
-    color(16, 185, 129),
-    estState.spo2Calibrated >= 95 ? 'NORM' : 'LOW'
-  );
+  drawSpO2Gauge(pad, cardY, gaugeW, cardH);
 
   // Card 2: Interactive Fingertip Oximeter Calibration Reference
-  const c2X = pad + stdCardW + gap;
-  drawFingertipCalibrationCard(c2X, cardY, calCardW, cardH);
+  const c2X = pad + gaugeW + gap;
+  drawFingertipCalibrationCard(c2X, smallY, calCardW, smallH);
 
   // Card 3: Short (8mm) vs Long (20mm) Optical RoR
   const c3X = c2X + calCardW + gap;
   drawMetricCard(
-    c3X, cardY, stdCardW, cardH,
+    c3X, smallY, restW, smallH,
     '8mm/20mm RoR',
     `${estState.spo2Short.toFixed(1)}/${estState.spo2Long.toFixed(1)}%`,
     `R8=${estState.rShort.toFixed(2)} R20=${estState.rLong.toFixed(2)}`,
@@ -727,9 +764,9 @@ function draw() {
   );
 
   // Card 4: Cortical Tissue Saturation rSO2 / TSI (MBLL + Short-Ch Regression)
-  const c4X = c3X + stdCardW + gap;
+  const c4X = c3X + restW + gap;
   drawMetricCard(
-    c4X, cardY, stdCardW, cardH,
+    c4X, smallY, restW, smallH,
     'CEREBRAL rSO₂',
     `${estState.rSO2Cortical.toFixed(1)}%`,
     `HbO₂:${estState.cleanHbO2 >= 0 ? '+' : ''}${estState.cleanHbO2.toFixed(1)} β=${estState.betaSkin.toFixed(2)}`,
@@ -738,9 +775,9 @@ function draw() {
   );
 
   // Card 5: Cardiac HR, IMU Motion Gate & EEG Contact SQI
-  const c5X = c4X + stdCardW + gap;
+  const c5X = c4X + restW + gap;
   drawMetricCard(
-    c5X, cardY, stdCardW, cardH,
+    c5X, smallY, restW, smallH,
     'HR · IMU · EEG',
     `${estState.hrBpm} BPM`,
     `Mot:${(estState.sqiMotion * 100).toFixed(0)}% EEG:${(estState.sqiEEGContact * 100).toFixed(0)}%`,
@@ -949,6 +986,74 @@ function drawMetricCard(x, y, w, h, title, bigVal, subText, accentCol, badgeText
   fill(155, 178, 212);
   textSize(7.5);
   text(subText, x + 6, y + 54);
+}
+
+
+// Car-style tachometer for the fused SpO2 (80-100 %), with coloured zones, ticks, an eased needle, and a yellow
+// marker for the fingertip-oximeter reference.
+function drawSpO2Gauge(x, y, w, h) {
+  const vMin = 80, vMax = 100;
+  const a0 = 0.75 * Math.PI, a1 = 2.25 * Math.PI;                       // 270 degree sweep, gap at the bottom
+  const ang = v => a0 + (a1 - a0) * (constrain(v, vMin, vMax) - vMin) / (vMax - vMin);
+  const val = estState.spo2Calibrated;
+  gaugeValue = gaugeValue === null ? val : gaugeValue + (val - gaugeValue) * 0.12;
+
+  fill(16, 22, 37); stroke(9, 102, 70); strokeWeight(1);
+  rect(x, y, w, h, 6);
+
+  const r = Math.min(h / 2 - 7, w * 0.4);
+  const cx = x + r + 9, cy = y + h / 2 + 2;
+
+  // zones: <90 red, 90-95 amber, >=95 green (dim track, bright up to the needle)
+  noFill();
+  const zones = [[vMin, 90, [239, 68, 68]], [90, 95, [245, 158, 11]], [95, vMax, [16, 185, 129]]];
+  const lit = Math.min(gaugeValue, vMax);
+  for (const [lo, hi, c] of zones) {
+    strokeWeight(5);
+    stroke(c[0], c[1], c[2], 55);
+    arc(cx, cy, r * 2 - 7, r * 2 - 7, ang(lo), ang(hi));
+    if (lit > lo) { stroke(c[0], c[1], c[2], 235); arc(cx, cy, r * 2 - 7, r * 2 - 7, ang(lo), ang(Math.min(hi, lit))); }
+  }
+
+  // ticks and numbers
+  textAlign(CENTER, CENTER); textStyle(NORMAL);
+  for (let v = vMin; v <= vMax; v++) {
+    const major = v % 5 === 0, a = ang(v);
+    stroke(major ? color(205, 220, 240) : color(100, 120, 150)); strokeWeight(major ? 1.4 : 0.8);
+    const r1 = r - 1, r2 = r - (major ? 7 : 4);
+    line(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1, cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+    if (major) { noStroke(); fill(170, 190, 220); textSize(6.5); text(v, cx + Math.cos(a) * (r - 14), cy + Math.sin(a) * (r - 14)); }
+  }
+
+  // fingertip reference marker (yellow notch on the outside of the dial)
+  const ar = ang(fingerRefSpO2);
+  stroke(250, 204, 21); strokeWeight(2.2);
+  line(cx + Math.cos(ar) * (r + 1), cy + Math.sin(ar) * (r + 1), cx + Math.cos(ar) * (r - 5), cy + Math.sin(ar) * (r - 5));
+
+  // needle + hub
+  const an = ang(gaugeValue);
+  stroke(255, 90, 70); strokeWeight(2); line(cx - Math.cos(an) * 5, cy - Math.sin(an) * 5, cx + Math.cos(an) * (r - 9), cy + Math.sin(an) * (r - 9));
+  noStroke(); fill(30, 38, 58); circle(cx, cy, 11); fill(255, 90, 70); circle(cx, cy, 5);
+
+  // digital read-out in the dial's open bottom, car style
+  fill(245, 250, 255); textStyle(BOLD); textSize(11); text(`${val.toFixed(1)}`, cx, cy + r * 0.62);
+  fill(150, 175, 210); textStyle(NORMAL); textSize(6.5); text('% SpO₂', cx, cy + r * 0.62 + 10);
+
+  // right-hand text column
+  const tx = cx + r + 12;
+  textAlign(LEFT, BASELINE);
+  if (tx < x + w - 36) {
+    fill(52, 211, 153); textStyle(BOLD); textSize(8.0); text('FUSED SpO₂', tx, y + 16);
+    const badge = val >= 95 ? 'NORMAL' : (val >= 90 ? 'LOW' : 'VERY LOW');
+    const bc = val >= 95 ? [16, 185, 129] : (val >= 90 ? [245, 158, 11] : [239, 68, 68]);
+    textSize(6.8); const bw = textWidth(badge) + 8;
+    fill(bc[0], bc[1], bc[2], 45); rect(tx, y + 24, bw, 13, 3);
+    fill(bc[0], bc[1], bc[2]); textAlign(CENTER, CENTER); text(badge, tx + bw / 2, y + 30.5);
+    textAlign(LEFT, BASELINE); textStyle(NORMAL); fill(155, 178, 212); textSize(7.2);
+    text(`Raw ${estState.spo2RawEmpirical.toFixed(1)}%`, tx, y + 52);
+    text(`R = ${estState.rFused.toFixed(2)}`, tx, y + 63);
+    fill(250, 204, 21); text(`▮ finger ${fingerRefSpO2.toFixed(1)}%`, tx, y + 76);
+  }
 }
 
 function drawFingertipCalibrationCard(x, y, w, h) {
@@ -1189,12 +1294,12 @@ function drawRightMultiSensorStack(x, y, w, h) {
   const tiers = [
     {
       title: 'TIER 1: Calibrated Fused SpO₂ (%) vs. Fingertip Ref',
-      eq: `Cal=${estState.spo2Calibrated.toFixed(1)}% | Ref=${fingerRefSpO2.toFixed(1)}%`,
+      eq: `whole recording ${fmtElapsed(fullLog.startMs === null ? 0 : fullLog.lastMs - fullLog.startMs)}`,
       mode: 'spo2',
       series: [
-        { arr: historyLog.spo2Cal,   label: 'Cal SpO₂',   col: color(16, 185, 129), sw: 2.3, fmt: v => `${v.toFixed(1)}%` },
-        { arr: historyLog.fingerRef, label: 'Finger Ref', col: color(250, 204, 21), sw: 1.5, fmt: v => `${v.toFixed(1)}%` },
-        { arr: historyLog.spo2Raw,   label: 'Raw RoR',    col: color(148, 163, 184, 150), sw: 1.2, fmt: v => `${v.toFixed(1)}%` }
+        { arr: fullLog.cal, label: 'Cal SpO₂',   col: color(16, 185, 129), sw: 2.3, fmt: v => `${v.toFixed(1)}%` },
+        { arr: fullLog.ref, label: 'Finger Ref', col: color(250, 204, 21), sw: 1.5, fmt: v => `${v.toFixed(1)}%` },
+        { arr: fullLog.raw, label: 'Raw RoR',    col: color(148, 163, 184, 150), sw: 1.2, fmt: v => `${v.toFixed(1)}%` }
       ]
     },
     {
@@ -1274,7 +1379,7 @@ function drawRightMultiSensorStack(x, y, w, h) {
         strokeWeight(s.sw);
         beginShape();
         for (let k = 0; k < s.arr.length; k++) {
-          const vx = map(k, 0, SPO2_HIST_LEN - 1, px, px + pw);
+          const vx = map(k, 0, s.arr.length - 1, px, px + pw);   // whole recording stretched across the plot
           const vy = map(constrain(s.arr[k], yMin, yMax), yMin, yMax, py + ph, py);
           vertex(vx, vy);
         }
@@ -1309,9 +1414,14 @@ function drawRightMultiSensorStack(x, y, w, h) {
     const ly = ty + tierH - 3.5;
     noStroke();
     textSize(7.5);
+    const own = t.mode === 'spo2';
+    const overPlot = mouseX >= px && mouseX <= px + pw && mouseY >= y && mouseY <= y + h;
     for (const s of t.series) {
       if (!s.arr || !s.arr.length) continue;
-      const idx = hoverIdx >= 0 ? Math.min(hoverIdx, s.arr.length - 1) : s.arr.length - 1;
+      const hi = own
+        ? (overPlot ? Math.floor(map(mouseX, px, px + pw, 0, s.arr.length - 1, true)) : -1)
+        : hoverIdx;
+      const idx = hi >= 0 ? Math.min(hi, s.arr.length - 1) : s.arr.length - 1;
       const val = s.arr[idx];
       fill(s.col);
       const lbl = `● ${s.label}:${s.fmt(val)}`;
@@ -1319,8 +1429,8 @@ function drawRightMultiSensorStack(x, y, w, h) {
       lx += textWidth(lbl) + 10;
     }
 
-    if (hoverIdx >= 0 && nSamples > 1) {
-      const cx = map(hoverIdx, 0, SPO2_HIST_LEN - 1, px, px + pw);
+    if (own ? overPlot : (hoverIdx >= 0 && nSamples > 1)) {
+      const cx = own ? mouseX : map(hoverIdx, 0, SPO2_HIST_LEN - 1, px, px + pw);
       stroke(255, 255, 255, 110);
       strokeWeight(1);
       line(cx, py, cx, py + ph);

@@ -1,8 +1,10 @@
 {
   "categoryOrder": [
+    "Start Here: One Simple Sketch per Sensor",
     "Signal Quality & Diagnostics",
     "Getting Started",
     "Brain Wave Visualizations",
+    "Raw EEG Data",
     "PPG & Optical (fNIRS)",
     "Motion, IMU & Broadcast Sensors",
     "Multimodal (EEG + PPG + HR)",
@@ -10,7 +12,6 @@
     "Particle Systems",
     "3D & Advanced",
     "Drawing & Interaction",
-    "Raw EEG Data",
     "Noise & Generative",
     "Animation & Motion",
     "Sound & Music",
@@ -22,6 +23,30 @@
     "2022 NeuroArt Class Gallery"
   ],
   "examples": [
+    {
+      "id": "simpleEEG",
+      "file": "simpleEEG.js",
+      "title": "Simple EEG: 4 Channels (filtered)",
+      "category": "Start Here: One Simple Sketch per Sensor"
+    },
+    {
+      "id": "simplePPG",
+      "file": "simplePPG.js",
+      "title": "Simple PPG: Heartbeat Pulse",
+      "category": "Start Here: One Simple Sketch per Sensor"
+    },
+    {
+      "id": "simpleAccelerometer",
+      "file": "simpleAccelerometer.js",
+      "title": "Simple Accelerometer: Head Tilt",
+      "category": "Start Here: One Simple Sketch per Sensor"
+    },
+    {
+      "id": "simpleGyroscope",
+      "file": "simpleGyroscope.js",
+      "title": "Simple Gyroscope: Head Rotation Speed",
+      "category": "Start Here: One Simple Sketch per Sensor"
+    },
     {
       "id": "athenaPresetSweep",
       "file": "athenaPresetSweep.js",

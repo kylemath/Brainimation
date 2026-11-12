@@ -2485,10 +2485,12 @@
         ppgMotionHistory: { raw: [], artifact: [], clean: [] },
         motionFilterWeights: (() => {
           const w = {
-            TP9:  [-6.4,  10.5, 5.2,  11.4, -6.8,  14.5],
-            AF7:  [ 9.5,  -4.2, 7.8,   4.5, 14.2,  -6.4],
-            AF8:  [ 9.2,   4.4, 7.5,  -4.2, 13.8,   6.2],
-            TP10: [-6.2, -10.8, 5.4, -11.2, -6.5, -14.2]
+            // Start at zero: the NLMS filter must LEARN the IMU->EEG coupling. (Hard-coded non-zero priors injected
+            // tens of uV of staircase IMU-driven artefact into the "clean" EEG.)
+            TP9:  [0, 0, 0, 0, 0, 0],
+            AF7:  [0, 0, 0, 0, 0, 0],
+            AF8:  [0, 0, 0, 0, 0, 0],
+            TP10: [0, 0, 0, 0, 0, 0]
           };
           w[0] = w.TP9;
           w[1] = w.AF7;
@@ -2691,10 +2693,10 @@
             this.motionArtifactHistory = { TP9: [], AF7: [], AF8: [], TP10: [] };
             this.drlRefHistory = { drl: [], ref: [] };
             this.motionFilterWeights = {
-              TP9:  [-6.4,  10.5, 5.2,  11.4, -6.8,  14.5],
-              AF7:  [ 9.5,  -4.2, 7.8,   4.5, 14.2,  -6.4],
-              AF8:  [ 9.2,   4.4, 7.5,  -4.2, 13.8,   6.2],
-              TP10: [-6.2, -10.8, 5.4, -11.2, -6.5, -14.2]
+              TP9:  [0, 0, 0, 0, 0, 0],
+              AF7:  [0, 0, 0, 0, 0, 0],
+              AF8:  [0, 0, 0, 0, 0, 0],
+              TP10: [0, 0, 0, 0, 0, 0]
             };
             this.motionFilterWeights[0] = this.motionFilterWeights.TP9;
             this.motionFilterWeights[1] = this.motionFilterWeights.AF7;
@@ -3144,7 +3146,7 @@
           for (let c = 0; c < 4; c++) {
             const ch = chNames[c];
             const rawVal = rawSamples4[c] || 0;
-            const w = this.motionFilterWeights[ch] || this.motionFilterWeights[c] || [6.0, -3.0, 5.0, 3.0, 9.0, -4.0];
+            const w = this.motionFilterWeights[ch] || this.motionFilterWeights[c] || [0, 0, 0, 0, 0, 0];
             let yHat = 0;
             for (let k = 0; k < 6; k++) yHat += w[k] * xVec[k];
             const errClean = rawVal - yHat;
@@ -3160,6 +3162,9 @@
             if (!this.motionArtifactHistory[ch]) this.motionArtifactHistory[ch] = [];
             this.cleanHistory[ch].push(errClean);
             this.motionArtifactHistory[ch].push(yHat);
+            // monotonic sample counter so frame-rate consumers can fetch exactly the new samples (history is length-capped)
+            if (!this.cleanCount) this.cleanCount = {};
+            this.cleanCount[ch] = (this.cleanCount[ch] || 0) + 1;
             if (this.cleanHistory[ch].length > maxLen) this.cleanHistory[ch].shift();
             if (this.motionArtifactHistory[ch].length > maxLen) this.motionArtifactHistory[ch].shift();
           }
