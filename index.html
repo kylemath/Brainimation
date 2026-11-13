@@ -51,26 +51,29 @@
 
       .main-container {
         --catalogue-width: 300px;
-        --reference-width: 360px;
+        --reference-width: 320px;
         display: grid;
-        grid-template-columns: var(--canvas-col, minmax(340px, 1.3fr)) minmax(320px, 1fr) var(--catalogue-width) var(--reference-width);
-        grid-template-rows: 60px 1fr auto;
+        grid-template-columns: var(--canvas-col, minmax(160px, 1.25fr)) minmax(180px, 1fr) var(--catalogue-width) var(--reference-width);
+        grid-template-rows: auto 1fr auto;
         height: 100vh;
+        width: 100%;
+        max-width: 100vw;
+        min-width: 0;
         gap: 2px;
         background: var(--bg-2);
         overflow: hidden;
       }
-      
-      .main-container.hide-reference {
-        grid-template-columns: var(--canvas-col, minmax(340px, 1.3fr)) minmax(320px, 1fr) var(--catalogue-width);
+
+      .main-container.hide-code {
+        grid-template-columns: var(--canvas-col, minmax(160px, 1.25fr)) 32px var(--catalogue-width) var(--reference-width);
       }
 
       .main-container.hide-catalogue {
-        grid-template-columns: var(--canvas-col, minmax(340px, 1.3fr)) minmax(320px, 1fr) var(--reference-width);
+        --catalogue-width: 32px !important;
       }
 
-      .main-container.hide-catalogue.hide-reference {
-        grid-template-columns: var(--canvas-col, minmax(340px, 1.3fr)) minmax(320px, 1fr);
+      .main-container.hide-reference {
+        --reference-width: 32px !important;
       }
 
       /* Drag handle between the animation (canvas) pane and the code pane */
@@ -155,33 +158,34 @@
         height: 56px;
       }
 
-      .main-container.hide-catalogue .catalogue-panel {
-        display: none;
+      .catalogue-panel,
+      .code-panel,
+      .reference-panel,
+      .canvas-container {
+        min-width: 0;
       }
 
       .catalogue-header {
-        background: var(--bg);
-        padding: 10px 12px;
+        background: #0c0c12;
+        padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 0;
         border-bottom: 1px solid #2b2b36;
         flex-shrink: 0;
       }
 
       .catalogue-title-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
         gap: 6px;
+        padding-left: 12px;
       }
 
       .catalogue-title {
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         color: var(--accent-2);
-        letter-spacing: 0.4px;
-        text-transform: uppercase;
+        letter-spacing: 0.2px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -202,6 +206,8 @@
         display: flex;
         gap: 6px;
         flex-wrap: wrap;
+        padding: 8px 10px;
+        background: var(--bg);
       }
 
       .catalogue-search {
@@ -483,17 +489,46 @@
 
       .header {
         grid-column: 1 / -1;
+        grid-row: 1;
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
         background: var(--bg-2);
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 0 20px;
+        justify-content: flex-start;
+        gap: 8px 10px;
+        flex-wrap: wrap;
+        padding: 6px 10px;
         border-bottom: 2px solid var(--accent);
+        position: relative;
+        z-index: 40;
+      }
+
+      .header-cluster {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        flex-wrap: wrap;
+      }
+
+      .header-actions {
+        margin-left: auto;
+        justify-content: flex-end;
+        flex: 1 1 auto;
+      }
+
+      .catalogue-title-row .panel-min-btn {
+        margin-left: 0;
+        margin-right: 8px;
       }
 
       .logo {
-        font-size: 24px;
+        font-size: 18px;
         font-weight: bold;
+        line-height: 1.1;
+        flex-shrink: 0;
         background: linear-gradient(45deg, var(--accent), var(--accent-2));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -501,20 +536,130 @@
       }
 
       .controls {
-        display: flex;
-        gap: 12px;
-        align-items: center;
+        display: contents;
       }
 
       .btn {
-        padding: 8px 16px;
+        padding: 6px 10px;
         border: none;
         border-radius: 6px;
         cursor: pointer;
         font-family: inherit;
-        font-size: 14px;
+        font-size: 12px;
         font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
         transition: all 0.2s;
+      }
+
+      .signal-menu {
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      #signal-settings-btn .chev {
+        display: inline-block;
+        margin-left: 2px;
+        transition: transform 0.15s ease;
+      }
+
+      #signal-settings-btn.open {
+        border-color: var(--accent-2);
+        color: var(--accent-2);
+      }
+
+      #signal-settings-btn.open .chev {
+        transform: rotate(180deg);
+      }
+
+      .signal-panel {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        width: 340px;
+        max-width: calc(100vw - 20px);
+        background: #14141c;
+        border: 1px solid rgba(78, 205, 196, 0.45);
+        border-radius: 10px;
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.6);
+        padding: 12px;
+        z-index: 60;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .signal-panel.open {
+        display: flex;
+      }
+
+      .signal-panel-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        color: var(--accent-2);
+      }
+
+      .signal-section {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding-top: 4px;
+        border-top: 1px solid #2b2b36;
+      }
+
+      .signal-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .signal-field label,
+      .signal-row span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .signal-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .signal-select,
+      .signal-toggle {
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid #444;
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .signal-select {
+        width: 100%;
+      }
+
+      .signal-toggle {
+        min-width: 64px;
+      }
+
+      .signal-toggle.is-on {
+        border-color: var(--accent-2);
+        color: var(--accent-2);
+        background: rgba(78, 205, 196, 0.12);
+      }
+
+      .signal-toggle:hover,
+      .signal-select:hover {
+        border-color: var(--accent-2);
       }
 
       .btn-primary {
@@ -545,6 +690,8 @@
         align-items: center;
         gap: 8px;
         font-size: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
       }
 
       .status-indicator {
@@ -673,31 +820,135 @@
         flex-direction: column;
       }
 
-      .code-panel-tabs {
+      .panel-bar,
+      .code-panel-tabs,
+      .reference-tabs,
+      .catalogue-title-row {
         display: flex;
-        background: var(--bg);
-        border-bottom: 2px solid var(--muted);
+        align-items: center;
+        background: #0c0c12;
+        border-bottom: 1px solid #2b2b36;
+        min-height: 36px;
+        flex-shrink: 0;
+        min-width: 0;
       }
 
-      .code-panel-tab {
-        padding: 10px 20px;
+      .code-panel-tab,
+      .reference-tab {
+        padding: 0 12px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
-        font-size: 12px;
-        font-weight: 600;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
         color: var(--muted);
-        border-bottom: 3px solid transparent;
-        transition: all 0.2s;
-        background: var(--bg);
+        background: transparent;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+        flex: 0 0 auto;
+        user-select: none;
       }
 
-      .code-panel-tab:hover {
-        background: var(--bg-2);
+      .code-panel-tab:hover,
+      .reference-tab:hover {
+        background: rgba(255, 255, 255, 0.04);
         color: var(--text);
       }
 
-      .code-panel-tab.active {
+      .code-panel-tab.active,
+      .reference-tab.active {
         color: var(--accent-2);
-        border-bottom-color: var(--accent);
+        border-bottom-color: var(--accent-2);
+        background: rgba(78, 205, 196, 0.08);
+      }
+
+      .reference-tab {
+        padding: 0 8px;
+      }
+
+      .reference-tab-scroll {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .reference-tab-scroll::-webkit-scrollbar {
+        display: none;
+      }
+
+      .panel-min-btn {
+        margin-left: auto;
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        margin-right: 5px;
+        border-radius: 4px;
+        border: 1px solid #3a3a46;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        font-family: inherit;
+      }
+
+      .panel-min-btn:hover {
+        color: var(--text);
+        border-color: var(--accent-2);
+        background: rgba(78, 205, 196, 0.12);
+      }
+
+      .panel-rail {
+        display: none;
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        border: none;
+        background: #0e0e14;
+        color: var(--accent-2);
+        cursor: pointer;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        padding: 12px 0;
+      }
+
+      .panel-rail:hover {
+        background: rgba(78, 205, 196, 0.14);
+        color: #fff;
+      }
+
+      @media (min-width: 901px) {
+        .main-container.hide-code .code-panel,
+        .main-container.hide-catalogue .catalogue-panel,
+        .main-container.hide-reference .reference-panel {
+          min-width: 0 !important;
+          max-width: none;
+        }
+
+        .main-container.hide-code .code-panel > :not(.panel-rail),
+        .main-container.hide-catalogue .catalogue-panel > :not(.panel-rail),
+        .main-container.hide-reference .reference-panel > :not(.panel-rail) {
+          display: none !important;
+        }
+
+        .main-container.hide-code .code-panel > .panel-rail,
+        .main-container.hide-catalogue .catalogue-panel > .panel-rail,
+        .main-container.hide-reference .reference-panel > .panel-rail {
+          display: flex;
+        }
       }
 
       .code-panel-content {
@@ -1025,39 +1276,6 @@
         height: 56px;
       }
 
-      .main-container.hide-catalogue .reference-panel {
-        grid-column: 3;
-      }
-      
-      .main-container.hide-reference .reference-panel {
-        display: none;
-      }
-      
-      .reference-tabs {
-        display: flex;
-        background: var(--bg);
-        border-bottom: 1px solid var(--muted);
-      }
-      
-      .reference-tab {
-        padding: 8px 12px;
-        cursor: pointer;
-        font-size: 11px;
-        border-bottom: 2px solid transparent;
-        transition: all 0.2s;
-        flex: 1;
-        text-align: center;
-      }
-      
-      .reference-tab:hover {
-        background: var(--bg-2);
-      }
-      
-      .reference-tab.active {
-        border-bottom-color: var(--accent);
-        color: var(--accent);
-      }
-      
       .reference-content {
         flex: 1;
         overflow-y: auto;
@@ -1506,10 +1724,12 @@
 
       @media (max-width: 1200px) {
         .main-container {
-          grid-template-columns: var(--canvas-col, minmax(280px, 1.2fr)) minmax(260px, 1fr) var(--catalogue-width);
+          --catalogue-width: min(300px, 26vw);
+          --reference-width: min(320px, 28vw);
+          grid-template-columns: var(--canvas-col, minmax(140px, 1.15fr)) minmax(160px, 1fr) var(--catalogue-width) var(--reference-width);
         }
-        .reference-panel {
-          display: none;
+        .main-container.hide-code {
+          grid-template-columns: var(--canvas-col, minmax(140px, 1.15fr)) 32px var(--catalogue-width) var(--reference-width);
         }
       }
 
@@ -1571,12 +1791,32 @@
           flex-shrink: 0;
         }
 
+        .header-cluster,
+        .header-actions {
+          flex-wrap: nowrap;
+          flex-shrink: 0;
+        }
+
         .btn,
         .toggle-reference {
           padding: 6px 10px;
           font-size: 11.5px;
           white-space: nowrap;
           flex-shrink: 0;
+        }
+
+        .panel-min-btn,
+        .panel-rail {
+          display: none !important;
+        }
+
+        .signal-panel {
+          position: fixed;
+          top: 108px;
+          left: 8px;
+          right: 8px;
+          width: auto;
+          max-width: none;
         }
 
         /* Top Stage: Animation Window + About Overlay always visible in Row 2 */
@@ -1748,32 +1988,55 @@
             <span id="status-text">Disconnected</span>
           </div>
           <button class="btn btn-primary" id="connect-btn">Connect Muse</button>
-          <button class="btn btn-secondary" id="ppg-mode-btn" title="Toggle PPG / Optical Red LED Mode (p1042 16-ch red/NIR/IR + ambient vs p1035 4-ch on Athena)">💓 PPG: ON</button>
-          <select class="btn btn-secondary" id="athena-preset-select" title="Muse S Athena optics preset (sent to the headband; restarts the stream). 'high'/'low' are the labels used by community docs - what they change is not documented (LED current? gain?) so compare them in the Raw Optics Channel Map sketch.">
-            <option value="">Preset: auto</option>
-            <option value="p1035">p1035 · EEG4 + Optics4</option>
-            <option value="p1045">p1045 · Optics4 · low (MindMonitor default)</option>
-            <option value="p1046">p1046 · Optics4 · high</option>
-            <option value="p4129">p4129 · Optics4</option>
-            <option value="p1034">p1034 · Optics8 (amused-py "full sensors")</option>
-            <option value="p1043">p1043 · Optics8 · low</option>
-            <option value="p1044">p1044 · Optics8 · high</option>
-            <option value="p1041">p1041 · Optics16 · low</option>
-            <option value="p1042">p1042 · Optics16 · high</option>
-          </select>
-          <button class="btn btn-secondary" id="line-filter-btn" title="EEG line-noise filter: click to cycle 60 Hz notch / 50 Hz notch / Off (eegData.setLineFilter)">〰️ Notch: 60 Hz</button>
-          <button class="btn btn-secondary" id="ppg-bp-btn" title="PPG band-pass 0.5-4 Hz (eegData.setPPGFilter({bandpass}))">💓 Band-pass: ON</button>
-          <button class="btn btn-secondary" id="ppg-amb-btn" title="PPG ambient-referenced flicker cancellation (eegData.setPPGFilter({ambientCancel}))">💡 Amb. cancel: ON</button>
-          <button class="btn btn-secondary" id="simulate-btn">Simulate Data</button>
-          <button class="btn btn-success" id="run-btn">Run Code</button>
-          <button class="btn btn-secondary" id="save-btn">💾 Save</button>
-          <button class="btn btn-secondary" id="load-btn">📁 Load</button>
-          <button class="btn btn-secondary" id="reload-btn" disabled>🔄 Reload</button>
-          <button class="btn btn-secondary" id="fullscreen-btn">Fullscreen</button>
-          <button class="btn btn-secondary" id="test-sound-btn">🔊 Test Sound</button>
-          <button class="toggle-reference" id="toggle-catalogue-btn" title="Show/Hide Animation & Student Catalogue Window">🎬 Catalogue</button>
-          <button class="toggle-reference" id="toggle-reference-btn">📖 Reference</button>
-          <button class="toggle-reference" id="about-btn" title="About BrainImation — Goal, Purpose, Architecture & Research Plan">ℹ️ About</button>
+          <div class="signal-menu">
+            <button class="btn btn-secondary" id="signal-settings-btn" type="button" aria-expanded="false" aria-controls="signal-settings-panel" title="EEG line filter and PPG / optics settings">EEG / PPG <span class="chev">▾</span></button>
+            <div class="signal-panel" id="signal-settings-panel" role="dialog" aria-label="EEG and PPG settings">
+              <div class="signal-panel-title">EEG &amp; PPG settings</div>
+              <div class="signal-section">EEG</div>
+              <div class="signal-row">
+                <span>Line notch</span>
+                <button class="signal-toggle is-on" id="line-filter-btn" type="button" title="EEG line-noise filter: click to cycle 60 Hz notch / 50 Hz notch / Off (eegData.setLineFilter)">60 Hz</button>
+              </div>
+              <div class="signal-section">PPG / Optics</div>
+              <div class="signal-row">
+                <span>PPG mode</span>
+                <button class="signal-toggle is-on" id="ppg-mode-btn" type="button" title="Toggle PPG / Optical Red LED Mode (p1042 16-ch red/NIR/IR + ambient vs p1035 4-ch on Athena)">ON</button>
+              </div>
+              <div class="signal-field">
+                <label for="athena-preset-select">Optics preset</label>
+                <select class="signal-select" id="athena-preset-select" title="Muse S Athena optics preset (sent to the headband; restarts the stream). 'high'/'low' are the labels used by community docs - what they change is not documented (LED current? gain?) so compare them in the Raw Optics Channel Map sketch.">
+                  <option value="">Auto</option>
+                  <option value="p1035">p1035 · EEG4 + Optics4</option>
+                  <option value="p1045">p1045 · Optics4 · low (MindMonitor default)</option>
+                  <option value="p1046">p1046 · Optics4 · high</option>
+                  <option value="p4129">p4129 · Optics4</option>
+                  <option value="p1034">p1034 · Optics8 (amused-py "full sensors")</option>
+                  <option value="p1043">p1043 · Optics8 · low</option>
+                  <option value="p1044">p1044 · Optics8 · high</option>
+                  <option value="p1041">p1041 · Optics16 · low</option>
+                  <option value="p1042">p1042 · Optics16 · high</option>
+                </select>
+              </div>
+              <div class="signal-row">
+                <span>Band-pass 0.5–4 Hz</span>
+                <button class="signal-toggle is-on" id="ppg-bp-btn" type="button" title="PPG band-pass 0.5-4 Hz (eegData.setPPGFilter({bandpass}))">ON</button>
+              </div>
+              <div class="signal-row">
+                <span>Ambient cancel</span>
+                <button class="signal-toggle is-on" id="ppg-amb-btn" type="button" title="PPG ambient-referenced flicker cancellation (eegData.setPPGFilter({ambientCancel}))">ON</button>
+              </div>
+            </div>
+          </div>
+          <div class="header-cluster header-actions">
+            <button class="btn btn-secondary" id="simulate-btn">Simulate Data</button>
+            <button class="btn btn-success" id="run-btn">Run Code</button>
+            <button class="btn btn-secondary" id="save-btn">💾 Save</button>
+            <button class="btn btn-secondary" id="load-btn">📁 Load</button>
+            <button class="btn btn-secondary" id="reload-btn" disabled>🔄 Reload</button>
+            <button class="btn btn-secondary" id="fullscreen-btn">Fullscreen</button>
+            <button class="btn btn-secondary" id="test-sound-btn" title="Test sound">🔊 Sound</button>
+            <button class="btn btn-secondary" id="about-btn" title="About BrainImation — Goal, Purpose, Architecture & Research Plan">About</button>
+          </div>
           <input type="file" id="file-input" accept=".js" style="display: none;">
         </div>
       </div>
@@ -1783,10 +2046,12 @@
 
       <!-- Code Editor Panel -->
       <div class="code-panel">
+        <button type="button" class="panel-rail" data-panel-toggle="code" title="Show code editor">Code</button>
         <div class="canvas-resizer" id="canvas-resizer" title="Drag to resize animation / code panes (double-click to reset)"></div>
         <div class="code-panel-tabs">
-          <div class="code-panel-tab active" data-panel="code">💻 Code Editor</div>
-          <div class="code-panel-tab" data-panel="log">📋 System Log</div>
+          <div class="code-panel-tab active" data-panel="code" title="Code editor">Code</div>
+          <div class="code-panel-tab" data-panel="log" title="System log">Log</div>
+          <button type="button" class="panel-min-btn" data-panel-toggle="code" title="Minimize code editor" aria-label="Minimize code editor">−</button>
         </div>
         <div class="code-panel-content">
           <!-- Code Editor View -->
@@ -1822,17 +2087,19 @@
 
       <!-- Modern Resizable Animation & Student Catalogue Window (Right of Code Editor) -->
       <div class="catalogue-panel" id="catalogue-panel">
+        <button type="button" class="panel-rail" data-panel-toggle="catalogue" title="Show catalogue">Catalogue</button>
         <div class="catalogue-resizer" id="catalogue-resizer" title="Drag left edge to resize catalogue window (can be as narrow as 1 item)"></div>
         <div class="catalogue-header">
           <div class="catalogue-title-row">
-            <div class="catalogue-title" title="Animations, Games, Classic p5.eegedu & 2022 NeuroArt Student Gallery">🎬 Catalogue</div>
-            <div style="display: flex; align-items: center; gap: 6px;">
+            <div class="catalogue-title" title="Animations, Games, Classic p5.eegedu & 2022 NeuroArt Student Gallery">Catalogue</div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
               <div class="catalogue-width-Presets" title="Resize catalogue window (1 column, 2 columns, or 3 columns)">
                 <button class="catalogue-size-btn" data-cols="1" data-width="160">1×</button>
                 <button class="catalogue-size-btn active" data-cols="2" data-width="320">2×</button>
                 <button class="catalogue-size-btn" data-cols="3" data-width="460">3×</button>
               </div>
               <span class="catalogue-count-badge" id="catalogue-count">0</span>
+              <button type="button" class="panel-min-btn" data-panel-toggle="catalogue" title="Minimize catalogue" aria-label="Minimize catalogue">−</button>
             </div>
           </div>
           <div class="catalogue-controls-row">
@@ -1849,14 +2116,18 @@
 
       <!-- Reference Panel -->
       <div class="reference-panel" id="reference-panel">
+        <button type="button" class="panel-rail" data-panel-toggle="reference" title="Show reference library">Reference</button>
         <div class="reference-resizer" id="reference-resizer" title="Drag boundary to resize between Catalogue and Reference Docs"></div>
         <div class="reference-tabs">
-          <div class="reference-tab active" data-tab="p5js">P5.js</div>
-          <div class="reference-tab" data-tab="sound">Sound</div>
-          <div class="reference-tab" data-tab="input">Input</div>
-          <div class="reference-tab" data-tab="eeg">EEG Data</div>
-          <div class="reference-tab" data-tab="sensors">Sensors / IMU</div>
-          <div class="reference-tab" data-tab="ai">AI Helper</div>
+          <div class="reference-tab-scroll">
+            <div class="reference-tab active" data-tab="p5js" title="P5.js drawing reference">P5.js</div>
+            <div class="reference-tab" data-tab="sound" title="p5.sound reference">Sound</div>
+            <div class="reference-tab" data-tab="input" title="Input reference">Input</div>
+            <div class="reference-tab" data-tab="eeg" title="EEG data reference">EEG</div>
+            <div class="reference-tab" data-tab="sensors" title="Sensors and IMU reference">Sensors</div>
+            <div class="reference-tab" data-tab="ai" title="AI helper">AI</div>
+          </div>
+          <button type="button" class="panel-min-btn" data-panel-toggle="reference" title="Minimize reference library" aria-label="Minimize reference library">−</button>
         </div>
         
         <div class="reference-content" id="reference-content">
@@ -7250,35 +7521,37 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
 
         // Note: URL parameter checking now happens in CodeEditor after Monaco is initialized
 
-        // Toggle reference panel
-        document.getElementById('toggle-reference-btn').addEventListener('click', () => {
+        // Minimize / restore code, catalogue, and reference from each window's own control
+        const toggleWorkspacePanel = (panel) => {
           const mainContainer = document.querySelector('.main-container');
-          const referencePanel = document.getElementById('reference-panel');
-          const btn = document.getElementById('toggle-reference-btn');
-          
-          if (mainContainer.classList.contains('hide-reference')) {
-            mainContainer.classList.remove('hide-reference');
-            btn.textContent = '📖 Reference';
-          } else {
-            mainContainer.classList.add('hide-reference');
-            btn.textContent = '📖 Show Reference';
-          }
+          if (!mainContainer || !panel) return;
+          mainContainer.classList.toggle('hide-' + panel);
           setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+        };
+        document.querySelectorAll('[data-panel-toggle]').forEach((btn) => {
+          btn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleWorkspacePanel(btn.dataset.panelToggle);
+          });
         });
 
-        // Toggle catalogue window
-        const toggleCatalogueBtn = document.getElementById('toggle-catalogue-btn');
-        if (toggleCatalogueBtn) {
-          toggleCatalogueBtn.addEventListener('click', () => {
-            const mainContainer = document.querySelector('.main-container');
-            if (mainContainer.classList.contains('hide-catalogue')) {
-              mainContainer.classList.remove('hide-catalogue');
-              toggleCatalogueBtn.textContent = '🎬 Catalogue';
-            } else {
-              mainContainer.classList.add('hide-catalogue');
-              toggleCatalogueBtn.textContent = '🎬 Show Catalogue';
-            }
-            setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+        const signalBtn = document.getElementById('signal-settings-btn');
+        const signalPanel = document.getElementById('signal-settings-panel');
+        const setSignalPanelOpen = (open) => {
+          if (!signalBtn || !signalPanel) return;
+          signalPanel.classList.toggle('open', open);
+          signalBtn.classList.toggle('open', open);
+          signalBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        };
+        if (signalBtn && signalPanel) {
+          signalBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            setSignalPanelOpen(!signalPanel.classList.contains('open'));
+          });
+          signalPanel.addEventListener('click', (event) => event.stopPropagation());
+          document.addEventListener('click', () => setSignalPanelOpen(false));
+          window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') setSignalPanelOpen(false);
           });
         }
 
@@ -7483,7 +7756,8 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
               if (presetSel) presetSel.value = '';
               eegData.optics = { count: 0, raw: [], history: [], maxLen: 512 };
               const enabled = await museManager.togglePPGMode();
-              ppgModeBtn.textContent = enabled ? '💓 PPG: ON' : '💓 PPG: OFF';
+              ppgModeBtn.textContent = enabled ? 'ON' : 'OFF';
+              ppgModeBtn.classList.toggle('is-on', !!enabled);
             } finally {
               ppgModeBtn.disabled = false;
             }
@@ -7496,7 +7770,10 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
             athenaPresetSel.disabled = true;
             try {
               const on = await museManager.setOpticsPreset(athenaPresetSel.value);
-              if (ppgModeBtn) ppgModeBtn.textContent = on ? '💓 PPG: ON' : '💓 PPG: OFF';
+              if (ppgModeBtn) {
+                ppgModeBtn.textContent = on ? 'ON' : 'OFF';
+                ppgModeBtn.classList.toggle('is-on', !!on);
+              }
             } finally {
               athenaPresetSel.disabled = false;
             }
@@ -7507,8 +7784,14 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         const ppgAmbBtn = document.getElementById('ppg-amb-btn');
         window.syncPPGFilterBtns = () => {
           const f = eegData.ppgFilter;
-          if (ppgBpBtn) ppgBpBtn.textContent = '💓 Band-pass: ' + (f.bandpass.enabled ? 'ON' : 'OFF');
-          if (ppgAmbBtn) ppgAmbBtn.textContent = '💡 Amb. cancel: ' + (f.ambientCancel.enabled ? 'ON' : 'OFF');
+          if (ppgBpBtn) {
+            ppgBpBtn.textContent = f.bandpass.enabled ? 'ON' : 'OFF';
+            ppgBpBtn.classList.toggle('is-on', f.bandpass.enabled);
+          }
+          if (ppgAmbBtn) {
+            ppgAmbBtn.textContent = f.ambientCancel.enabled ? 'ON' : 'OFF';
+            ppgAmbBtn.classList.toggle('is-on', f.ambientCancel.enabled);
+          }
         };
         if (ppgBpBtn) ppgBpBtn.addEventListener('click', () => eegData.setPPGFilter({ bandpass: !eegData.ppgFilter.bandpass.enabled }));
         if (ppgAmbBtn) ppgAmbBtn.addEventListener('click', () => eegData.setPPGFilter({ ambientCancel: !eegData.ppgFilter.ambientCancel.enabled }));
@@ -7518,7 +7801,8 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         window.syncLineFilterBtn = () => {
           if (!lineFilterBtn) return;
           const lf = eegData.lineFilter;
-          lineFilterBtn.textContent = lf.enabled ? `〰️ Notch: ${lf.notchHz} Hz` : '〰️ Notch: OFF';
+          lineFilterBtn.textContent = lf.enabled ? `${lf.notchHz} Hz` : 'Off';
+          lineFilterBtn.classList.toggle('is-on', !!lf.enabled);
         };
         if (lineFilterBtn) {
           lineFilterBtn.addEventListener('click', () => {
@@ -8284,23 +8568,6 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
         if (mobileZoomBtn) {
           mobileZoomBtn.addEventListener('click', () => {
             window.toggleCanvasZoomFullscreen();
-          });
-        }
-
-        // Also allow header Catalogue & Reference buttons to switch tabs when in mobile view
-        if (toggleCatalogueBtn) {
-          toggleCatalogueBtn.addEventListener('click', () => {
-            if (window.innerWidth <= 900) {
-              setMobileWorkspaceTab('catalogue');
-            }
-          });
-        }
-        const toggleRefBtnEl = document.getElementById('toggle-reference-btn');
-        if (toggleRefBtnEl) {
-          toggleRefBtnEl.addEventListener('click', () => {
-            if (window.innerWidth <= 900) {
-              setMobileWorkspaceTab('data');
-            }
           });
         }
 
