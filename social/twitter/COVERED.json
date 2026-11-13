@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "note": "Dedup list for the Twitter-thread automation. Read social/twitter/AGENT_INSTRUCTIONS.md before adding an entry. Do not remove past entries.",
+  "threads": []
+}
