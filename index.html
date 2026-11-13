@@ -7999,11 +7999,19 @@ Respond ONLY with JavaScript code, no explanations or markdown. Include setup() 
             return;
           }
 
-          // Group registered examples by category in menu order.
+          // Group registered examples by category in manifest order, so a sketch
+          // listed first in manifest.json stays the first card in its section.
+          const manifestIndex = new Map();
+          entries.forEach((entry, index) => {
+            if (entry && entry.id) manifestIndex.set(entry.id, index);
+          });
           const byCategory = new Map();
           for (const ex of registry.all()) {
             if (!byCategory.has(ex.category)) byCategory.set(ex.category, []);
             byCategory.get(ex.category).push(ex);
+          }
+          for (const list of byCategory.values()) {
+            list.sort((a, b) => (manifestIndex.get(a.id) ?? 1e9) - (manifestIndex.get(b.id) ?? 1e9));
           }
 
           const configuredOrder = Array.isArray(manifest.categoryOrder)

@@ -1,8 +1,8 @@
 /**
  * @id museAthenaSpO2FusedEstimatorV2
  * @title 🧪 Muse S Athena Multi-Sensor SpO2 & rSO2 (v2: Pulse Wave Overlay)
- * @category Getting Started
- * @order -9
+ * @category Start Here: One Simple Sketch per Sensor
+ * @order 0
  */
 
 // 🧪 MUSE S ATHENA MULTI-SENSOR SpO₂ & rSO₂ CALIBRATED ESTIMATOR
