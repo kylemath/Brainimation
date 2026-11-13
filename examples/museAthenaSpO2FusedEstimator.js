@@ -1,8 +1,8 @@
 /**
  * @id museAthenaSpO2FusedEstimator
- * @title 🧪 Muse S Athena Multi-Sensor SpO2 & rSO2 Calibrated Estimator (1st Dev)
- * @category Getting Started
- * @order -10
+ * @title 🧪 Muse S Athena Multi-Sensor SpO2 & rSO2
+ * @category PPG & Optical (fNIRS)
+ * @order 0
  */
 
 // 🧪 MUSE S ATHENA MULTI-SENSOR SpO₂ & rSO₂ CALIBRATED ESTIMATOR
@@ -131,6 +131,102 @@ var historyLog = {
   eegCleanAF7: [],
   sqi: []
 };
+
+var PULSE_HALF_WIN = 75;       // ±75 frames (~±1.25s @ 60fps) to show preceding, current, and subsequent pulses
+var PULSE_MIN_SEP = 22;        // Minimum frames between systolic peaks (~360ms)
+var MAX_OVERLAY_PULSES = 18;   // Number of recent valid pulse waves to overlay
+var pulseOverlayState = {
+  rawS850: [],
+  rawS660: [],
+  rawL850: [],
+  sampleIdx: 0,
+  lastPeakSampleIdx: -100,
+  waves: [],
+  rejectedCount: 0
+};
+
+function baselineCorrectSlice(arr, start, end) {
+  const out = new Array(end - start + 1);
+  let sum = 0;
+  for (let i = start; i <= end; i++) sum += arr[i];
+  const mean = sum / out.length;
+  for (let i = 0; i < out.length; i++) out[i] = arr[start + i] - mean;
+  return out;
+}
+
+function isPulseOutlier(candS850, waves) {
+  if (waves.length < 3) return false;
+  const len = candS850.length;
+  const meanWave = new Array(len).fill(0);
+  for (let k = 0; k < waves.length; k++) {
+    const w = waves[k].s850;
+    for (let i = 0; i < len; i++) meanWave[i] += w[i];
+  }
+  for (let i = 0; i < len; i++) meanWave[i] /= waves.length;
+
+  let varSum = 0;
+  for (let k = 0; k < waves.length; k++) {
+    const w = waves[k].s850;
+    for (let i = 0; i < len; i++) {
+      const d = w[i] - meanWave[i];
+      varSum += d * d;
+    }
+  }
+  const ensembleStd = Math.sqrt(varSum / (waves.length * len));
+
+  let candErrSum = 0;
+  for (let i = 0; i < len; i++) {
+    const d = candS850[i] - meanWave[i];
+    candErrSum += d * d;
+  }
+  const candRmse = Math.sqrt(candErrSum / len);
+
+  const centerIdx = PULSE_HALF_WIN;
+  const meanPeak = meanWave[centerIdx];
+  const candPeak = candS850[centerIdx];
+  if (meanPeak > 0.05 && (candPeak < 0.4 * meanPeak || candPeak > 2.2 * meanPeak)) {
+    return true;
+  }
+  return ensembleStd > 1e-4 && candRmse > 2.3 * ensembleStd;
+}
+
+function updatePulseOverlay(s850, s660, l850) {
+  const st = pulseOverlayState;
+  const maxRaw = 2 * PULSE_HALF_WIN + 16;
+  pushBounded(st.rawS850, s850, maxRaw);
+  pushBounded(st.rawS660, s660, maxRaw);
+  pushBounded(st.rawL850, l850, maxRaw);
+  st.sampleIdx++;
+
+  const winLen = 2 * PULSE_HALF_WIN + 1;
+  if (st.rawS850.length < winLen + 8) return;
+
+  const c = st.rawS850.length - 1 - PULSE_HALF_WIN;
+  const candGlobalIdx = st.sampleIdx - 1 - PULSE_HALF_WIN;
+  if (candGlobalIdx - st.lastPeakSampleIdx < PULSE_MIN_SEP) return;
+
+  const val = st.rawS850[c];
+  if (val <= 0.05) return;
+  for (let d = 1; d <= 8; d++) {
+    if (st.rawS850[c - d] > val || st.rawS850[c + d] >= val) return;
+  }
+
+  const start = c - PULSE_HALF_WIN;
+  const end = c + PULSE_HALF_WIN;
+  const snip850 = baselineCorrectSlice(st.rawS850, start, end);
+  const snip660 = baselineCorrectSlice(st.rawS660, start, end);
+  const snipL850 = baselineCorrectSlice(st.rawL850, start, end);
+
+  st.lastPeakSampleIdx = candGlobalIdx;
+
+  if (isPulseOutlier(snip850, st.waves)) {
+    st.rejectedCount++;
+    return;
+  }
+
+  st.waves.push({ s850: snip850, s660: snip660, l850: snipL850 });
+  if (st.waves.length > MAX_OVERLAY_PULSES) st.waves.shift();
+}
 
 // Whole-recording log for Tier 1. One point per "bucket" of frames; when it fills up, neighbouring points are
 // averaged and the bucket doubles, so the entire session always fits on screen (no scrolling window).
@@ -312,6 +408,13 @@ function resetOpticalBaselines() {
   nlmsWeightsShort850 = [0, 0, 0, 0, 0, 0];
   nlmsWeightsLong660  = [0, 0, 0, 0, 0, 0];
   nlmsWeightsLong850  = [0, 0, 0, 0, 0, 0];
+  pulseOverlayState.rawS850 = [];
+  pulseOverlayState.rawS660 = [];
+  pulseOverlayState.rawL850 = [];
+  pulseOverlayState.sampleIdx = 0;
+  pulseOverlayState.lastPeakSampleIdx = -100;
+  pulseOverlayState.waves = [];
+  pulseOverlayState.rejectedCount = 0;
   showToast('🔄 Optical baselines & IMU NLMS filters re-zeroed');
 }
 
@@ -679,6 +782,7 @@ function stepMultiSensorSpO2(isWarmup = false) {
   pushBounded(historyLog.acShort660,  fS660.cleanAcOd * 1000.0, SPO2_HIST_LEN);
   pushBounded(historyLog.acShort850,  fS850.cleanAcOd * 1000.0, SPO2_HIST_LEN);
   pushBounded(historyLog.acLong850,   fL850.cleanAcOd * 1000.0, SPO2_HIST_LEN);
+  updatePulseOverlay(fS850.cleanAcOd * 1000.0, fS660.cleanAcOd * 1000.0, fL850.cleanAcOd * 1000.0);
   pushBounded(historyLog.cleanHbO2,   estState.cleanHbO2, SPO2_HIST_LEN);
   pushBounded(historyLog.cleanHHb,    estState.cleanHHb, SPO2_HIST_LEN);
   pushBounded(historyLog.imuMotion,   imuMotionMag, SPO2_HIST_LEN);
@@ -705,7 +809,7 @@ function draw() {
   fill(238, 246, 255);
   textStyle(BOLD);
   textSize(11);
-  text('🧪 Muse S Athena Multi-Sensor SpO₂ & rSO₂ Estimator', pad + 8, 21);
+  text('🧪 Muse S Athena Multi-Sensor SpO₂ & rSO₂', pad + 8, 21);
 
   textStyle(NORMAL);
   fill(152, 180, 220);
@@ -1143,10 +1247,17 @@ function drawLeftCalibrationPanel(x, y, w, h) {
   const errVal = estState.spo2Calibrated - fingerRefSpO2;
   text(`SpO₂ = ${calA.toFixed(1)} − ${calB.toFixed(1)}·R  |  ΔErr: ${errVal >= 0 ? '+' : ''}${errVal.toFixed(1)}%`, x + 8, y + 27);
 
+  const helpH = 17;
+  const minAbove = 34 + 52 + 20 + 4 * 14 + helpH + 10;
+  const pulseH = Math.max(72, Math.min(156, h - minAbove, h * 0.34));
+  const pulseTop = y + h - 6 - pulseH;
+  const helpY = pulseTop - 4 - helpH;
+
   const px = x + 30;
   const py = y + 34;
   const pw = w - 40;
-  const ph = Math.min(115, h * 0.38);
+  const roomAbove = Math.max(44, helpY - py - 4 * 16 - 28);
+  const ph = Math.max(44, Math.min(96, roomAbove));
 
   fill(11, 16, 28);
   stroke(38, 54, 86);
@@ -1255,8 +1366,8 @@ function drawLeftCalibrationPanel(x, y, w, h) {
     }
   ];
 
-  const availBarH = h - (by - y) - 26;
-  const rowStep = Math.max(18, Math.min(25, availBarH / estimators.length));
+  const availBarH = helpY - by - 6;
+  const rowStep = Math.max(14, Math.min(22, availBarH / estimators.length));
   for (let i = 0; i < estimators.length; i++) {
     const e = estimators[i];
     const ey = by + i * rowStep;
@@ -1275,10 +1386,10 @@ function drawLeftCalibrationPanel(x, y, w, h) {
     rect(x + 8, ey + 11, (w - 16) * e.frac, 4.5, 2);
   }
 
-  const footY = y + h - 22;
+  const footY = helpY;
   const footX = x + 8;
   const footW = w - 16;
-  const footH = 17;
+  const footH = helpH;
   const hovFoot = mouseX >= footX && mouseX <= footX + footW && mouseY >= footY && mouseY <= footY + footH;
   fill(hovFoot ? color(26, 38, 64) : color(12, 18, 32));
   stroke(hovFoot ? color(250, 204, 21) : color(42, 60, 95));
@@ -1288,6 +1399,117 @@ function drawLeftCalibrationPanel(x, y, w, h) {
   textSize(7.1);
   text('💡 How to Calibrate: Click or press [H] ▼', x + 12, footY + 11);
   uiBtns.push({ id: 'toggleHelp', x: footX, y: footY, w: footW, h: footH });
+
+  drawPulseAveragePanel(x + 8, pulseTop, w - 16, pulseH);
+}
+
+function drawPulseAveragePanel(x, y, w, h) {
+  fill(11, 16, 28);
+  stroke(38, 54, 86);
+  strokeWeight(1);
+  rect(x, y, w, h, 4);
+
+  const waves = pulseOverlayState.waves;
+  noStroke();
+  fill(230, 242, 255);
+  textStyle(BOLD);
+  textSize(8.2);
+  text('AVERAGED PULSES', x + 6, y + 12);
+
+  fill(140, 170, 210);
+  textStyle(NORMAL);
+  textSize(7.2);
+  textAlign(RIGHT, BASELINE);
+  text(`N=${waves.length}  rej=${pulseOverlayState.rejectedCount}`, x + w - 6, y + 12);
+  textAlign(LEFT, BASELINE);
+
+  const px = x + 6;
+  const py = y + 16;
+  const pw = w - 12;
+  const ph = h - 30;
+  const cx = px + pw / 2;
+
+  stroke(42, 58, 90, 150);
+  strokeWeight(1);
+  line(px, py + ph / 2, px + pw, py + ph / 2);
+  stroke(100, 140, 200, 90);
+  line(cx, py, cx, py + ph);
+
+  noStroke();
+  fill(130, 160, 200, 160);
+  textSize(6.6);
+  textAlign(CENTER, TOP);
+  text('Peak', cx, py + 1);
+  textAlign(LEFT, TOP);
+  text('Before', px + 2, py + 1);
+  textAlign(RIGHT, TOP);
+  text('After', px + pw - 2, py + 1);
+  textAlign(LEFT, BASELINE);
+
+  const channels = [
+    { key: 'l850', rgb: [192, 132, 252], sw: 1.1 },
+    { key: 's660', rgb: [248, 113, 113], sw: 1.3 },
+    { key: 's850', rgb: [56, 189, 248],  sw: 1.5 }
+  ];
+
+  if (waves.length === 0) {
+    fill(140, 165, 200, 180);
+    textSize(7.4);
+    textAlign(CENTER, CENTER);
+    text('Collecting beats…', cx, py + ph / 2 + 4);
+    textAlign(LEFT, BASELINE);
+    return;
+  }
+
+  let maxAbs = 0.25;
+  for (let k = 0; k < waves.length; k++) {
+    const wv = waves[k];
+    for (const ch of channels) {
+      const arr = wv[ch.key];
+      if (!arr) continue;
+      for (let j = 0; j < arr.length; j++) {
+        const v = Math.abs(arr[j]);
+        if (v > maxAbs) maxAbs = v;
+      }
+    }
+  }
+  maxAbs *= 1.15;
+
+  const plotWave = (arr, rgb, sw, alpha) => {
+    if (!arr || arr.length < 2) return;
+    noFill();
+    stroke(rgb[0], rgb[1], rgb[2], alpha);
+    strokeWeight(sw);
+    beginShape();
+    for (let j = 0; j < arr.length; j++) {
+      const vx = map(j, 0, arr.length - 1, px, px + pw);
+      const vy = map(constrain(arr[j], -maxAbs, maxAbs), -maxAbs, maxAbs, py + ph, py);
+      vertex(vx, vy);
+    }
+    endShape();
+  };
+
+  for (let k = 0; k < waves.length; k++) {
+    const ageFrac = waves.length === 1 ? 1.0 : k / (waves.length - 1);
+    const alpha = 18 + Math.pow(ageFrac, 1.6) * 90;
+    const wv = waves[k];
+    for (const ch of channels) plotWave(wv[ch.key], ch.rgb, ch.sw * 0.85, alpha);
+  }
+
+  const len = waves[0].s850.length;
+  for (const ch of channels) {
+    const mean = new Array(len).fill(0);
+    let n = 0;
+    for (let k = 0; k < waves.length; k++) {
+      const arr = waves[k][ch.key];
+      if (!arr || arr.length !== len) continue;
+      n++;
+      for (let j = 0; j < len; j++) mean[j] += arr[j];
+    }
+    if (!n) continue;
+    for (let j = 0; j < len; j++) mean[j] /= n;
+    plotWave(mean, ch.rgb, ch.sw + 1.1, 255);
+  }
 }
 
 function drawRightMultiSensorStack(x, y, w, h) {

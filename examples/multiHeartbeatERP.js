@@ -5,10 +5,10 @@
  * @order 3
  */
 // Technical Multimodal Interoception Visualizer: Heartbeat-Evoked Potential (HEP)
-// Detects systolic peaks in the 64 Hz PPG wave (`eegData.ppgPulse`), time-locks a [-100 ms, +500 ms]
-// window of 256 Hz EEG across TP9, AF7, AF8, and TP10, applies a 50/60 Hz Line-Noise Notch + 30 Hz
-// ERP Low-Pass filter followed by a [-100 ms, 0 ms] Pre-Stimulus Baseline Subtraction filter, and
-// computes a rolling ensemble average ERP!
+// Locks t = 0 to the systolic peak of the same pulsatile AC the SpO2 estimator uses:
+// smoothed 8 mm 850 nm intensity (fast low-pass minus a ~0.65 Hz baseline), divided by DC,
+// then IMU-cleaned. The crest is the maximum inside a window predicted from the recent
+// pulse period, and that peak time is what the EEG epoch is aligned to.
 //
 // Controls (Top Bar Buttons or Keyboard Shortcuts):
 //   - [↺ Restart Avg]  (or 'R'): Reset trial count and restart ensemble ERP averaging
@@ -27,8 +27,24 @@ let trialCount = 0;
 let lastPeakMs = 0;
 let pendingPeakMs = null;
 let ppgTrail = [];
-let smoothPulse = 0.5;
-let armedForPeak = true;
+let hpBase = 0;
+let hpInit = false;
+let peakAmp = 0;
+let recentAmp = 0;
+let ibis = [];
+let peakSearch = null;
+let lastCardiacSample = null;
+let lastHistLen = 0;
+let pulseSource = 'pulse';
+let optPulse = {
+  init: false,
+  lp: 0,
+  base: 0,
+  nlms: [0, 0, 0, 0, 0, 0],
+  len: 0,
+  last: null,
+  tail: []
+};
 
 // Interactive UI state
 let showTP9TP10 = true;
@@ -54,9 +70,287 @@ function setup() {
 function resetHEP() {
   trialCount = 0;
   pendingPeakMs = null;
+  lastPeakMs = 0;
+  hpBase = 0;
+  hpInit = false;
+  peakAmp = 0;
+  recentAmp = 0;
+  ibis = [];
+  peakSearch = null;
+  lastCardiacSample = null;
+  lastHistLen = 0;
+  pulseSource = 'pulse';
+  optPulse = { init: false, lp: 0, base: 0, nlms: [0, 0, 0, 0, 0, 0], len: 0, last: null, tail: [] };
+  ppgTrail = [];
   for (let ch = 0; ch < 4; ch++) {
     avgHEP[ch] = new Array(EPOCH_SAMPLES).fill(0);
   }
+}
+
+function medianIbi() {
+  if (ibis.length) {
+    const s = ibis.slice().sort((a, b) => a - b);
+    return s[Math.floor(s.length / 2)];
+  }
+  const bpm = (typeof eegData !== 'undefined' && eegData.heartRate > 0) ? eegData.heartRate : 72;
+  return constrain(60000 / bpm, 380, 1400);
+}
+
+function peakHalfWindow() {
+  return constrain(medianIbi() * 0.28, 110, 230);
+}
+
+function markPeakOnTrail(peakMs) {
+  let bestI = -1;
+  let bestDt = 1e9;
+  for (let i = ppgTrail.length - 1; i >= 0; i--) {
+    const dt = Math.abs(ppgTrail[i].t - peakMs);
+    if (dt < bestDt) { bestDt = dt; bestI = i; }
+    if (ppgTrail[i].t < peakMs - 140) break;
+  }
+  if (bestI >= 0) ppgTrail[bestI].isPeak = true;
+}
+
+function acceptPeak(peakMs, amp, lockEeg) {
+  if (lastPeakMs && peakMs - lastPeakMs < 320) return;
+  if (lastPeakMs) {
+    const ibi = peakMs - lastPeakMs;
+    const hr = (typeof eegData !== 'undefined' && eegData.heartRate > 0) ? eegData.heartRate : 0;
+    const hrIbi = hr > 0 ? 60000 / hr : 0;
+    const matchesRate = !hrIbi || (ibi > hrIbi * 0.78 && ibi < hrIbi * 1.28);
+    if (ibi >= 330 && ibi <= 1700 && matchesRate) {
+      ibis.push(ibi);
+      if (ibis.length > 8) ibis.shift();
+    }
+  }
+  lastPeakMs = peakMs;
+  peakAmp = peakAmp <= 0 ? amp : peakAmp * 0.75 + amp * 0.25;
+  markPeakOnTrail(peakMs);
+  // Only time-lock EEG when the crest was confirmed within a few samples.
+  // The first beat waits through the dicrotic notch before committing, so it is a timing seed, not an epoch.
+  if (lockEeg && pendingPeakMs === null) pendingPeakMs = peakMs;
+}
+
+function ensurePeakSearch(tMs) {
+  if (peakSearch) return;
+  const half = peakHalfWindow();
+  if (!lastPeakMs) {
+    peakSearch = { start: tMs - 400, end: Infinity, bestV: -Infinity, bestMs: tMs, learning: true };
+    return;
+  }
+  if (tMs >= lastPeakMs + medianIbi() - half) {
+    const center = lastPeakMs + medianIbi();
+    peakSearch = { start: center - half, end: center + half, bestV: -Infinity, bestMs: center, learning: false };
+  }
+}
+
+// High-passed sample. The crest kept is the maximum inside the predicted beat window,
+// confirmed once the wave has fallen off that maximum — so the lock is the peak, not the downslope.
+function considerPulsatileSample(hp, tMs) {
+  ensurePeakSearch(tMs);
+  if (!peakSearch || tMs < peakSearch.start) return;
+  if (peakSearch.trough === undefined || hp < peakSearch.trough) peakSearch.trough = hp;
+
+  const rise = hp - peakSearch.trough;
+  const need = Math.max(recentAmp * 0.42, peakAmp * 0.32, 1e-8);
+  if (rise >= need && hp >= (peakSearch.armed ? peakSearch.bestV : -Infinity)) {
+    peakSearch.bestV = hp;
+    peakSearch.bestMs = tMs;
+    peakSearch.armed = true;
+    peakSearch.hold = false;
+  }
+
+  const swing = peakSearch.armed ? Math.max(peakSearch.bestV - peakSearch.trough, recentAmp) : 0;
+  const drop = Math.max(recentAmp * 0.28, peakAmp * 0.16);
+  const fallen = peakSearch.armed && tMs >= peakSearch.bestMs + 24 && hp <= peakSearch.bestV - drop;
+  // First beat: keep the window open long enough that a dicrotic bump cannot win over the taller systolic crest.
+  const holdUntil = peakSearch.bestMs + medianIbi() * (peakSearch.learning ? 0.82 : 0);
+  const confirmNow = fallen && tMs >= holdUntil && tMs <= peakSearch.end + 50;
+  if (confirmNow) {
+    acceptPeak(peakSearch.bestMs, swing, tMs - peakSearch.bestMs < 140);
+    peakSearch = null;
+    return;
+  }
+  if (fallen && tMs < holdUntil) peakSearch.hold = true;
+
+  if (!peakSearch.learning && tMs > peakSearch.end) {
+    if (peakSearch.armed && peakSearch.bestMs >= peakSearch.start && peakSearch.bestMs <= peakSearch.end) {
+      acceptPeak(peakSearch.bestMs, swing, tMs - peakSearch.bestMs < 140);
+    } else if (lastPeakMs) {
+      lastPeakMs = tMs - medianIbi() + peakHalfWindow();
+    }
+    peakSearch = null;
+  }
+}
+
+function ingestPulsatile(sample, tMs) {
+  if (!hpInit) { hpBase = sample; hpInit = true; }
+  hpBase += 0.04 * (sample - hpBase);
+  const hp = sample - hpBase;
+  recentAmp = Math.max(recentAmp * 0.992, Math.abs(hp));
+  ppgTrail.push({ hp: hp, t: tMs, isPeak: false });
+  if (ppgTrail.length > 220) ppgTrail.shift();
+  considerPulsatileSample(hp, tMs);
+}
+
+// Same cardiac band-pass as the fused SpO2 estimator: smoothed intensity minus the slow
+// baseline, as a fraction of DC, then a 6-tap IMU NLMS. Positive peaks are systolic.
+function opticalPulsatileAc(raw, amb, imuVec) {
+  const dark = Math.max(100, raw - Math.max(0, amb) * 0.15);
+  if (!optPulse.init) {
+    optPulse.lp = dark;
+    optPulse.base = dark;
+    optPulse.init = true;
+  }
+  if (Math.abs(dark - optPulse.base) / Math.max(1, optPulse.base) > 0.05) {
+    optPulse.lp = dark;
+    optPulse.base = dark;
+  }
+  optPulse.lp = optPulse.lp + 0.28 * (dark - optPulse.lp);
+  optPulse.base = optPulse.base + 0.075 * (optPulse.lp - optPulse.base);
+  const dc = Math.max(100, optPulse.base);
+  const rawAc = -(optPulse.lp - dc) / dc;
+  let norm = 1e-4;
+  let motion = 0;
+  for (let k = 0; k < 6; k++) {
+    norm += imuVec[k] * imuVec[k];
+    motion += optPulse.nlms[k] * imuVec[k];
+  }
+  const clean = rawAc - motion;
+  const mu = 0.025;
+  for (let k = 0; k < 6; k++) {
+    optPulse.nlms[k] = constrain(0.9985 * optPulse.nlms[k] + (mu * clean * imuVec[k]) / norm, -0.05, 0.05);
+  }
+  return clean;
+}
+
+function currentImuVec() {
+  const la = (typeof eegData !== 'undefined' && eegData.linearAccel) || {};
+  const g = (typeof eegData !== 'undefined' && eegData.gyro) || {};
+  return [
+    (la.x || 0) * 0.25, (la.y || 0) * 0.25, (la.z || 0) * 0.25,
+    (g.x || 0) / 80, (g.y || 0) / 80, (g.z || 0) / 80
+  ];
+}
+
+function newOpticalSamples(arr) {
+  if (!arr || !arr.length) return [];
+  const n = arr.length;
+  if (!optPulse.tail) optPulse.tail = [];
+  if (!optPulse.len || n < optPulse.len) {
+    optPulse.len = n;
+    optPulse.last = arr[n - 1];
+    optPulse.tail = arr.slice(-8);
+    return [arr[n - 1]];
+  }
+  if (n > optPulse.len) {
+    const fresh = arr.slice(optPulse.len);
+    optPulse.len = n;
+    optPulse.last = arr[n - 1];
+    optPulse.tail = arr.slice(-8);
+    return fresh;
+  }
+  // The history is capped, so several new samples can land between frames.
+  // Find the previous last value and take everything after it.
+  const prev = optPulse.tail;
+  let shift = 0;
+  if (prev.length) {
+    const anchor = prev[prev.length - 1];
+    const from = Math.max(0, n - 9);
+    for (let i = n - 1; i >= from; i--) {
+      if (arr[i] === anchor) { shift = n - 1 - i; break; }
+    }
+  }
+  const fresh = shift > 0 ? arr.slice(n - shift) : (arr[n - 1] !== optPulse.last ? [arr[n - 1]] : []);
+  optPulse.len = n;
+  optPulse.last = arr[n - 1];
+  optPulse.tail = arr.slice(-8);
+  return fresh;
+}
+
+function ingestBandpassed(ac, tMs) {
+  recentAmp = Math.max(recentAmp * 0.992, Math.abs(ac));
+  ppgTrail.push({ hp: ac, t: tMs, isPeak: false });
+  if (ppgTrail.length > 220) ppgTrail.shift();
+  considerPulsatileSample(ac, tMs);
+}
+
+function stampFresh(samples, nowMs, consume) {
+  const step = samples.length > 1 ? 1000 / 64 : 0;
+  for (let i = 0; i < samples.length; i++) {
+    consume(samples[i], nowMs - (samples.length - 1 - i) * step);
+  }
+}
+
+// Prefer the estimator's 8 mm 850 nm pulsatile AC. Fall back to the 20 mm channel, then classic IR.
+function pullOpticalPulsatile(nowMs) {
+  if (typeof eegData === 'undefined') return false;
+  const shortH = eegData.ppgShortHistory;
+  const longH = eegData.ppgLongHistory;
+  const classic = eegData.ppgHistory;
+  let ir = null;
+  let amb = null;
+  if (shortH && shortH.ir850 && shortH.ir850.length >= 8) {
+    ir = shortH.ir850;
+    amb = shortH.ambient;
+    pulseSource = '8mm 850nm';
+  } else if (longH && longH.ir850 && longH.ir850.length >= 8) {
+    ir = longH.ir850;
+    amb = longH.ambient;
+    pulseSource = '20mm 850nm';
+  } else if (classic && classic.infrared && classic.infrared.length >= 8) {
+    ir = classic.infrared;
+    amb = classic.ambient;
+    pulseSource = 'IR';
+  } else {
+    return false;
+  }
+  const fresh = newOpticalSamples(ir);
+  if (!fresh.length) return true;
+  const imu = currentImuVec();
+  const ambArr = amb || [];
+  const start = Math.max(0, ir.length - fresh.length);
+  const step = fresh.length > 1 ? 1000 / 64 : 0;
+  for (let i = 0; i < fresh.length; i++) {
+    const ambVal = ambArr.length ? ambArr[Math.min(ambArr.length - 1, start + i)] : 0;
+    ingestBandpassed(opticalPulsatileAc(fresh[i], ambVal, imu), nowMs - (fresh.length - 1 - i) * step);
+  }
+  return true;
+}
+
+function pullPulsatileSamples(nowMs) {
+  if (pullOpticalPulsatile(nowMs)) return;
+  const hist = (typeof eegData !== 'undefined' && eegData.fnirsRegressionHistory)
+    ? eegData.fnirsRegressionHistory.cardiacWave
+    : null;
+  if (hist && hist.length >= 8) {
+    pulseSource = 'ΔOD cardiac';
+    const n = hist.length;
+    let fresh = [];
+    if (!lastHistLen || n < lastHistLen) fresh = [hist[n - 1]];
+    else if (n > lastHistLen) fresh = hist.slice(Math.max(0, lastHistLen));
+    else if (hist[n - 1] !== lastCardiacSample) fresh = [hist[n - 1]];
+    lastHistLen = n;
+    lastCardiacSample = hist[n - 1];
+    stampFresh(fresh, nowMs, ingestBandpassed);
+    return;
+  }
+  const reg = (typeof eegData !== 'undefined') ? eegData.fnirsRegression : null;
+  if (reg && typeof reg.cardiacWave === 'number' && isFinite(reg.cardiacWave)) {
+    pulseSource = 'ΔOD cardiac';
+    ingestBandpassed(reg.cardiacWave, nowMs);
+    return;
+  }
+  if (typeof eegData !== 'undefined' && eegData.connected && (eegData.ppgPulse || 0) > 0.05) {
+    pulseSource = 'pulse';
+    ingestBandpassed(eegData.ppgPulse - 0.5, nowMs);
+    return;
+  }
+  if (typeof eegData !== 'undefined' && eegData.connected) return;
+  pulseSource = 'demo';
+  const phase = ((nowMs * 0.001) * 1.2) % 1;
+  const synth = Math.exp(-Math.pow((phase - 0.16) / 0.055, 2)) - 0.2;
+  ingestBandpassed(synth, nowMs);
 }
 
 /**
@@ -212,38 +506,11 @@ function draw() {
   background(225, 38, 8);
 
   const nowMs = millis();
-  const t = nowMs * 0.001;
-  const rawPulse = eegData.connected
-    ? (eegData.ppgPulse || 0)
-    : Math.pow(max(0, sin(t * 3.9)), 4);
-  // 60 FPS low-pass interpolation of the smoothed ΔOD / Oxy-Hb cardiac wave (eliminates BLE packet staircase steps)
-  smoothPulse = lerp(smoothPulse, rawPulse, 0.28);
-  const pulse = smoothPulse;
-  const bpm = eegData.heartRate > 0 ? eegData.heartRate : 72;
+  pullPulsatileSamples(nowMs);
+  const bpm = eegData.heartRate > 0 ? eegData.heartRate : Math.round(60000 / medianIbi());
 
-  // Record live smoothed ΔOD / Oxy-Hb cardiac trigger trail
-  ppgTrail.push({ v: pulse, isPeak: false });
-  if (ppgTrail.length > 220) ppgTrail.shift();
-
-  // Rearm systolic peak detector once wave drops below midline (prevents double-triggering on dicrotic notch)
-  if (pulse < 0.48) {
-    armedForPeak = true;
-  }
-
-  // Detect true systolic crest on smoothed Oxy-Hb / ΔOD cardiac wave and schedule epoch capture once +500 ms post-peak EEG arrives
-  const nTrail = ppgTrail.length;
-  const isLocalCrest = nTrail >= 3 &&
-    ppgTrail[nTrail - 2].v >= ppgTrail[nTrail - 3].v &&
-    ppgTrail[nTrail - 2].v >= ppgTrail[nTrail - 1].v;
-  if (armedForPeak && pulse > 0.64 && isLocalCrest && nowMs - lastPeakMs > 460) {
-    armedForPeak = false;
-    lastPeakMs = nowMs;
-    ppgTrail[nTrail - 2].isPeak = true;
-    pendingPeakMs = nowMs;
-  }
-
-  // Once +500 ms of post-peak EEG has arrived (or immediately on first beat if disconnected), lock & filter epoch
-  if (pendingPeakMs !== null && nowMs - pendingPeakMs >= 490) {
+  // Capture the EEG epoch once +500 ms after the true systolic peak has arrived
+  if (pendingPeakMs !== null && nowMs - pendingPeakMs >= 500) {
     pendingPeakMs = null;
     captureLockedHEPEpoch();
   }
@@ -458,29 +725,32 @@ function draw() {
   fill(352, 85, 98);
   textAlign(LEFT, CENTER);
   textSize(10.5);
-  text(`💓 Smoothed ΔOD / Oxy-Hb Trigger  |  Pulse: ${(pulse * 100).toFixed(0)}%  |  Trials: ${trialCount}`, 26, sTop + sH / 2);
+  const trigLabel = `💓 ${pulseSource} pulsatile AC  |  IBI ${Math.round(medianIbi())} ms (${bpm} BPM)  |  Trials: ${trialCount}`;
+  text(trigLabel, 26, sTop + sH / 2);
 
-  // Live PPG trace + R-peak lock markers inside bottom strip
-  const waveL = 335;
+  // Live IMU-cleaned pulsatile AC + systolic-peak lock markers
+  const waveL = 40 + textWidth(trigLabel);
   const waveR = width - 64;
   if (waveR > waveL + 40 && ppgTrail.length > 2) {
+    let amp = 1e-6;
+    for (let i = 0; i < ppgTrail.length; i++) amp = Math.max(amp, Math.abs(ppgTrail[i].hp));
     noFill();
     stroke(352, 80, 95, 0.9);
     strokeWeight(1.8);
     beginShape();
     for (let i = 0; i < ppgTrail.length; i++) {
       const wx = map(i, 0, 219, waveL, waveR);
-      const wy = map(constrain(ppgTrail[i].v, 0, 1), 0, 1, sTop + sH - 8, sTop + 8);
+      const wy = map(constrain(ppgTrail[i].hp, -amp, amp), -amp, amp, sTop + sH - 8, sTop + 8);
       vertex(wx, wy);
-      if (ppgTrail[i].isPeak) {
-        push();
-        stroke(48, 95, 100, 0.85);
-        strokeWeight(1.2);
-        line(wx, sTop + 5, wx, sTop + sH - 5);
-        pop();
-      }
     }
     endShape();
+    for (let i = 0; i < ppgTrail.length; i++) {
+      if (!ppgTrail[i].isPeak) continue;
+      const wx = map(i, 0, 219, waveL, waveR);
+      stroke(48, 95, 100, 0.9);
+      strokeWeight(1.4);
+      line(wx, sTop + 5, wx, sTop + sH - 5);
+    }
   }
 
   const beatFlash = constrain(1.0 - (nowMs - lastPeakMs) / 300.0, 0, 1);

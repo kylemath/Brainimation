@@ -24,12 +24,6 @@
   ],
   "examples": [
     {
-      "id": "museAthenaSpO2FusedEstimatorV2",
-      "file": "museAthenaSpO2FusedEstimatorV2.js",
-      "title": "🧪 Muse S Athena Multi-Sensor SpO2 & rSO2 (v2: Pulse Wave Overlay)",
-      "category": "Start Here: One Simple Sketch per Sensor"
-    },
-    {
       "id": "simpleEEG",
       "file": "simpleEEG.js",
       "title": "Simple EEG: 4 Channels (filtered)",
@@ -70,12 +64,6 @@
       "file": "ppgSpectraNoiseFinder.js",
       "title": "PPG Raw Detector Spectra (Noise Source Finder)",
       "category": "Signal Quality & Diagnostics"
-    },
-    {
-      "id": "museAthenaSpO2FusedEstimator",
-      "file": "museAthenaSpO2FusedEstimator.js",
-      "title": "🧪 Muse S Athena Multi-Sensor SpO2 & rSO2 Calibrated Estimator (1st Dev)",
-      "category": "Getting Started"
     },
     {
       "id": "basic",
@@ -130,6 +118,12 @@
       "file": "spectra.js",
       "title": "Spectra",
       "category": "Brain Wave Visualizations"
+    },
+    {
+      "id": "museAthenaSpO2FusedEstimator",
+      "file": "museAthenaSpO2FusedEstimator.js",
+      "title": "🧪 Muse S Athena Multi-Sensor SpO2 & rSO2",
+      "category": "PPG & Optical (fNIRS)"
     },
     {
       "id": "ppgThreeChannels",
