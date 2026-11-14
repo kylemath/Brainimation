@@ -6,7 +6,6 @@ simpleGyroscope,Simple Gyroscope: Head Rotation Speed,Start Here: One Simple Ske
 athenaPresetSweep,Athena Preset Sweep (auto-compare optics presets),Signal Quality & Diagnostics,0,129,0,0,0,0,0,0,0,0,0,0,0,0
 athenaOpticsChannelMap,Athena Raw Optics Channel Map (what is each channel?),Signal Quality & Diagnostics,0,110,0,0,0,0,0,0,0,0,0,0,0,0
 ppgSpectraNoiseFinder,PPG Raw Detector Spectra (Noise Source Finder),Signal Quality & Diagnostics,0,135,0,0,0,0,0,0,0,0,1,0,0,0
-museAthenaSpO2FusedEstimator,🧪 Muse S Athena Multi-Sensor SpO2 & rSO2 Calibrated Estimator (1st Dev),Getting Started,1,1244,1,1,0,0,1,0,0,0,1,1,0,0
 basic,Basic Animation,Getting Started,1,11,1,0,0,0,0,1,0,0,0,0,0,0
 basicShapes,Basic Shapes,Getting Started,1,19,1,1,1,0,0,0,0,0,0,0,0,0
 functionExample,Function Example,Getting Started,1,27,0,0,0,0,0,1,1,0,0,0,0,0
@@ -16,6 +15,7 @@ BasicFrequencyBands,Basic Frequency Bands,Brain Wave Visualizations,1,28,1,1,1,1
 bandOrbitz,Band Orbitz,Brain Wave Visualizations,1,30,1,1,1,1,1,1,0,0,0,0,0,0
 piWedges,Pi Wedges,Brain Wave Visualizations,1,31,1,1,1,1,1,0,0,0,0,0,0,0
 spectra,Spectra,Brain Wave Visualizations,1,36,1,1,1,1,1,0,0,0,0,0,0,0
+museAthenaSpO2FusedEstimator,🧪 Muse S Athena Multi-Sensor SpO2 & rSO2,PPG & Optical (fNIRS),0,1438,1,1,0,0,1,0,0,0,1,1,0,0
 ppgThreeChannels,3-Channel PPG Time Series,PPG & Optical (fNIRS),0,184,0,0,0,0,0,0,0,0,1,0,0,0
 fNIRSBeerLambert,Modified Beer-Lambert (HbO2 & Hb),PPG & Optical (fNIRS),0,267,0,0,0,0,0,0,0,0,1,0,0,0
 cerebralOxygenationSpO2,Cerebral Oxygenation (SpO2 & HbO2/Hb Phase),PPG & Optical (fNIRS),0,211,0,0,0,0,0,1,0,0,1,0,0,0
@@ -39,7 +39,7 @@ imuHeadBopSynth,🥁 Head-Bop Kinetic Drum Pad & Gyro Filter Synth,"Motion, IMU 
 imuHeadMovementArtifactFilter,Adaptive IMU Head-Movement Filter (NLMS Artifact Cancellation),"Motion, IMU & Broadcast Sensors",0,453,0,0,0,0,0,0,0,1,0,1,0,0
 multiBrainHeartSync,Brain-Heart Synchrony (EEG Bands + PPG Pulse + HR),Multimodal (EEG + PPG + HR),0,120,1,1,1,0,1,0,0,0,1,0,0,0
 multiNeurovascularCoupling,Neurovascular Coupling: EEG Gamma/Beta -> fNIRS HbO2 Lag,Multimodal (EEG + PPG + HR),0,161,0,1,0,0,1,0,0,0,1,0,0,0
-multiHeartbeatERP,Heartbeat-Evoked Potential (HEP): PPG R-Peak Locked EEG,Multimodal (EEG + PPG + HR),0,400,0,0,0,0,0,0,0,1,1,1,0,0
+multiHeartbeatERP,Heartbeat-Evoked Potential (HEP): PPG R-Peak Locked EEG,Multimodal (EEG + PPG + HR),0,650,0,0,0,0,0,0,0,1,1,1,0,0
 multiMindHeartReactor,Multimodal Game: Mind-Heart Fusion Reactor,Multimodal (EEG + PPG + HR),0,78,0,0,0,0,0,1,1,0,1,0,0,0
 multiNeuroCardiacCosmos3D,3D Neuro-Cardiac Galaxy (EEG Orbits + PPG Supernova),Multimodal (EEG + PPG + HR),0,69,1,1,1,0,1,0,0,0,1,0,0,1
 attention,Attention Meter,Attention & Meditation,1,20,0,0,0,0,0,1,0,0,0,0,0,0

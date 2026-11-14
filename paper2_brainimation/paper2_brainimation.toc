@@ -4,51 +4,56 @@
 \contentsline {subsubsection}{\numberline {1.1.2}Headbands vs.\ Pre-Built Dashboards}{4}{subsubsection.1.1.2}%
 \contentsline {subsection}{\numberline {1.2}Constructionist Design \& Setup Barriers}{4}{subsection.1.2}%
 \contentsline {subsubsection}{\numberline {1.2.1}Constructionist Design Goals}{4}{subsubsection.1.2.1}%
-\contentsline {subsubsection}{\numberline {1.2.2}Eliminating Desktop Dependencies}{4}{subsubsection.1.2.2}%
-\contentsline {subsection}{\numberline {1.3}BrainImation Overview \& Minimal Example}{5}{subsection.1.3}%
-\contentsline {subsubsection}{\numberline {1.3.1}Browser-Native Hardware \& Simulator}{5}{subsubsection.1.3.1}%
-\contentsline {subsubsection}{\numberline {1.3.2}11-Line Neurofeedback}{5}{subsubsection.1.3.2}%
-\contentsline {section}{\numberline {2}Browser Hardware \& Simulation}{6}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Multi-Generation Muse Client}{6}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Shared Signal State \& Simulator}{7}{subsection.2.2}%
-\contentsline {section}{\numberline {3}IDE Supports \& Visual Catalogue}{8}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Autocomplete \& Reference Drawer}{8}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}234-Sketch Visual Catalogue}{9}{subsection.3.2}%
-\contentsline {section}{\numberline {4}Core Teaching Modules}{10}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Audio Sonification}{10}{subsection.4.1}%
-\contentsline {subsubsection}{\numberline {4.1.1}EEG-to-FM Parameter Mapping}{10}{subsubsection.4.1.1}%
-\contentsline {subsubsection}{\numberline {4.1.2}Relaxed vs.\ Engaged Spectra}{12}{subsubsection.4.1.2}%
-\contentsline {subsection}{\numberline {4.2}Online ERP Averaging}{12}{subsection.4.2}%
-\contentsline {subsubsection}{\numberline {4.2.1}Forehead Reference \& Polarity}{12}{subsubsection.4.2.1}%
-\contentsline {subsubsection}{\numberline {4.2.2}Epoch Extraction \& Blink Rejection}{12}{subsubsection.4.2.2}%
-\contentsline {subsubsection}{\numberline {4.2.3}$\sqrt {K}$ Scaling, SME, \& Hysteresis}{13}{subsubsection.4.2.3}%
-\contentsline {subsection}{\numberline {4.3}Optical PPG/fNIRS Regression}{13}{subsection.4.3}%
-\contentsline {subsubsection}{\numberline {4.3.1}Beer--Lambert Contrast \& Depth}{13}{subsubsection.4.3.1}%
-\contentsline {subsubsection}{\numberline {4.3.2}Short-Channel Skin Regression}{14}{subsubsection.4.3.2}%
-\contentsline {subsection}{\numberline {4.4}Head Motion \& NLMS Filtering}{15}{subsection.4.4}%
-\contentsline {subsubsection}{\numberline {4.4.1}6-DOF Kinematics Integration}{15}{subsubsection.4.4.1}%
-\contentsline {subsubsection}{\numberline {4.4.2}6-Tap NLMS Motion Filter}{15}{subsubsection.4.4.2}%
-\contentsline {section}{\numberline {5}Classroom Evaluation}{16}{section.5}%
-\contentsline {subsection}{\numberline {5.1}Course Context \& Workflow}{16}{subsection.5.1}%
-\contentsline {subsubsection}{\numberline {5.1.1}Participant Pool \& Ethics}{16}{subsubsection.5.1.1}%
-\contentsline {subsubsection}{\numberline {5.1.2}Lab-to-Home-to-Lab Cycle}{16}{subsubsection.5.1.2}%
-\contentsline {subsubsection}{\numberline {5.1.3}Two-Cohort Exam Structure}{17}{subsubsection.5.1.3}%
-\contentsline {subsection}{\numberline {5.2}Code Complexity \& Scaffold Expansion}{18}{subsection.5.2}%
-\contentsline {subsubsection}{\numberline {5.2.1}Executable LOC Metric \& Clustering}{18}{subsubsection.5.2.1}%
-\contentsline {subsubsection}{\numberline {5.2.2}Cohort 1 \& Cohort 2 Exemplars}{18}{subsubsection.5.2.2}%
-\contentsline {subsubsection}{\numberline {5.2.3}Template Expansion Test}{18}{subsubsection.5.2.3}%
-\contentsline {subsection}{\numberline {5.3}Disaggregated Feature Adoption}{18}{subsection.5.3}%
-\contentsline {subsubsection}{\numberline {5.3.1}Signal Conditioning}{18}{subsubsection.5.3.1}%
-\contentsline {subsubsection}{\numberline {5.3.2}Cohort 1 Frequency-Band Usage}{18}{subsubsection.5.3.2}%
-\contentsline {subsubsection}{\numberline {5.3.3}Cohort 2 Buffer Usage}{18}{subsubsection.5.3.3}%
-\contentsline {subsubsection}{\numberline {5.3.4}Archival Preservation}{19}{subsubsection.5.3.4}%
-\contentsline {section}{\numberline {6}Discussion}{19}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Pedagogical \& Research Synthesis}{19}{subsection.6.1}%
-\contentsline {subsubsection}{\numberline {6.1.1}From Dashboards to Creative Coding}{19}{subsubsection.6.1.1}%
-\contentsline {subsubsection}{\numberline {6.1.2}Zero-Install Lab \& Off-Lab Workflow}{19}{subsubsection.6.1.2}%
-\contentsline {subsection}{\numberline {6.2}Technical \& Methodological Limitations}{19}{subsection.6.2}%
-\contentsline {subsubsection}{\numberline {6.2.1}Synthetic Benchmarks vs.\ Clinical Validation}{19}{subsubsection.6.2.1}%
-\contentsline {subsubsection}{\numberline {6.2.2}WebBluetooth \& 60~Hz Jitter}{19}{subsubsection.6.2.2}%
-\contentsline {subsubsection}{\numberline {6.2.3}Dry-Sensor Artifacts \& NLMS Bounds}{20}{subsubsection.6.2.3}%
-\contentsline {subsubsection}{\numberline {6.2.4}Browser Compatibility}{20}{subsubsection.6.2.4}%
-\contentsline {subsubsection}{\numberline {6.2.5}Classroom Evaluation Scope}{20}{subsubsection.6.2.5}%
+\contentsline {subsubsection}{\numberline {1.2.2}Eliminating Desktop Dependencies}{5}{subsubsection.1.2.2}%
+\contentsline {subsubsection}{\numberline {1.2.3}Classroom Neuroimaging Lessons}{5}{subsubsection.1.2.3}%
+\contentsline {subsection}{\numberline {1.3}BrainImation Overview \& Minimal Example}{6}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}Browser-Native Hardware \& Simulator}{6}{subsubsection.1.3.1}%
+\contentsline {subsubsection}{\numberline {1.3.2}11-Line Neurofeedback}{6}{subsubsection.1.3.2}%
+\contentsline {section}{\numberline {2}Browser Hardware \& Simulation}{7}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Multi-Generation Muse Client}{7}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Shared Signal State \& Simulator}{8}{subsection.2.2}%
+\contentsline {section}{\numberline {3}IDE Supports \& Visual Catalogue}{10}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Autocomplete \& Reference Drawer}{10}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}234-Sketch Visual Catalogue}{10}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Core Teaching Modules}{11}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Audio Sonification}{11}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}EEG-to-FM Parameter Mapping}{11}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}Relaxed vs.\ Engaged Spectra}{13}{subsubsection.4.1.2}%
+\contentsline {subsubsection}{\numberline {4.1.3}Periodic vs.\ Aperiodic Spectra}{13}{subsubsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.2}Online ERP Averaging}{13}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Forehead Reference \& Polarity}{13}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Epoch Extraction \& Blink Rejection}{14}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}$\sqrt {K}$ Scaling, SME, \& Hysteresis}{15}{subsubsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {4.2.4}Frame Jitter \& Latency}{16}{subsubsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.3}Optical PPG/fNIRS Regression}{16}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Beer--Lambert Contrast \& Depth}{16}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}Short-Channel Skin Regression}{17}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}Heartbeat Potentials \& Surrogates}{18}{subsubsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.4}Head Motion \& NLMS Filtering}{19}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}6-DOF Kinematics Integration}{19}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}6-Tap NLMS Motion Filter}{19}{subsubsection.4.4.2}%
+\contentsline {subsubsection}{\numberline {4.4.3}Viscoelastic Delay \& Multi-Tap}{19}{subsubsection.4.4.3}%
+\contentsline {section}{\numberline {5}Classroom Evaluation}{20}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Course Context \& Workflow}{20}{subsection.5.1}%
+\contentsline {subsubsection}{\numberline {5.1.1}Participant Pool \& Ethics}{20}{subsubsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.2}Lab-to-Home-to-Lab Cycle}{21}{subsubsection.5.1.2}%
+\contentsline {subsubsection}{\numberline {5.1.3}Two-Cohort Exam Structure}{21}{subsubsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.2}Code Complexity \& Scaffold Expansion}{21}{subsection.5.2}%
+\contentsline {subsubsection}{\numberline {5.2.1}Executable LOC Metric \& Clustering}{21}{subsubsection.5.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2}Cohort 1 \& Cohort 2 Exemplars}{22}{subsubsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.3}Template Expansion Test}{22}{subsubsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.3}Disaggregated Feature Adoption}{22}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Signal Conditioning}{22}{subsubsection.5.3.1}%
+\contentsline {subsubsection}{\numberline {5.3.2}Cohort 1 Frequency-Band Usage}{22}{subsubsection.5.3.2}%
+\contentsline {subsubsection}{\numberline {5.3.3}Cohort 2 Buffer Usage}{22}{subsubsection.5.3.3}%
+\contentsline {subsubsection}{\numberline {5.3.4}Archival Preservation}{22}{subsubsection.5.3.4}%
+\contentsline {section}{\numberline {6}Discussion}{23}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Pedagogical \& Research Synthesis}{23}{subsection.6.1}%
+\contentsline {subsubsection}{\numberline {6.1.1}From Dashboards to Creative Coding}{23}{subsubsection.6.1.1}%
+\contentsline {subsubsection}{\numberline {6.1.2}Zero-Install Lab \& Off-Lab Workflow}{23}{subsubsection.6.1.2}%
+\contentsline {subsection}{\numberline {6.2}Technical \& Methodological Limitations}{23}{subsection.6.2}%
+\contentsline {subsubsection}{\numberline {6.2.1}Synthetic Benchmarks vs.\ Clinical Validation}{23}{subsubsection.6.2.1}%
+\contentsline {subsubsection}{\numberline {6.2.2}WebBluetooth \& 60~Hz Jitter}{23}{subsubsection.6.2.2}%
+\contentsline {subsubsection}{\numberline {6.2.3}Dry-Sensor Artifacts \& NLMS Bounds}{24}{subsubsection.6.2.3}%
+\contentsline {subsubsection}{\numberline {6.2.4}Browser Compatibility}{24}{subsubsection.6.2.4}%
+\contentsline {subsubsection}{\numberline {6.2.5}Classroom Evaluation Scope}{24}{subsubsection.6.2.5}%

@@ -1,16 +1,71 @@
 \begin{thebibliography}{}
 
+\bibitem[Anwyl-Irvine et~al., 2021]{anwyl2021realistic}
+Anwyl-Irvine, A., Dalmaijer, E.~S., Hodges, N., and Evershed, J.~K. (2021).
+\newblock Realistic precision and accuracy of online experiment platforms, web
+  browsers, and devices.
+\newblock {\em Behavior Research Methods}, 53(4):1407--1426.
+
+\bibitem[Anwyl-Irvine et~al., 2022]{dalmaijer2022mouseview}
+Anwyl-Irvine, A.~L., Armstrong, T., and Dalmaijer, E.~S. (2022).
+\newblock {MouseView.js}: Reliable and valid attention tracking in web-based
+  experiments using a cursor-directed aperture.
+\newblock {\em Behavior Research Methods}, 54(4):1663--1687.
+
+\bibitem[Cannard et~al., 2021]{cannard2021validating}
+Cannard, C., Wahbeh, H., and Delorme, A. (2021).
+\newblock Validating the wearable {MUSE} headset for {EEG} spectral analysis
+  and {Frontal Alpha Asymmetry}.
+\newblock In {\em 2021 IEEE International Conference on Bioinformatics and
+  Biomedicine (BIBM)}, pages 3603--3610.
+
+\bibitem[Cannard et~al., 2024]{cannard2024brainbeats}
+Cannard, C., Wahbeh, H., and Delorme, A. (2024).
+\newblock {BrainBeats} as an open-source {EEGLAB} plugin to jointly analyze
+  {EEG} and cardiovascular signals.
+\newblock {\em Journal of Visualized Experiments}, 206:e65829.
+
 \bibitem[Chowning, 1973]{chowning1973synthesis}
 Chowning, J.~M. (1973).
 \newblock The synthesis of complex audio spectra by means of frequency
   modulation.
 \newblock {\em Journal of the Audio Engineering Society}, 21(7):526--534.
 
+\bibitem[Clin~Deffarges et~al., 2026]{clindeffarges2026socrates}
+Clin~Deffarges, A., Kosmyna, N., and Maes, P. (2026).
+\newblock Socrates went nuclear: Comparing interaction strategies for {AI}
+  systems in a learning context using brain sensing.
+\newblock In {\em Proceedings of the 14th International Conference on
+  Human-Agent Interaction (HAI '26)}.
+\newblock arXiv:2609.00584.
+
+\bibitem[de~Kleijn et~al., 2023]{dekleijn2023short}
+de~Kleijn, R. et~al. (2023).
+\newblock Short-term transcutaneous vagus nerve stimulation increases pupil
+  size but does not affect {EEG} alpha power.
+\newblock {\em Brain Stimulation}, 16(4):1126--1128.
+
+\bibitem[de~Kleijn et~al., 2025]{dekleijn2025phasic}
+de~Kleijn, R. et~al. (2025).
+\newblock Phasic alertness impairs cognitive control by amplifying competition
+  between evidence accumulators.
+\newblock {\em Journal of Neuroscience}, 45(36):e1595242025.
+
 \bibitem[de~Leeuw, 2015]{deleeuw2015jspsych}
 de~Leeuw, J.~R. (2015).
 \newblock {jsPsych}: A {J}ava{S}cript library for creating behavioral
   experiments in a {W}eb browser.
 \newblock {\em Behavior Research Methods}, 47(1):1--12.
+
+\bibitem[de~Leeuw, 2024]{deleeuw2024datapipe}
+de~Leeuw, J.~R. (2024).
+\newblock {DataPipe}: Born-open data collection for online experiments.
+\newblock {\em Behavior Research Methods}, 56(3):2499--2506.
+
+\bibitem[de~Leeuw et~al., 2023]{deleeuw2023simulating}
+de~Leeuw, J.~R., Gilbert, R.~A., Petrov, N., and Luchterhandt, B. (2023).
+\newblock Simulating behavior to help researchers build experiments.
+\newblock {\em Behavior Research Methods}, 55(4):1863--1873.
 
 \bibitem[Delorme and Makeig, 2004]{delorme2004eeglab}
 Delorme, A. and Makeig, S. (2004).
@@ -31,6 +86,40 @@ Enriquez-Geppert, S., Huster, R.~J., and Herrmann, C.~S. (2017).
   methodologies and clinical applications.
 \newblock {\em Current Behavioral Neuroscience Reports}, 4(2):156--168.
 
+\bibitem[Frischkorn and Schubert, 2018]{frischkorn2018cognitive}
+Frischkorn, G.~T. and Schubert, A.-L. (2018).
+\newblock Cognitive models in intelligence research: Advantages and
+  recommendations for their application.
+\newblock {\em Journal of Intelligence}, 6(3):34.
+
+\bibitem[Hatton et~al., 2023]{hatton2023quantitative}
+Hatton, S.~L., Rathore, S., Vilinsky, I., and Stowasser, A. (2023).
+\newblock Quantitative and qualitative representation of introductory and
+  advanced {EEG} concepts: An exploration of different {EEG} setups.
+\newblock {\em Journal of Undergraduate Neuroscience Education},
+  21(2):A119--A129.
+
+\bibitem[Henninger et~al., 2022]{henninger2022labjs}
+Henninger, F., Shevchenko, Y., Mertens, U.~K., Kieslich, P.~J., and Hilbig,
+  B.~E. (2022).
+\newblock {lab.js}: A free, open, online study builder.
+\newblock {\em Behavior Research Methods}, 54(2):556--573.
+
+\bibitem[Iemi et~al., 2026]{iemi2026icancode}
+Iemi, L., Wright, M., Pham, K., and Alexandrescu, A. (2026).
+\newblock ``{I Can Code}'': An innovative workshop introducing students to
+  coding in the context of neuroscience research.
+\newblock {\em Journal of Undergraduate Neuroscience Education},
+  24(1):A42--A50.
+
+\bibitem[Janssen et~al., 2021]{janssen2021opportunities}
+Janssen, T. W.~P., Grammer, J.~K., Bleichner, M.~G., Bulgarelli, C., Davidesco,
+  I., Dikker, S., Jasi{\'n}ska, K.~K., Siugzdaite, R., Vassena, E., Vatakis,
+  A., Zion-Golumbic, E., and van Atteveldt, N. (2021).
+\newblock Opportunities and limitations of mobile neuroimaging technologies in
+  educational neuroscience.
+\newblock {\em Mind, Brain, and Education}, 15(4):354--370.
+
 \bibitem[Keil et~al., 2014]{keil2014committee}
 Keil, A., Debener, S., Gratton, G., Jungh{\"o}fer, M., Kappenman, E.~S., Luck,
   S.~J., Luu, P., Miller, G.~A., and Yee, C.~M. (2014).
@@ -38,12 +127,31 @@ Keil, A., Debener, S., Gratton, G., Jungh{\"o}fer, M., Kappenman, E.~S., Luck,
   studies using electroencephalography and magnetoencephalography.
 \newblock {\em Psychophysiology}, 51(1):1--21.
 
+\bibitem[Klug et~al., 2022]{klug2022bemobil}
+Klug, M., Jeung, S., Wunderlich, A., Gehrke, L., Protzak, J., Djebbara, Z.,
+  Argubi-Wollesen, A., Wollesen, B., and Gramann, K. (2022).
+\newblock The {BeMoBIL} pipeline for automated analyses of multimodal mobile
+  brain and body imaging data.
+\newblock {\em bioRxiv}, page 2022.09.29.510051.
+
+\bibitem[Kothe et~al., 2025]{kothe2025lsl}
+Kothe, C., Shirazi, S.~Y., Stenner, T., Medine, D., Boulay, C., Grivich, M.~I.,
+  Artoni, F., Mullen, T., Delorme, A., and Makeig, S. (2025).
+\newblock The lab streaming layer for synchronized multimodal recording.
+\newblock {\em Imaging Neuroscience}, 3:imag.a.136.
+
 \bibitem[Krigolson et~al., 2017]{krigolson2017choosing}
 Krigolson, O.~E., Williams, C.~C., Norton, A., Hassall, C.~D., and Colino,
   F.~L. (2017).
 \newblock Choosing {MUSE}: Validation of a low-cost, portable {EEG} system for
   {ERP} research.
 \newblock {\em Frontiers in Neuroscience}, 11:109.
+
+\bibitem[Kuroki and Pronk, 2023]{pronk2023jsquestplus}
+Kuroki, D. and Pronk, T. (2023).
+\newblock {jsQuestPlus}: A {JavaScript} implementation of the {QUEST+} method
+  for estimating psychometric thresholds in online experiments.
+\newblock {\em Behavior Research Methods}, 55(6):3183--3192.
 
 \bibitem[Kuziek et~al., 2018]{kuziek2018increasing}
 Kuziek, J.~W., Redman, E.~X., Splinter, G.~D., and Mathewson, K.~E. (2018).
@@ -56,6 +164,18 @@ Kuziek, J.~W., Shienh, A., and Mathewson, K.~E. (2017).
 \newblock Transitioning {EEG} experiments away from the laboratory using a
   {R}aspberry {P}i 2.
 \newblock {\em Journal of Neuroscience Methods}, 277:75--82.
+
+\bibitem[Livingstone et~al., 2026]{livingstone2026music}
+Livingstone, S.~R. et~al. (2026).
+\newblock {AI} in music performance: The human--{AI} performance loop.
+\newblock {\em Frontiers in Psychology}, 17:2001824.
+
+\bibitem[Livingstone and Russo, 2018]{livingstone2018ravdess}
+Livingstone, S.~R. and Russo, F.~A. (2018).
+\newblock The {Ryerson Audio-Visual Database of Emotional Speech and Song
+  (RAVDESS)}: A dynamic, multimodal set of facial and vocal expressions in
+  {North American English}.
+\newblock {\em PLOS ONE}, 13(5):e0196391.
 
 \bibitem[Lotte et~al., 2013]{lotte2013flaws}
 Lotte, F., Larrue, F., and M{\"u}hl, C. (2013).
@@ -73,6 +193,19 @@ Luck, S.~J., Stewart, A.~X., Simmons, A.~M., and Rhemtulla, M. (2021).
 \newblock Standardized measurement error: A universal metric of data quality
   for averaged event-related potentials.
 \newblock {\em Psychophysiology}, 58(6):e13793.
+
+\bibitem[Luk{\'a}cs and Gartus, 2023]{lukacs2023precise}
+Luk{\'a}cs, G. and Gartus, A. (2023).
+\newblock Precise display time measurement in {JavaScript} for web-based
+  experiments.
+\newblock {\em Behavior Research Methods}, 55(3):1255--1269.
+
+\bibitem[Makowski et~al., 2021]{makowski2021neurokit2}
+Makowski, D., Pham, T., Lau, Z.~J., Brammer, J.~C., Lespinasse, F., Pham, H.,
+  Sch{\"o}lzel, C., and Chen, S. H.~A. (2021).
+\newblock {NeuroKit2}: A {Python} toolbox for neurophysiological signal
+  processing.
+\newblock {\em Behavior Research Methods}, 53(4):1689--1696.
 
 \bibitem[Mathewson, 2024]{mathewson2024moving}
 Mathewson, K.~E. (2024).
@@ -107,6 +240,18 @@ Miranda, E.~R. and Castet, J. (2014).
 \newblock In {\em Guide to {Brain--Computer} Music Interfacing}, pages 1--27.
   Springer.
 
+\bibitem[Monroy-D'Croz et~al., 2026]{monroydcroz2026minimalist}
+Monroy-D'Croz, P.~A., Ramirez-Melendez, R., and Cespedes-Guevara, J. (2026).
+\newblock A minimalist brain--computer musical interface for real-time
+  emotion-driven sonification: System design and preliminary evaluation.
+\newblock {\em arXiv preprint arXiv:2606.01473}.
+
+\bibitem[Nunez et~al., 2024]{nunez2024tutorial}
+Nunez, M.~D., Fernandez, K., Srinivasan, R., and Vandekerckhove, J. (2024).
+\newblock A tutorial on fitting joint models of {M/EEG} and behavior to
+  understand cognition.
+\newblock {\em Behavior Research Methods}, 56(6):6020--6050.
+
 \bibitem[Papert, 1980]{papert1980mindstorms}
 Papert, S. (1980).
 \newblock {\em Mindstorms: Children, Computers, and Powerful Ideas}.
@@ -119,6 +264,18 @@ Picton, T.~W., Bentin, S., Berg, P., Donchin, E., Hillyard, S.~A., Johnson, Jr,
 \newblock Guidelines for using human event-related potentials to study
   cognition: Recording standards and publication criteria.
 \newblock {\em Psychophysiology}, 37(2):127--152.
+
+\bibitem[Pij{\'a}lek et~al., 2026]{pijalek2026meedav}
+Pij{\'a}lek, J., Vlk, K., and Bojar, O. (2026).
+\newblock {MEEDAV}: A synchronous web viewer for {EEG}, eye-tracking and speech
+  data.
+\newblock {\em arXiv preprint arXiv:2605.18296}.
+
+\bibitem[Pronk et~al., 2020]{pronk2020mental}
+Pronk, T., Wiers, R.~W., Molenaar, D., and Murre, J. M.~J. (2020).
+\newblock Mental chronometry in the pocket? {Timing} accuracy of web
+  applications on touchscreen and keyboard devices.
+\newblock {\em Behavior Research Methods}, 52(3):1371--1382.
 
 \bibitem[Reas and Fry, 2007]{reas2007processing}
 Reas, C. and Fry, B. (2007).
@@ -133,11 +290,30 @@ Resnick, M., Maloney, J., Monroy-Hern{\'a}ndez, A., Rusk, N., Eastmond, E.,
 \newblock Scratch: Programming for all.
 \newblock {\em Communications of the ACM}, 52(11):60--67.
 
+\bibitem[Rosanne et~al., 2021]{rosanne2021adaptive}
+Rosanne, O., Albuquerque, I., Cassani, R., Gagnon, J.-F., Tremblay, S., and
+  Falk, T.~H. (2021).
+\newblock Adaptive filtering for improved {EEG}-based mental workload
+  assessment of ambulant users.
+\newblock {\em Frontiers in Neuroscience}, 15:611962.
+
+\bibitem[Russo et~al., 2025]{russo2025fnirs}
+Russo, F.~A. et~al. (2025).
+\newblock Prefrontal cortical hemodynamics and auditory cognitive load measured
+  via functional near-infrared spectroscopy.
+\newblock {\em Scientific Reports}, 15:29080.
+
 \bibitem[Saager and Berger, 2005]{saager2005direct}
 Saager, R.~B. and Berger, A.~J. (2005).
 \newblock Direct characterization and removal of interfering absorption trends
   in two-layer turbid media.
 \newblock {\em Journal of the Optical Society of America A}, 22(9):1874--1882.
+
+\bibitem[Sabio et~al., 2024]{sabio2024scoping}
+Sabio, J., Williams, N.~S., McArthur, G.~M., and Badcock, N.~A. (2024).
+\newblock A scoping review on the use of consumer-grade {EEG} devices for
+  research.
+\newblock {\em PLOS ONE}, 19(3):e0291186.
 
 \bibitem[Scholkmann et~al., 2014]{scholkmann2014review}
 Scholkmann, F., Kleiser, S., Metz, A.~J., Zimmermann, R., Mata~Pavia, J., Wolf,
@@ -146,6 +322,24 @@ Scholkmann, F., Kleiser, S., Metz, A.~J., Zimmermann, R., Mata~Pavia, J., Wolf,
   imaging instrumentation and methodology.
 \newblock {\em NeuroImage}, 85:6--27.
 
+\bibitem[Schubert et~al., 2026]{schubert2026dynamic}
+Schubert, A.-L., L{\"o}ffler, C., and Hagemann, D. (2026).
+\newblock Exploring a dynamic template matching algorithm for the automatic
+  extraction of {P3} latencies.
+\newblock {\em Psychophysiology}, 63(1):e70212.
+
+\bibitem[Schubert et~al., 2023]{schubert2023enhancing}
+Schubert, A.-L., L{\"o}ffler, C., Hagemann, D., and Sadus, K. (2023).
+\newblock Enhancing precision in human neuroscience.
+\newblock {\em eLife}, 12:e85180.
+
+\bibitem[Schubert et~al., 2024]{schubert2024multiverse}
+Schubert, A.-L., L{\"o}ffler, C., Sadus, K., G{\"o}ttmann, J., and Hagemann, D.
+  (2024).
+\newblock An explorative multiverse study for extracting differences in {P3}
+  latencies between young and old adults.
+\newblock {\em Psychophysiology}, 61(3):e14459.
+
 \bibitem[Sitaram et~al., 2017]{sitaram2017closed}
 Sitaram, R., Ros, T., Stoeckel, L., Haller, S., Scharnowski, F., Lewis-Peacock,
   J., Weiskopf, N., Blefari, M.~L., Rana, M., Oblak, E., Birbaumer, N., and
@@ -153,10 +347,52 @@ Sitaram, R., Ros, T., Stoeckel, L., Haller, S., Scharnowski, F., Lewis-Peacock,
 \newblock Closed-loop brain training: the science of neurofeedback.
 \newblock {\em Nature Reviews Neuroscience}, 18(2):86--100.
 
+\bibitem[Smith et~al., 2024]{smith2024lowcost}
+Smith, K., Pilger, A., Amorim, M. L.~M., Mircic, S., Reining, Z., Ristow, N.,
+  Miller, D., Leonhardt, A., Donovan, J.~C., Meier, M., Marzullo, T.~C.,
+  Serbe-Kamp, E., Steiner, A.~P., and Gage, G.~J. (2024).
+\newblock Low-cost classroom and laboratory exercises for investigating both
+  wave and event-related electroencephalogram potentials.
+\newblock {\em Journal of Undergraduate Neuroscience Education},
+  22(2):A129--A138.
+
+\bibitem[Steinfath et~al., 2025]{steinfath2025validating}
+Steinfath, P., Herzog, N., Fourcade, A., Sander, C., Nikulin, V.~V., and
+  Villringer, A. (2025).
+\newblock Validating genuine changes in heartbeat-evoked potentials using
+  pseudotrials and surrogate procedures.
+\newblock {\em Imaging Neuroscience}, 3:imag.a.30.
+
+\bibitem[Takabatake et~al., 2021]{takabatake2021musical}
+Takabatake, K., Kunii, N., Nakatomi, H., Shimada, S., Yanai, K., Takasago, M.,
+  and Saito, N. (2021).
+\newblock Musical auditory alpha wave neurofeedback: Validation and cognitive
+  perspectives.
+\newblock {\em Applied Psychophysiology and Biofeedback}, 46(4):323--334.
+
+\bibitem[van Bueren et~al., 2026]{vanbueren2026comparing}
+van Bueren, N. E.~R., van Hoogmoed, A.~H., van~der Ven, S. H.~G., and Jonkman,
+  L.~M. (2026).
+\newblock Comparing aperiodic activity in consumer-grade and research-grade
+  {EEG}: Reliability and association with mathematical ability.
+\newblock {\em Behavior Research Methods}, 58:25.
+
 \bibitem[Widrow et~al., 1975]{widrow1975adaptive}
 Widrow, B., Glover, J.~R., McCool, J.~M., Kaunitz, J., Williams, C.~S., Hearn,
   R.~H., Zeidler, J.~R., Dong, E., and Goodlin, R.~C. (1975).
 \newblock Adaptive noise cancelling: Principles and applications.
 \newblock {\em Proceedings of the IEEE}, 63(12):1692--1716.
+
+\bibitem[Woods et~al., 2015]{woods2015conducting}
+Woods, A.~T., Velasco, C., Levitan, C.~A., Wan, X., and Spence, C. (2015).
+\newblock Conducting perception research over the internet: A tutorial review.
+\newblock {\em PeerJ}, 3:e1058.
+
+\bibitem[Wyser et~al., 2020]{wyser2020short}
+Wyser, D., Mattille, M., Wolf, M., Lambercy, O., Scholkmann, F., and Gassert,
+  R. (2020).
+\newblock Short-channel regression in functional near-infrared spectroscopy is
+  more effective when considering heterogeneous scalp hemodynamics.
+\newblock {\em Neurophotonics}, 7(3):035011.
 
 \end{thebibliography}

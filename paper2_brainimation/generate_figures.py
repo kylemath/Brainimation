@@ -442,9 +442,9 @@ def make_fig2_ide_scaffolding_and_corpus(examples, cat_order):
 
 
 def make_fig3_sonification_and_erp_engine():
-    """Fig 3: Multi-Band Web Audio FM Sonification (brainSynth.js) & Online 4-Channel ERP Averaging (epochs.js)."""
-    fig = plt.figure(figsize=(13.6, 7.5))
-    gs = gridspec.GridSpec(2, 2, height_ratios=[1.0, 1.04], width_ratios=[1.02, 1.0], hspace=0.35, wspace=0.28)
+    """Fig 3: Multi-Band Web Audio FM Sonification (brainSynth.js), Online 4-Channel ERP Averaging (epochs.js), Frame-Jitter Transfer Function & Periodic/Aperiodic PSD."""
+    fig = plt.figure(figsize=(13.6, 10.6))
+    gs = gridspec.GridSpec(3, 2, height_ratios=[1.0, 1.04, 1.04], width_ratios=[1.02, 1.0], hspace=0.38, wspace=0.28)
 
     # Panel A: FM Synthesis Time-Domain Waveforms
     ax_a = fig.add_subplot(gs[0, 0])
@@ -459,16 +459,16 @@ def make_fig3_sonification_and_erp_engine():
     d2 = 500 * 0.70
     y2 = np.sin(2 * np.pi * fc2 * t + (d2 / fm2) * np.sin(2 * np.pi * fm2 * t))
 
-    ax_a.plot(t * 1000, y1 + 1.25, color="#2e75b6", lw=1.5, label="Relaxed Alpha State (650 Hz Carrier)")
-    ax_a.plot(t * 1000, y2 - 1.25, color="#d95f02", lw=1.4, label="Active Beta/Theta State (470 Hz + 80 Hz Mod.)")
+    ax_a.plot(t * 1000, y1 + 1.25, color="#2e75b6", lw=1.5, label="Relaxed Alpha (650 Hz)")
+    ax_a.plot(t * 1000, y2 - 1.25, color="#d95f02", lw=1.4, label="Active Beta/Theta FM")
     ax_a.set_xlim(0, 25)
     ax_a.set_ylim(-2.6, 3.45)
     ax_a.set_yticks([-1.25, 1.25])
     ax_a.set_yticklabels(["Active FM", "Relaxed FM"], fontweight="bold")
     ax_a.set_xlabel("Time (milliseconds)")
     ax_a.set_ylabel("Synthesized Audio Waveform")
-    ax_a.set_title("A. Brain Synthesizer (brainSynth.js): Chowning FM Waveforms", loc="left", fontsize=10.2)
-    ax_a.legend(loc="upper right", frameon=True, fontsize=7.5)
+    ax_a.set_title("A. Brain Synthesizer (brainSynth.js): Chowning FM Waveforms", loc="left", fontsize=10.0)
+    ax_a.legend(loc="upper right", frameon=True, fontsize=7.4)
 
     # Panel B: FM Synthesis Acoustic Sideband Spectra
     ax_b = fig.add_subplot(gs[0, 1])
@@ -483,14 +483,14 @@ def make_fig3_sonification_and_erp_engine():
     spec2 /= spec2.max()
     mask_f = (f_ax >= 50) & (f_ax <= 1200)
 
-    ax_b.plot(f_ax[mask_f], spec1[mask_f], color="#2e75b6", lw=1.6, label="Relaxed State (Narrowband 650 Hz)")
-    ax_b.plot(f_ax[mask_f], spec2[mask_f], color="#d95f02", lw=1.4, alpha=0.9, label="Active State (Bessel Sidebands)")
+    ax_b.plot(f_ax[mask_f], spec1[mask_f], color="#2e75b6", lw=1.6, label="Relaxed (Narrowband)")
+    ax_b.plot(f_ax[mask_f], spec2[mask_f], color="#d95f02", lw=1.4, alpha=0.9, label="Active (Bessel Sidebands)")
     ax_b.set_xlim(50, 1150)
     ax_b.set_ylim(0, 1.32)
     ax_b.set_xlabel("Audio Frequency (Hz)")
     ax_b.set_ylabel("Normalized Acoustic Magnitude")
-    ax_b.set_title("B. Acoustic FFT Spectrum of Brain-Modulated FM (p5.FFT)", loc="left", fontsize=10.2)
-    ax_b.legend(loc="upper right", frameon=True, fontsize=7.5)
+    ax_b.set_title("B. Acoustic FFT Spectrum of Brain-Modulated FM (p5.FFT)", loc="left", fontsize=10.0)
+    ax_b.legend(loc="upper right", frameon=True, fontsize=7.4)
 
     # Panel C: Online ERP Trial Averaging & √K Noise Reduction
     ax_c = fig.add_subplot(gs[1, 0])
@@ -511,9 +511,9 @@ def make_fig3_sonification_and_erp_engine():
     trials = np.array(trials)
     bl_rms_1 = float(np.std(trials[0, :51], ddof=1))
 
-    ax_c.plot(t_erp, trials[0], color="#aaaaaa", lw=0.9, alpha=0.75, label="Single Raw Epoch (K = 1)")
-    ax_c.plot(t_erp, np.mean(trials[:5], axis=0), color="#2e75b6", lw=1.4, alpha=0.85, label="5-Trial Average (K = 5)")
-    ax_c.plot(t_erp, np.mean(trials[:20], axis=0), color="#d95f02", lw=2.3, label="20-Trial Average (K = 20)")
+    ax_c.plot(t_erp, trials[0], color="#aaaaaa", lw=0.9, alpha=0.75, label="Single Epoch (K = 1)")
+    ax_c.plot(t_erp, np.mean(trials[:5], axis=0), color="#2e75b6", lw=1.4, alpha=0.85, label="5-Trial Mean (K = 5)")
+    ax_c.plot(t_erp, np.mean(trials[:20], axis=0), color="#d95f02", lw=2.3, label="20-Trial Mean (K = 20)")
     ax_c.axvline(0, color="#222222", ls="--", lw=1.1)
     ax_c.axhline(0, color="#666666", ls=":", lw=0.9)
     ax_c.annotate("N170", xy=(170, -6.2), xytext=(60, -18),
@@ -524,8 +524,8 @@ def make_fig3_sonification_and_erp_engine():
     ax_c.set_ylim(-42, 36)
     ax_c.set_xlabel("Time Relative to Stimulus Onset (ms @ 256 Hz)")
     ax_c.set_ylabel("Baseline-Corrected Potential (µV)")
-    ax_c.set_title("C. Triggered Epoch Extraction (epochs.js) & √K ERP Convergence", loc="left", fontsize=10.2)
-    ax_c.legend(loc="lower right", frameon=True, fontsize=7.5)
+    ax_c.set_title("C. Triggered Epoch Extraction (epochs.js) & √K ERP Convergence", loc="left", fontsize=10.0)
+    ax_c.legend(loc="lower right", frameon=True, fontsize=7.4)
 
     # Panel D: Closed-Loop Signal Conditioning
     ax_d = fig.add_subplot(gs[1, 1])
@@ -549,22 +549,92 @@ def make_fig3_sonification_and_erp_engine():
             active = False
         state_gate[i] = 1.0 if active else 0.0
 
-    ax_d.plot(t_sec, raw_alpha, color="#999999", lw=0.9, alpha=0.7, label="Unfiltered eegData.alpha")
+    ax_d.plot(t_sec, raw_alpha, color="#999999", lw=0.9, alpha=0.7, label="Unfiltered Alpha")
     ax_d.plot(t_sec, sm_alpha, color="#1f4e78", lw=2.1, label="EMA Smoothed (λ = 0.85)")
-    ax_d.axhline(thresh_hi, color="#d95f02", ls="--", lw=1.2, label="Hysteresis Thresholds")
+    ax_d.axhline(thresh_hi, color="#d95f02", ls="--", lw=1.2, label="Hysteresis Bounds")
     ax_d.axhline(thresh_lo, color="#d95f02", ls=":", lw=1.2)
-    ax_d.fill_between(t_sec, 0, state_gate * 0.95, color="#6a3d9a", alpha=0.18, label="Stabilized State Gate")
+    ax_d.fill_between(t_sec, 0, state_gate * 0.95, color="#6a3d9a", alpha=0.18, label="Stabilized Gate")
     ax_d.set_xlim(0, 3.0)
     ax_d.set_ylim(0, 1.24)
     ax_d.set_xlabel("Real-Time Execution (seconds @ 60 FPS)")
     ax_d.set_ylabel("Normalized Band Power / Active State")
-    ax_d.set_title("D. Closed-Loop EMA Smoothing & Hysteresis State Conditioning", loc="left", fontsize=10.2)
-    ax_d.legend(loc="upper right", ncol=2, frameon=True, fontsize=7.2)
+    ax_d.set_title("D. Closed-Loop EMA Smoothing & Hysteresis State Conditioning", loc="left", fontsize=10.0)
+    ax_d.legend(loc="upper right", ncol=2, frameon=True, fontsize=7.1)
+
+    # Panel E: Browser Frame-Jitter Sinc Transfer Function & ERP Component Spectra
+    ax_e = fig.add_subplot(gs[2, 0])
+    f_plot = np.linspace(0.0, 45.0, 1000)
+    h_16ms = np.abs(np.sinc(f_plot * (1.0 / 60.0)))
+    h_30ms = np.abs(np.sinc(f_plot * 0.030))
+    h_45ms = np.abs(np.sinc(f_plot * 0.045))
+    spec_p300 = np.exp(-2.0 * (np.pi ** 2) * (f_plot ** 2) * (0.058 ** 2))
+    spec_n170 = np.exp(-2.0 * (np.pi ** 2) * (f_plot ** 2) * (0.026 ** 2))
+    spec_narrow = np.exp(-2.0 * (np.pi ** 2) * (f_plot ** 2) * (0.0085 ** 2))
+
+    ax_e.fill_between(f_plot, 0, spec_p300, color="#d95f02", alpha=0.18, label="P300 Spectrum (σ = 58 ms)")
+    ax_e.fill_between(f_plot, 0, spec_n170, color="#2e75b6", alpha=0.16, label="N170 Spectrum (σ = 26 ms)")
+    ax_e.plot(f_plot, spec_narrow, color="#6a3d9a", ls=":", lw=1.3, label="Narrow Peak (20 ms FWHM)")
+    ax_e.plot(f_plot, h_16ms, color="#008080", lw=1.6, label="16.7 ms Jitter (1 Frame)")
+    ax_e.plot(f_plot, h_30ms, color="#1f4e78", lw=2.1, label="30 ms Jitter Transfer |H(f)|")
+    ax_e.plot(f_plot, h_45ms, color="#b34800", ls="--", lw=1.6, label="45 ms Jitter Transfer |H(f)|")
+    ax_e.axhline(1.0 / np.sqrt(2.0), color="#666666", ls="-.", lw=0.9)
+    ax_e.set_xlim(0, 45.0)
+    ax_e.set_ylim(0, 1.34)
+    ax_e.set_xlabel("Frequency (Hz)")
+    ax_e.set_ylabel("Transfer Gain |H(f)| / Spectral Density")
+    ax_e.set_title("E. Browser Trigger-Jitter Low-Pass Transfer Function vs. ERP Spectra", loc="left", fontsize=10.0)
+    ax_e.legend(loc="upper right", ncol=2, frameon=True, fontsize=6.8)
+
+    # Panel F: Periodic Alpha/Beta Peaks vs. 1/f^chi Aperiodic Background Spectrum
+    ax_f = fig.add_subplot(gs[2, 1])
+    f_psd = np.linspace(2.0, 40.0, 190)
+    rng_psd = np.random.default_rng(303)
+    chi_rel_true = 1.42
+    chi_act_true = 1.08
+    log_ap_rel = 1.68 - chi_rel_true * np.log10(f_psd)
+    log_ap_act = 1.42 - chi_act_true * np.log10(f_psd)
+    bump_alpha_rel = 0.86 * np.exp(-((f_psd - 10.0) ** 2) / (2 * 1.35 ** 2))
+    bump_beta_rel = 0.14 * np.exp(-((f_psd - 20.0) ** 2) / (2 * 2.8 ** 2))
+    bump_alpha_act = 0.22 * np.exp(-((f_psd - 10.2) ** 2) / (2 * 1.45 ** 2))
+    bump_beta_act = 0.48 * np.exp(-((f_psd - 21.0) ** 2) / (2 * 3.2 ** 2))
+
+    psd_rel_db = 10.0 * (log_ap_rel + bump_alpha_rel + bump_beta_rel + rng_psd.normal(0, 0.025, size=len(f_psd)))
+    psd_act_db = 10.0 * (log_ap_act + bump_alpha_act + bump_beta_act + rng_psd.normal(0, 0.025, size=len(f_psd)))
+
+    mask_anchor = ((f_psd >= 2.0) & (f_psd <= 6.0)) | ((f_psd >= 30.0) & (f_psd <= 40.0))
+    coef_rel = np.polyfit(np.log10(f_psd[mask_anchor]), psd_rel_db[mask_anchor] / 10.0, 1)
+    coef_act = np.polyfit(np.log10(f_psd[mask_anchor]), psd_act_db[mask_anchor] / 10.0, 1)
+    chi_rel_fit = float(-coef_rel[0])
+    chi_act_fit = float(-coef_act[0])
+    fit_rel_db = 10.0 * (coef_rel[1] + coef_rel[0] * np.log10(f_psd))
+    fit_act_db = 10.0 * (coef_act[1] + coef_act[0] * np.log10(f_psd))
+
+    idx_10hz = int(np.argmin(np.abs(f_psd - 10.0)))
+    alpha_above_1f_rel_db = float(psd_rel_db[idx_10hz] - fit_rel_db[idx_10hz])
+    alpha_above_1f_act_db = float(psd_act_db[idx_10hz] - fit_act_db[idx_10hz])
+    alpha_raw_diff_db = float(psd_rel_db[idx_10hz] - psd_act_db[idx_10hz])
+    alpha_adj_diff_db = float(alpha_above_1f_rel_db - alpha_above_1f_act_db)
+
+    ax_f.plot(f_psd, psd_rel_db, color="#2e75b6", lw=1.9, label="Relaxed PSD (10 Hz Alpha)")
+    ax_f.plot(f_psd, fit_rel_db, color="#1f4e78", ls="--", lw=1.3, label=f"Relaxed 1/f Fit (χ = {chi_rel_fit:.2f})")
+    ax_f.plot(f_psd, psd_act_db, color="#d95f02", lw=1.8, label="Active PSD (21 Hz Beta)")
+    ax_f.plot(f_psd, fit_act_db, color="#b34800", ls=":", lw=1.3, label=f"Active 1/f Fit (χ = {chi_act_fit:.2f})")
+    ax_f.fill_between(f_psd, fit_rel_db, np.maximum(psd_rel_db, fit_rel_db),
+                      where=(f_psd >= 7.5) & (f_psd <= 13.0), color="#2e75b6", alpha=0.18, label="Periodic Alpha Peak")
+    ax_f.set_xscale("log")
+    ax_f.set_xticks([2, 4, 8, 10, 16, 20, 30, 40])
+    ax_f.get_xaxis().set_major_formatter(plt.ScalarFormatter())
+    ax_f.set_xlim(2.0, 40.0)
+    ax_f.set_ylim(-6.0, 18.5)
+    ax_f.set_xlabel("Frequency (Hz, Log Scale)")
+    ax_f.set_ylabel("Power Spectral Density (dB)")
+    ax_f.set_title("F. Periodic Alpha/Beta Peaks vs. 1/f Aperiodic Background Slope", loc="left", fontsize=10.0)
+    ax_f.legend(loc="upper right", frameon=True, fontsize=6.9)
 
     fig.savefig(os.path.join(OUT_DIR, "fig3_sonification_and_erp_engine.png"), bbox_inches="tight")
     fig.savefig(os.path.join(OUT_DIR, "fig3_sonification_and_erp_engine.pdf"), bbox_inches="tight")
     plt.close(fig)
-    print("Saved Paper 2 Fig 3 (Multi-Band FM Sonification, Online ERP Convergence & Signal Conditioning)")
+    print("Saved Paper 2 Fig 3 (Multi-Band FM Sonification, Online ERP Convergence, Frame-Jitter Transfer & 1/f PSD)")
 
     bl_rms_1 = float(np.std(trials[0, :51], ddof=1))
     bl_rms_5 = float(np.std(np.mean(trials[:5], axis=0)[:51], ddof=1))
@@ -579,9 +649,13 @@ def make_fig3_sonification_and_erp_engine():
     sme_k20 = float(np.std(trial_p3_means[:20], ddof=1) / np.sqrt(20.0))
 
     # Monte Carlo expectation across 1,000 independent 20-trial runs to verify theoretical 1/sqrt(K) scaling
+    # Also evaluate P300 latency extraction precision under 30 ms uniform trigger jitter (Schubert et al., 2024, 2026)
     rng_mc = np.random.default_rng(2026)
     mc_rms1, mc_rms5, mc_rms20 = [], [], []
     mc_sme5, mc_sme20 = [], []
+    lat_peak_list, lat_area_list, lat_temp_list = [], [], []
+    mask_p3_win = (t_erp >= 240.0) & (t_erp <= 460.0)
+    t_p3_win = t_erp[mask_p3_win]
     for _ in range(1000):
         pink_mc = np.array([
             np.convolve(rng_mc.normal(0, 14.0, size=n_samp), np.ones(5) / np.sqrt(5), mode="same")
@@ -589,6 +663,11 @@ def make_fig3_sonification_and_erp_engine():
         ])
         phases_mc = rng_mc.uniform(0, 2 * np.pi, size=(20, 1))
         alpha_mc = 6.0 * np.sin(2 * np.pi * 10.0 * (t_erp[None, :] / 1000.0) + phases_mc)
+        jit_ms = rng_mc.uniform(-15.0, 15.0, size=(20, 1))
+        erp_jit = (
+            -6.5 * np.exp(-((t_erp[None, :] - (170.0 + jit_ms)) ** 2) / (2 * 26.0 ** 2))
+            + 9.5 * np.exp(-((t_erp[None, :] - (340.0 + jit_ms)) ** 2) / (2 * 58.0 ** 2))
+        )
         tr_mc = true_erp[None, :] + pink_mc + alpha_mc
         tr_mc -= np.mean(tr_mc[:, :51], axis=1, keepdims=True)
         mc_rms1.append(np.std(tr_mc[0, :51], ddof=1))
@@ -597,9 +676,32 @@ def make_fig3_sonification_and_erp_engine():
         p3_m = np.mean(tr_mc[:, mask_p3], axis=1)
         mc_sme5.append(np.std(p3_m[:5], ddof=1) / np.sqrt(5.0))
         mc_sme20.append(np.std(p3_m[:20], ddof=1) / np.sqrt(20.0))
+
+        tr_jit = erp_jit + pink_mc + alpha_mc
+        tr_jit -= np.mean(tr_jit[:, :51], axis=1, keepdims=True)
+        avg_jit = np.mean(tr_jit, axis=0)
+        seg_p3 = avg_jit[mask_p3_win]
+        lat_peak_list.append(float(t_p3_win[np.argmax(seg_p3)]))
+        pos_seg = np.maximum(seg_p3, 0.0)
+        if np.sum(pos_seg) > 1e-6:
+            cum_area = np.cumsum(pos_seg) / np.sum(pos_seg)
+            lat_area_list.append(float(np.interp(0.5, cum_area, t_p3_win)))
+        best_lag_t = 340.0
+        best_cov = -1e9
+        for cand_t in np.linspace(290.0, 390.0, 101):
+            cand_tpl = np.exp(-((t_p3_win - cand_t) ** 2) / (2 * 58.0 ** 2))
+            cov_v = float(np.dot(seg_p3, cand_tpl) / np.sqrt(np.dot(cand_tpl, cand_tpl)))
+            if cov_v > best_cov:
+                best_cov = cov_v
+                best_lag_t = float(cand_t)
+        lat_temp_list.append(best_lag_t)
+
     mc_bl_rms_k1 = float(np.mean(mc_rms1))
     mc_bl_rms_k5 = float(np.mean(mc_rms5))
     mc_bl_rms_k20 = float(np.mean(mc_rms20))
+    jitter_p3_peak_lat_sd_ms = float(np.std(lat_peak_list, ddof=1))
+    jitter_p3_area_lat_sd_ms = float(np.std(lat_area_list, ddof=1))
+    jitter_p3_temp_lat_sd_ms = float(np.std(lat_temp_list, ddof=1))
 
     # Peak-to-peak (>100 uV) blink artifact rejection benchmark on a 20-trial average
     blink_wave = 115.0 * np.exp(-((t_erp - 310.0) ** 2) / (2 * 25.0 ** 2))
@@ -616,10 +718,11 @@ def make_fig3_sonification_and_erp_engine():
     erp_blink_p300_bias_uv = float(np.max(avg_unrejected[mask_p3] - avg_rejected[mask_p3]))
 
     # Browser display/Bluetooth trigger jitter equivalent low-pass filter benchmark (W = 30 ms and W = 45 ms)
-    # Sinc frequency response H(f) = sin(pi * f * W) / (pi * f * W); -3 dB point where H(f) = 1/sqrt(2)
     f_grid = np.linspace(0.1, 50.0, 50000)
+    h_16 = np.abs(np.sinc(f_grid * (1.0 / 60.0)))
     h_30 = np.abs(np.sinc(f_grid * 0.030))
     h_45 = np.abs(np.sinc(f_grid * 0.045))
+    jitter_fc_16ms = float(f_grid[np.argmin(np.abs(h_16 - (1.0 / np.sqrt(2.0))))])
     jitter_fc_30ms = float(f_grid[np.argmin(np.abs(h_30 - (1.0 / np.sqrt(2.0))))])
     jitter_fc_45ms = float(f_grid[np.argmin(np.abs(h_45 - (1.0 / np.sqrt(2.0))))])
     jitter_null_30ms = round(1.0 / 0.030, 1)
@@ -653,6 +756,7 @@ def make_fig3_sonification_and_erp_engine():
         "erp_rmse_clean20_uv": round(erp_rmse_clean20, 2),
         "erp_rmse_blink_unrejected_uv": round(erp_rmse_blink_unrejected, 2),
         "erp_rmse_blink_rejected_uv": round(erp_rmse_blink_rejected, 2),
+        "jitter_fc_16ms_hz": round(jitter_fc_16ms, 1),
         "jitter_fc_30ms_hz": round(jitter_fc_30ms, 1),
         "jitter_fc_45ms_hz": round(jitter_fc_45ms, 1),
         "jitter_null_30ms_hz": jitter_null_30ms,
@@ -660,6 +764,15 @@ def make_fig3_sonification_and_erp_engine():
         "jitter_ret_narrow_pct": round(ret_narrow_30ms, 1),
         "jitter_ret_n170_pct": round(ret_n170_30ms, 1),
         "jitter_ret_p300_pct": round(ret_p300_30ms, 1),
+        "jitter_p3_peak_lat_sd_ms": round(jitter_p3_peak_lat_sd_ms, 1),
+        "jitter_p3_area_lat_sd_ms": round(jitter_p3_area_lat_sd_ms, 1),
+        "jitter_p3_temp_lat_sd_ms": round(jitter_p3_temp_lat_sd_ms, 1),
+        "aperiodic_exp_relaxed": round(chi_rel_fit, 2),
+        "aperiodic_exp_active": round(chi_act_fit, 2),
+        "alpha_peak_above_1f_rel_db": round(alpha_above_1f_rel_db, 1),
+        "alpha_peak_above_1f_act_db": round(alpha_above_1f_act_db, 1),
+        "alpha_raw_diff_db": round(alpha_raw_diff_db, 1),
+        "alpha_adj_diff_db": round(alpha_adj_diff_db, 1),
         "erp_snr_k1": round(p3_pk / bl_rms_1, 2),
         "erp_snr_k5": round(p3_pk / bl_rms_5, 2),
         "erp_snr_k20": round(p3_pk / bl_rms_20, 2),
@@ -668,9 +781,9 @@ def make_fig3_sonification_and_erp_engine():
 
 
 def make_fig4_multimodal_athena_ppg_imu():
-    """Fig 4: Muse S Athena Dual-Distance Short-Channel fNIRS Regression, MBLL SpO₂, 6-DOF IMU Kinematics & NLMS Adaptive Filter."""
-    fig = plt.figure(figsize=(13.8, 7.6))
-    gs = gridspec.GridSpec(2, 2, height_ratios=[1.0, 1.04], width_ratios=[1.0, 1.0], hspace=0.36, wspace=0.28)
+    """Fig 4: Muse S Athena Dual-Distance Short-Channel fNIRS Regression, MBLL SpO₂, 6-DOF IMU Kinematics, NLMS Adaptive Filter, PPG-Locked HEP Surrogates & Delayed Multi-Tap NLMS."""
+    fig = plt.figure(figsize=(13.8, 10.8))
+    gs = gridspec.GridSpec(3, 2, height_ratios=[1.0, 1.04, 1.04], width_ratios=[1.0, 1.0], hspace=0.38, wspace=0.28)
     rng = np.random.default_rng(2026)
 
     # Panel A: Short-Channel (8 mm) vs Long-Channel (20 mm) fNIRS Superficial Skin Regression (64 Hz, 20 s)
@@ -832,12 +945,157 @@ def make_fig4_multimodal_athena_ppg_imu():
     ax_d.set_title("D. 6-Tap NLMS Adaptive IMU Head-Movement Artifact Cancellation", loc="left", fontsize=10.0)
     ax_d.legend(loc="upper right", frameon=True, fontsize=7.1)
 
+    # Panel E: Forehead PPG-Locked Heartbeat-Evoked Potential (HEP) vs. Surrogate Pseudotrial Null
+    ax_e = fig.add_subplot(gs[2, 0])
+    rng_hep = np.random.default_rng(404)
+    fs_hep = 256.0
+    n_beats = 60
+    # Generate 60s continuous 256 Hz EEG + heartbeats (mean IBI = 0.85 s, SD = 0.055 s)
+    ibis = np.clip(rng_hep.normal(0.85, 0.055, size=n_beats + 5), 0.68, 1.05)
+    r_peaks_sec = np.cumsum(ibis)
+    # Forehead PPG systolic peaks occur after ~180 ms pulse transit time with 12 ms beat-to-beat jitter
+    ppg_peaks_sec = r_peaks_sec + rng_hep.normal(0.180, 0.012, size=len(r_peaks_sec))
+    total_dur = float(ppg_peaks_sec[-1] + 2.0)
+    t_cont = np.arange(0, total_dur, 1.0 / fs_hep)
+    # Continuous pink + alpha background EEG
+    cont_eeg = (
+        np.convolve(rng_hep.normal(0, 11.5, size=len(t_cont)), np.ones(5) / np.sqrt(5), mode="same")
+        + 4.5 * np.sin(2 * np.pi * 10.0 * t_cont + rng_hep.uniform(0, 2 * np.pi))
+    )
+    # Add true cortical HEP locked to R-peaks (+360 ms post-R-peak, i.e., ~+180 ms post-PPG-peak, sigma = 46 ms, amp = +4.2 uV)
+    for rp in r_peaks_sec[:n_beats]:
+        cont_eeg += 4.2 * np.exp(-((t_cont - (rp + 0.360)) ** 2) / (2 * 0.046 ** 2))
+
+    # Extract 60 PPG-locked epochs (-200 to +500 ms around each forehead PPG systolic peak; baseline -200..-50 ms)
+    n_pre_hep = int(0.200 * fs_hep)   # 51 samples
+    n_post_hep = int(0.500 * fs_hep)  # 128 samples
+    n_bl_hep = int(0.150 * fs_hep)    # first 38 samples (-200 to -50 ms)
+    t_hep_ms = np.linspace(-200.0, 500.0, n_pre_hep + n_post_hep)
+    hep_epochs = []
+    valid_ppg_peaks = ppg_peaks_sec[1:n_beats + 1]
+    for pp in valid_ppg_peaks:
+        c_idx = int(round(pp * fs_hep))
+        ep = cont_eeg[c_idx - n_pre_hep:c_idx + n_post_hep].copy()
+        ep -= np.mean(ep[:n_bl_hep])
+        hep_epochs.append(ep)
+    hep_epochs = np.array(hep_epochs)
+    hep_mean = np.mean(hep_epochs, axis=0)
+    hep_ground_truth = 4.2 * np.exp(-((t_hep_ms - 180.0) ** 2) / (2 * 48.0 ** 2))
+
+    # Surrogate pseudotrial distribution (Steinfath et al., 2025): 500 random IBI permutations + random start offset
+    n_surr = 500
+    surr_waves = np.zeros((n_surr, len(t_hep_ms)))
+    mask_hep_win = (t_hep_ms >= 110.0) & (t_hep_ms <= 260.0)
+    hep_true_win_mean = float(np.mean(hep_mean[mask_hep_win]))
+    hep_true_peak_uv = float(np.max(hep_mean[mask_hep_win]))
+    hep_trial_win_means = np.mean(hep_epochs[:, mask_hep_win], axis=1)
+    hep_sme_uv = float(np.std(hep_trial_win_means, ddof=1) / np.sqrt(n_beats))
+    surr_win_means = np.zeros(n_surr)
+    obs_ibis = np.diff(valid_ppg_peaks)
+    for s_idx in range(n_surr):
+        shuf_ibis = rng_hep.permutation(obs_ibis)
+        t0_surr = float(valid_ppg_peaks[0] + rng_hep.uniform(-0.40, 0.40))
+        surr_peaks = np.concatenate([[t0_surr], t0_surr + np.cumsum(shuf_ibis)])
+        s_eps = []
+        for sp in surr_peaks:
+            c_idx = int(round(sp * fs_hep))
+            if n_pre_hep <= c_idx < len(cont_eeg) - n_post_hep:
+                ep_s = cont_eeg[c_idx - n_pre_hep:c_idx + n_post_hep].copy()
+                ep_s -= np.mean(ep_s[:n_bl_hep])
+                s_eps.append(ep_s)
+        s_mean = np.mean(s_eps, axis=0)
+        surr_waves[s_idx] = s_mean
+        surr_win_means[s_idx] = float(np.mean(s_mean[mask_hep_win]))
+
+    surr_lo = np.percentile(surr_waves, 2.5, axis=0)
+    surr_hi = np.percentile(surr_waves, 97.5, axis=0)
+    hep_surr_ci95_uv = float(np.mean(0.5 * (surr_hi[mask_hep_win] - surr_lo[mask_hep_win])))
+    hep_perm_p = float((1 + np.sum(np.abs(surr_win_means) >= abs(hep_true_win_mean))) / (n_surr + 1))
+
+    ax_e.axvspan(110.0, 260.0, color="#e8f4f8", alpha=0.8, label="HEP Window (110–260 ms)")
+    ax_e.fill_between(t_hep_ms, surr_lo, surr_hi, color="#999999", alpha=0.32, label="95% Pseudotrial Null")
+    ax_e.plot(t_hep_ms, np.mean(surr_waves, axis=0), color="#666666", ls=":", lw=1.1, label="Surrogate Mean (500 Perm.)")
+    ax_e.plot(t_hep_ms, hep_ground_truth, color="#d95f02", ls="--", lw=1.4, label="Ground-Truth Cortical HEP")
+    ax_e.plot(t_hep_ms, hep_mean, color="#1f4e78", lw=2.2, label="PPG-Locked HEP (K = 60)")
+    ax_e.axvline(0, color="#222222", ls="--", lw=1.0)
+    ax_e.set_xlim(-200.0, 500.0)
+    ax_e.set_ylim(-5.2, 8.8)
+    ax_e.set_xlabel("Time Relative to Forehead PPG Systolic Peak (ms)")
+    ax_e.set_ylabel("Baseline-Corrected Potential (µV)")
+    ax_e.set_title("E. Forehead PPG-Locked Heartbeat-Evoked Potential vs. Surrogate Null", loc="left", fontsize=10.0)
+    ax_e.legend(loc="upper right", ncol=2, frameon=True, fontsize=6.8)
+
+    # Panel F: Instantaneous 6-Weight vs. Multi-Tap 24-Weight Delayed NLMS Motion Filter Across Viscoelastic Lags
+    ax_f = fig.add_subplot(gs[2, 1])
+    rng_lag = np.random.default_rng(505)
+    # Broadband (1–8 Hz) transient head-movement IMU basis across 6 axes (where lag is not trivially spanned by sin/cos quadrature)
+    b_kern = np.hanning(29)
+    b_kern /= np.sum(b_kern)
+    u_broad = np.vstack([
+        np.convolve(rng_lag.normal(0, 1.8, size=len(t_nlms)), b_kern, mode="same")
+        for _ in range(6)
+    ])
+    lag_samples_grid = np.arange(0, 17, 1)  # 0 to 16 samples @ 256 Hz (0 to 62.5 ms)
+    lag_ms_grid = lag_samples_grid * (1000.0 / fs_eeg)
+    supp_1tap_list = []
+    supp_4tap_list = []
+    # Taps at delays [0, 4, 8, 12] samples (0, 15.6, 31.3, 46.9 ms) for 4-tap-per-axis (24-weight) FIR NLMS
+    tap_delays = [0, 4, 8, 12]
+    for d_samp in lag_samples_grid:
+        # Construct delayed + viscoelastic-dispersed motion artifact
+        u_delayed = np.zeros_like(u_broad)
+        for k_s in range(len(t_nlms)):
+            idx1 = max(0, k_s - int(d_samp))
+            idx2 = max(0, k_s - int(d_samp) - 4)
+            u_delayed[:, k_s] = 0.85 * u_broad[:, idx1] + 0.25 * u_broad[:, idx2]
+        art_lag = np.sum(w_true[:, None] * u_delayed, axis=0)
+        raw_lag = true_eeg + art_lag
+
+        # 1. Instantaneous 1-tap-per-axis (6-weight) NLMS
+        w1 = np.zeros(6)
+        e1 = np.zeros_like(raw_lag)
+        for n in range(len(t_nlms)):
+            xv = u_broad[:, n]
+            nsq = 1e-4 + float(np.dot(xv, xv))
+            e1[n] = raw_lag[n] - float(np.dot(w1, xv))
+            w1 = 0.9992 * w1 + (0.045 * e1[n] / nsq) * xv
+        rmse_raw_l = float(np.sqrt(np.mean((raw_lag[ss] - true_eeg[ss]) ** 2)))
+        rmse_e1 = float(np.sqrt(np.mean((e1[ss] - true_eeg[ss]) ** 2)))
+        supp_1tap_list.append(float(20.0 * np.log10(rmse_raw_l / max(1e-6, rmse_e1))))
+
+        # 2. Multi-tap 4-tap-per-axis (24-weight) delayed FIR NLMS
+        w4 = np.zeros(6 * len(tap_delays))
+        e4 = np.zeros_like(raw_lag)
+        for n in range(len(t_nlms)):
+            xv4 = np.concatenate([u_broad[:, max(0, n - td)] for td in tap_delays])
+            nsq4 = 1e-4 + float(np.dot(xv4, xv4))
+            e4[n] = raw_lag[n] - float(np.dot(w4, xv4))
+            w4 = 0.9992 * w4 + (0.065 * e4[n] / nsq4) * xv4
+        rmse_e4 = float(np.sqrt(np.mean((e4[ss] - true_eeg[ss]) ** 2)))
+        supp_4tap_list.append(float(20.0 * np.log10(rmse_raw_l / max(1e-6, rmse_e4))))
+
+    idx_lag8 = 8  # 8 samples = 31.25 ms viscoelastic settling lag
+    nlms_lag31_1tap_db = float(supp_1tap_list[idx_lag8])
+    nlms_lag31_4tap_db = float(supp_4tap_list[idx_lag8])
+    nlms_lag31_gain_db = float(nlms_lag31_4tap_db - nlms_lag31_1tap_db)
+
+    ax_f.plot(lag_ms_grid, supp_4tap_list, color="#1f4e78", marker="o", ms=4.2, lw=2.0, label="4-Tap Delayed NLMS (24 Weights)")
+    ax_f.plot(lag_ms_grid, supp_1tap_list, color="#d95f02", marker="s", ms=4.0, lw=1.8, ls="--", label="1-Tap Instantaneous NLMS (6 Weights)")
+    ax_f.axhline(0, color="#666666", ls=":", lw=0.9)
+    ax_f.axvline(31.25, color="#008080", ls="-.", lw=1.1, label="31.3 ms Viscoelastic Settling Lag")
+    ax_f.set_xlim(0, 62.5)
+    ax_f.set_ylim(-1.0, 21.5)
+    ax_f.set_xlabel("Mechanical Electrode-Skin Viscoelastic Phase Lag (ms)")
+    ax_f.set_ylabel("Motion Artifact Suppression (dB)")
+    ax_f.set_title("F. Instantaneous (6-Weight) vs. Delayed Multi-Tap (24-Weight) NLMS", loc="left", fontsize=10.0)
+    ax_f.legend(loc="upper right", frameon=True, fontsize=6.9)
+
     fig.savefig(os.path.join(OUT_DIR, "fig4_multimodal_athena_ppg_imu.png"), bbox_inches="tight")
     fig.savefig(os.path.join(OUT_DIR, "fig4_multimodal_athena_ppg_imu.pdf"), bbox_inches="tight")
     fig.savefig(os.path.join(OUT_DIR, "fig5_multimodal_athena_ppg_imu.png"), bbox_inches="tight")
     fig.savefig(os.path.join(OUT_DIR, "fig5_multimodal_athena_ppg_imu.pdf"), bbox_inches="tight")
     plt.close(fig)
-    print("Saved Paper 2 Fig 4 (Multimodal Athena Short-Channel fNIRS & 6-DOF IMU NLMS Adaptive Filter)")
+    print("Saved Paper 2 Fig 4 (Multimodal Athena Short-Channel fNIRS, 6-DOF IMU NLMS, HEP Surrogates & Multi-Tap NLMS)")
 
     return {
         "fnirs_err_raw_um": round(err_raw_fnirs, 2),
@@ -852,6 +1110,14 @@ def make_fig4_multimodal_athena_ppg_imu():
         "nlms_supp_db": round(nlms_supp_db, 1),
         "nlms_r_raw": round(nlms_r_raw, 2),
         "nlms_r_clean": round(nlms_r_clean, 2),
+        "hep_true_win_mean_uv": round(hep_true_win_mean, 2),
+        "hep_true_peak_uv": round(hep_true_peak_uv, 2),
+        "hep_sme_uv": round(hep_sme_uv, 2),
+        "hep_surr_ci95_uv": round(hep_surr_ci95_uv, 2),
+        "hep_perm_p": round(hep_perm_p, 4),
+        "nlms_lag31_1tap_db": round(nlms_lag31_1tap_db, 1),
+        "nlms_lag31_4tap_db": round(nlms_lag31_4tap_db, 1),
+        "nlms_lag31_gain_db": round(nlms_lag31_gain_db, 1),
     }
 
 
@@ -1377,6 +1643,7 @@ def make_fig5_student_submissions(examples, muse_kb, legacy_muse_kb, dsp_bench, 
         f"\\newcommand{{\\ERPRMSECleanTwentyUV}}{{{summary['erp_rmse_clean20_uv']:.2f}}}",
         f"\\newcommand{{\\ERPRMSEBlinkUnrejectedUV}}{{{summary['erp_rmse_blink_unrejected_uv']:.2f}}}",
         f"\\newcommand{{\\ERPRMSEBlinkRejectedUV}}{{{summary['erp_rmse_blink_rejected_uv']:.2f}}}",
+        f"\\newcommand{{\\JitterFCMSixteenHz}}{{{summary['jitter_fc_16ms_hz']:.1f}}}",
         f"\\newcommand{{\\JitterFCThirtyHz}}{{{summary['jitter_fc_30ms_hz']:.1f}}}",
         f"\\newcommand{{\\JitterFCFortyFiveHz}}{{{summary['jitter_fc_45ms_hz']:.1f}}}",
         f"\\newcommand{{\\JitterNullThirtyHz}}{{{summary['jitter_null_30ms_hz']:.1f}}}",
@@ -1384,6 +1651,15 @@ def make_fig5_student_submissions(examples, muse_kb, legacy_muse_kb, dsp_bench, 
         f"\\newcommand{{\\JitterRetNarrowPct}}{{{summary['jitter_ret_narrow_pct']:.1f}}}",
         f"\\newcommand{{\\JitterRetNOneSeventyPct}}{{{summary['jitter_ret_n170_pct']:.1f}}}",
         f"\\newcommand{{\\JitterRetPThreeHundredPct}}{{{summary['jitter_ret_p300_pct']:.1f}}}",
+        f"\\newcommand{{\\JitterPThreePeakLatSDMS}}{{{summary['jitter_p3_peak_lat_sd_ms']:.1f}}}",
+        f"\\newcommand{{\\JitterPThreeAreaLatSDMS}}{{{summary['jitter_p3_area_lat_sd_ms']:.1f}}}",
+        f"\\newcommand{{\\JitterPThreeTempLatSDMS}}{{{summary['jitter_p3_temp_lat_sd_ms']:.1f}}}",
+        f"\\newcommand{{\\AperiodicExpRelaxed}}{{{summary['aperiodic_exp_relaxed']:.2f}}}",
+        f"\\newcommand{{\\AperiodicExpActive}}{{{summary['aperiodic_exp_active']:.2f}}}",
+        f"\\newcommand{{\\AlphaPeakAboveOneFRelDB}}{{{summary['alpha_peak_above_1f_rel_db']:.1f}}}",
+        f"\\newcommand{{\\AlphaPeakAboveOneFActDB}}{{{summary['alpha_peak_above_1f_act_db']:.1f}}}",
+        f"\\newcommand{{\\AlphaRawDiffDB}}{{{summary['alpha_raw_diff_db']:.1f}}}",
+        f"\\newcommand{{\\AlphaAdjDiffDB}}{{{summary['alpha_adj_diff_db']:.1f}}}",
         f"\\newcommand{{\\ERPSNRKOne}}{{{summary['erp_snr_k1']:.2f}}}",
         f"\\newcommand{{\\ERPSNRKFive}}{{{summary['erp_snr_k5']:.2f}}}",
         f"\\newcommand{{\\ERPSNRKTwenty}}{{{summary['erp_snr_k20']:.2f}}}",
@@ -1400,6 +1676,14 @@ def make_fig5_student_submissions(examples, muse_kb, legacy_muse_kb, dsp_bench, 
         f"\\newcommand{{\\NLMSSuppDB}}{{{summary['nlms_supp_db']:.1f}}}",
         f"\\newcommand{{\\NLMSRRaw}}{{{summary['nlms_r_raw']:.2f}}}",
         f"\\newcommand{{\\NLMSRClean}}{{{summary['nlms_r_clean']:.2f}}}",
+        f"\\newcommand{{\\HEPTrueWinMeanUV}}{{{summary['hep_true_win_mean_uv']:.2f}}}",
+        f"\\newcommand{{\\HEPTruePeakUV}}{{{summary['hep_true_peak_uv']:.2f}}}",
+        f"\\newcommand{{\\HEPSMEUV}}{{{summary['hep_sme_uv']:.2f}}}",
+        f"\\newcommand{{\\HEPSurrCIUV}}{{{summary['hep_surr_ci95_uv']:.2f}}}",
+        f"\\newcommand{{\\HEPPermP}}{{{summary['hep_perm_p']:.4f}}}",
+        f"\\newcommand{{\\NLMSLagThirtyOneOneTapDB}}{{{summary['nlms_lag31_1tap_db']:.1f}}}",
+        f"\\newcommand{{\\NLMSLagThirtyOneFourTapDB}}{{{summary['nlms_lag31_4tap_db']:.1f}}}",
+        f"\\newcommand{{\\NLMSLagThirtyOneGainDB}}{{{summary['nlms_lag31_gain_db']:.1f}}}",
         f"\\newcommand{{\\NBuiltinExamples}}{{{summary['n_builtin_examples']}}}",
         f"\\newcommand{{\\NBuiltinCategories}}{{{summary['n_builtin_categories']}}}",
         f"\\newcommand{{\\NRefAPIs}}{{{summary['n_ref_apis']}}}",

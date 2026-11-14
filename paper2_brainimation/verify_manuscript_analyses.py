@@ -71,13 +71,13 @@ def main():
             "n": stats["n_builtin_examples"], "med": stats["ex_loc_median"],
             "q1": stats["ex_loc_iqr_low"], "q3": stats["ex_loc_iqr_high"],
             "min": stats["ex_loc_min"], "max": stats["ex_loc_max"],
-            "expected": (37, 32, 27, 38, 11, 1244)
+            "expected": (36, 32, 27, 36, 11, 111)
         },
         "studios": {
             "n": stats["n_studios_group"], "med": stats["studios_loc_median"],
             "q1": stats["studios_loc_iqr_low"], "q3": stats["studios_loc_iqr_high"],
             "min": stats["studios_loc_min"], "max": stats["studios_loc_max"],
-            "expected": (26, 200, 130, 245, 69, 510)
+            "expected": (27, 208, 136, 257, 69, 1438)
         },
         "games_and_eegedu": {
             "n": stats["n_games_and_eegedu"], "med": stats["games_loc_median"],
@@ -95,7 +95,7 @@ def main():
             "n": stats["n_catalogue_sketches"], "med": stats["cat_loc_median"],
             "q1": stats["cat_loc_iqr_low"], "q3": stats["cat_loc_iqr_high"],
             "min": stats["cat_loc_min"], "max": stats["cat_loc_max"],
-            "expected": (234, 110, 38, 183, 11, 1244)
+            "expected": (234, 110, 38, 183, 11, 1438)
         },
         "cohort1_nf": {
             "n": stats["n_stu_nf"], "med": stats["stu_nf_loc_median"],
@@ -236,13 +236,43 @@ def main():
                 "p300_rmse_rejected_uv": stats["erp_rmse_blink_rejected_uv"]
             },
             "trigger_jitter_lowpass_check": {
+                "fc_16ms_hz": stats["jitter_fc_16ms_hz"],
                 "fc_30ms_hz": stats["jitter_fc_30ms_hz"],
                 "fc_45ms_hz": stats["jitter_fc_45ms_hz"],
                 "retention_30ms_narrow_n170_p300_pct": [
                     stats["jitter_ret_narrow_pct"],
                     stats["jitter_ret_n170_pct"],
                     stats["jitter_ret_p300_pct"]
-                ]
+                ],
+                "p300_latency_sd_peak_area_temp_ms": [
+                    stats["jitter_p3_peak_lat_sd_ms"],
+                    stats["jitter_p3_area_lat_sd_ms"],
+                    stats["jitter_p3_temp_lat_sd_ms"]
+                ],
+                "fractional_area_improves_over_peak": stats["jitter_p3_area_lat_sd_ms"] < stats["jitter_p3_peak_lat_sd_ms"]
+            },
+            "aperiodic_spectral_decomposition_check": {
+                "chi_relaxed": stats["aperiodic_exp_relaxed"],
+                "chi_active": stats["aperiodic_exp_active"],
+                "alpha_above_1f_rel_act_db": [
+                    stats["alpha_peak_above_1f_rel_db"],
+                    stats["alpha_peak_above_1f_act_db"]
+                ],
+                "valid_separation": stats["alpha_peak_above_1f_rel_db"] > stats["alpha_peak_above_1f_act_db"]
+            },
+            "hep_surrogate_pseudotrial_check": {
+                "hep_true_peak_uv": stats["hep_true_peak_uv"],
+                "hep_true_win_mean_uv": stats["hep_true_win_mean_uv"],
+                "hep_sme_uv": stats["hep_sme_uv"],
+                "hep_surr_ci95_uv": stats["hep_surr_ci95_uv"],
+                "hep_perm_p": stats["hep_perm_p"],
+                "significant_vs_surrogates": stats["hep_perm_p"] < 0.05 and stats["hep_true_peak_uv"] > stats["hep_surr_ci95_uv"]
+            },
+            "nlms_viscoelastic_multitap_check": {
+                "lag31_1tap_db": stats["nlms_lag31_1tap_db"],
+                "lag31_4tap_db": stats["nlms_lag31_4tap_db"],
+                "lag31_gain_db": stats["nlms_lag31_gain_db"],
+                "multitap_improves_over_1tap": stats["nlms_lag31_4tap_db"] > stats["nlms_lag31_1tap_db"]
             }
         },
         "nonparametric_effect_size_check": {
@@ -262,6 +292,10 @@ def main():
     assert results["wilcoxon_epochs_test_check"]["exact_match"], "Wilcoxon epochs test check failed"
     assert results["muse_browser_size_check"]["exact_match"], "Muse browser size check failed"
     assert results["nonparametric_effect_size_check"]["exact_match"], "Nonparametric effect size check failed"
+    assert results["signal_processing_metrics_check"]["trigger_jitter_lowpass_check"]["fractional_area_improves_over_peak"], "P300 latency check failed"
+    assert results["signal_processing_metrics_check"]["aperiodic_spectral_decomposition_check"]["valid_separation"], "Aperiodic check failed"
+    assert results["signal_processing_metrics_check"]["hep_surrogate_pseudotrial_check"]["significant_vs_surrogates"], "HEP surrogate check failed"
+    assert results["signal_processing_metrics_check"]["nlms_viscoelastic_multitap_check"]["multitap_improves_over_1tap"], "Multi-tap NLMS check failed"
 
     out_path = os.path.join(HERE, "verification_results.json")
     with open(out_path, "w") as f:
