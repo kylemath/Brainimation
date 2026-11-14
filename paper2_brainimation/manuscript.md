@@ -1,4 +1,4 @@
-# BrainImation: A Browser-Based Teaching Environment for Learning Creative Coding with Live EEG, Optical PPG/fNIRS, and Head Motion Sensors
+# BrainImation: Bringing Brain Waves to Life in the Browser with Affordable InteraXon Muse Headbands
 
 **Kyle E. Mathewson**$^{a,b,*}$, **Tamari Shalamberidze**$^{b}$, **Claire J. Scavuzzo**$^{a}$  
 $^a$Department of Psychology, Faculty of Science, University of Alberta, Edmonton, AB, T6G 2E9, Canada  
