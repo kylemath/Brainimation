@@ -85,15 +85,13 @@ def read_committed_or_disk(rel_path):
 
 
 def analyze_builtin_examples():
-    """Parse all 226 BrainImation catalogue sketches across 18 categories + the 36 core scaffolds."""
+    """Parse all 234 BrainImation catalogue sketches across 21 categories + the 37 core scaffolds."""
     manifest_raw = read_committed_or_disk("examples/manifest.json")
     manifest = json.loads(manifest_raw)
     cat_order = manifest["categoryOrder"]
 
     examples = []
     for entry in manifest["examples"]:
-        if entry["id"] == "museAthenaSpO2FusedEstimator":
-            continue
         code = read_committed_or_disk(f"examples/{entry['file']}")
         if code is None:
             continue
@@ -158,19 +156,19 @@ def make_fig1_ide_architecture(examples, cat_order, muse_kb, reduction_factor):
          "• Muse S Athena (273e0013):\n"
          "  14-bit EEG, 20-bit 16-ch PPG,\n"
          "  52 Hz IMU, DRL/REF, Battery\n"
-         "• Live p1041 / p50 PPG Toggle"),
+         "• Live p1042 / p50 PPG Toggle"),
         (21.6, 4.0, 18.2, 18.0, "#008080",
          "2. Multimodal Signal Engine\n   (window.eegData + Sim)\n\n"
-         "• 256 Hz EEG + 256-pt FFT Bands\n"
-         "• 64 Hz PPG, HR, SpO₂, MBLL\n"
-         "  Δ[HbO₂]/Δ[HHb] + 8mm/20mm\n"
+         "• 256 Hz EEG + 60/50Hz Notch + FFT\n"
+         "• 64 Hz PPG, HR, SpO₂, 730/850nm\n"
+         "  MBLL Δ[HbO₂]/Δ[HHb] + 8/20mm\n"
          "  Short-Channel Skin Regression\n"
          "• 52 Hz 6-DOF IMU Kinematics +\n"
          "  6-Tap NLMS Motion Filter"),
         (42.2, 4.0, 18.2, 18.0, "#2e75b6",
-         "3. Browser IDE & Catalogue\n   (Monaco + 148-API Ref)\n\n"
+         "3. Browser IDE & Catalogue\n   (Monaco + 153-API Ref)\n\n"
          "• Resizable Visual Catalogue\n"
-         "  (226 Cards, 18 Categories)\n"
+         "  (234 Cards, 21 Categories)\n"
          "• 5-Tab Reference Drawer (+ AI Tab):\n"
          "  P5, Input, Sound, EEG, IMU/PPG\n"
          "• In-Canvas About Guide &\n"
@@ -183,8 +181,8 @@ def make_fig1_ide_architecture(examples, cat_order, muse_kb, reduction_factor):
          "• BGShared Arcade CRT Engine\n"
          "• CSV Exporter & SoundTester"),
         (82.6, 4.0, 16.6, 18.0, "#6a3d9a",
-         "5. Live Output Modalities\n   (226 Catalogue Sketches)\n\n"
-         "• 36 Core Scaffolds (10 Cats)\n"
+         "5. Live Output Modalities\n   (234 Catalogue Sketches)\n\n"
+         "• 44 Starters, Diag & Core\n"
          "• 26 PPG/fNIRS, IMU & Multi\n"
          "• 14 Closed-Loop BrainGames\n"
          "• 29 EEGEdu & p5.eegedu Ports\n"
@@ -214,29 +212,27 @@ def make_fig1_ide_architecture(examples, cat_order, muse_kb, reduction_factor):
         sp.set_color("#cccccc")
     ax_b.set_title("B. BrainImation Live Browser IDE & Visual Catalogue", loc="center", pad=8, fontsize=10.2)
 
-    # Panel C: Summary Table of the 18-Category Unified Visual Catalogue (N = 226 Sketches)
+    # Panel C: Summary Table of the 21-Category Unified Visual Catalogue (N = 234 Sketches)
     ax_c = fig.add_subplot(gs[1, 1])
     ax_c.axis("off")
-    ax_c.set_title("C. Unified 18-Category Visual Catalogue (226 Interactive Sketches with Thumbnail Cards)", loc="left", pad=8, fontsize=10.2)
+    ax_c.set_title("C. Unified 21-Category Visual Catalogue (234 Interactive Sketches with Thumbnail Cards)", loc="left", pad=8, fontsize=10.2)
 
     col_labels = ["Catalogue Category / Track", "N", "Med.", "Representative Sketches", "Primary Physiological & API Modalities"]
     table_data = [
-        ["1–3. Intro, Bands & Mindfulness", "11", "27", "basic, bandOrbitz, mandala", "eegData.alpha..gamma, attention, meditation"],
-        ["4–6. Particles, 3D WebGL & Draw", "9", "32", "particles, 3dTorus, BrainDraw", "WEBGL 3D torus, particle physics, brush input"],
-        ["7. Raw 256 Hz EEG & Online ERPs", "3", "44", "eegtrace, multichannel, epochs", "256 Hz TP9..TP10 & K=20 ERP averaging"],
-        ["8–10. Noise, Webcam & FM Sound", "13", "35", "perlinNoise, webcamInput, brainSynth", "Perlin fields, webcam mirror, Chowning FM FFT"],
-        ["11. PPG & Optical (fNIRS Studio)", "10", "194", "fNIRSBeerLambert, ppgShortChannel...", "64 Hz 660/730/850nm, HbO₂/HHb, 8/20mm OLS"],
-        ["12. Motion, IMU & Broadcast", "11", "215", "imuStackedKinematics, imuHeadMove...", "52 Hz Accel/Gyro, 2nd-order pos., NLMS filter"],
-        ["13. Multimodal (EEG + PPG + HR)", "5", "117", "multiNeurovascularCoupling, HEP", "Neurovascular lag, PPG-peak locked HEP"],
-        ["14. BrainGames Arcade Suite", "14", "514", "gameGolfShooter, gameArchery, FPS", "14 closed-loop BCI arcade games (BGShared)"],
-        ["15. EEGEdu Interactive Modules", "13", "131", "eegeduFlock3D, Oddball, SSVEP+CSV", "Per-channel PSD, oddball/SSVEP CSV export"],
-        ["16. Classic p5.eegedu Collection", "16", "37", "eegeduAlphaSnake, eegeduEpochs", "Preserved classic p5.eegedu creative sketches"],
-        ["17. 2025 Neurotech Catalogue", "95", "149", "EegFlappyBird, EegTetris, CatErp", "Curated PSYCH 403 BCI games & 4-ch ERPs"],
-        ["18. 2022 NeuroArt Class Gallery", "26", "43", "studentBrainTyphoon, Terrain3D", "Inaugural 2022 undergraduate neuro-art gallery"],
+        ["1–2. One-Sensor Starters & Diag.", "7", "25", "simpleEEG, simplePPG, athenaPresetSweep", "Minimal starters & Athena 16-ch diagnostics"],
+        ["3–5. Intro, Bands & Raw EEG", "13", "32", "basic, bandOrbitz, epochs, SpO2Fused", "eegData bands, 256 Hz ERPs, fused SpO₂"],
+        ["6. PPG & Optical (fNIRS Studio)", "10", "200", "fNIRSBeerLambert, ppgShortChannel...", "64 Hz 660/730/850nm, HbO₂/HHb, 8/20mm OLS"],
+        ["7. Motion, IMU & Broadcast", "11", "215", "imuStackedKinematics, imuHeadMove...", "52 Hz Accel/Gyro, 2nd-order pos., NLMS filter"],
+        ["8. Multimodal (EEG + PPG + HR)", "5", "117", "multiNeurovascularCoupling, HEP", "Neurovascular lag, PPG-peak locked HEP"],
+        ["9–15. Attention, 3D & Sound", "24", "34", "mandala, 3dTorus, perlinNoise, brainSynth", "WEBGL 3D, particles, webcam, Chowning FM"],
+        ["16. BrainGames Arcade Suite", "14", "514", "gameGolfShooter, gameArchery, FPS", "14 closed-loop BCI arcade games (BGShared)"],
+        ["17–18. EEGEdu & p5.eegedu", "29", "44", "eegeduFlock3D, Oddball, eegeduEpochs", "Per-channel PSD, SSVEP/ERP CSV export"],
+        ["19–20. 2025 Neurotech Class", "95", "149", "EegFlappyBird, EegTetris, CatErp", "Curated PSYCH 403 BCI games & 4-ch ERPs"],
+        ["21. 2022 NeuroArt Class Gallery", "26", "43", "studentBrainTyphoon, Terrain3D", "Inaugural 2022 undergraduate neuro-art gallery"],
     ]
     tbl = ax_c.table(
         cellText=table_data, colLabels=col_labels, loc="center", cellLoc="left",
-        colWidths=[0.24, 0.04, 0.06, 0.30, 0.36], bbox=[0.0, 0.0, 1.0, 0.96]
+        colWidths=[0.26, 0.04, 0.05, 0.30, 0.35], bbox=[0.0, 0.0, 1.0, 0.96]
     )
     tbl.auto_set_font_size(False)
     tbl.set_fontsize(6.3)
@@ -261,17 +257,18 @@ def make_fig1_ide_architecture(examples, cat_order, muse_kb, reduction_factor):
 
 
 def make_fig2_ide_scaffolding_and_corpus(examples, cat_order):
-    """Fig 2: Pedagogical IDE Scaffolding (148-API Reference Database, Simulator Synthesis, 18-Category LOC & Multimodal Coverage)."""
-    fig = plt.figure(figsize=(14.0, 8.0))
-    gs = gridspec.GridSpec(2, 2, height_ratios=[0.95, 1.15], width_ratios=[1.0, 1.0], hspace=0.36, wspace=0.38)
+    """Fig 2: Pedagogical IDE Scaffolding (153-API Reference Database, Simulator Synthesis, 21-Category LOC & Multimodal Coverage)."""
+    fig = plt.figure(figsize=(14.0, 8.6))
+    gs = gridspec.GridSpec(2, 2, height_ratios=[0.90, 1.25], width_ratios=[1.0, 1.0], hspace=0.36, wspace=0.40)
 
-    # Panel A: 148-Item Interactive Reference & Autocomplete Database Across 5 Documentation Tabs & 28 Functional Groups
+    # Panel A: 153-Item Interactive Reference & Autocomplete Database Across 5 Documentation Tabs & 30 Functional Groups
     ax_a = fig.add_subplot(gs[0, 0])
     ref_tabs = [
-        ("Sensors / IMU & PPG\n(6 groups, 41 APIs)", [
-            ("Orient/Kin.", 10, "#005a4e"), ("PPG/Optics", 8, "#008080"),
+        ("Sensors / IMU & PPG\n(7 groups, 53 APIs)", [
+            ("PPG/Optics", 11, "#005a4e"), ("Orient/Kin.", 10, "#008080"),
             ("Short-Ch fNIRS", 7, "#20a39e"), ("Accel", 7, "#48bf91"),
-            ("Gyro", 7, "#76d7c4"), ("Telem/DRL", 2, "#a3e4d7")
+            ("Gyro", 7, "#76d7c4"), ("Telem/DRL", 6, "#a3e4d7"),
+            ("NLMS", 5, "#c8f0e8")
         ]),
         ("P5.js Tab\n(6 groups, 38 APIs)", [
             ("Drawing", 9, "#1f4e78"), ("Color", 8, "#2e75b6"),
@@ -284,9 +281,10 @@ def make_fig2_ide_scaffolding_and_corpus(examples, cat_order):
             ("Touch Ev.", 3, "#b5cff8"), ("Touch Var", 3, "#cfe2ff"),
             ("Templates", 3, "#e4eeff")
         ]),
-        ("EEG Data Tab\n(4 groups, 26 APIs)", [
-            ("Raw & NLMS", 12, "#54278f"), ("Bands", 5, "#6a3d9a"),
-            ("Telem/Status", 7, "#9e9ac8"), ("Derived", 2, "#cbc9e2")
+        ("EEG Data Tab\n(5 groups, 19 APIs)", [
+            ("Raw EEG", 7, "#54278f"), ("Bands", 5, "#6a3d9a"),
+            ("Connect", 4, "#807dba"), ("Derived", 2, "#9e9ac8"),
+            ("Filter", 1, "#cbc9e2")
         ]),
         ("Sound Tab\n(5 groups, 16 APIs)", [
             ("Effects", 5, "#b34800"), ("Control", 4, "#d95f02"),
@@ -303,15 +301,15 @@ def make_fig2_ide_scaffolding_and_corpus(examples, cat_order):
             if cnt >= 6:
                 ax_a.text(left + cnt / 2, y, f"{sub_lbl}\n({cnt})",
                           ha="center", va="center", fontsize=6.0,
-                          color="white" if left < 22 else "#222222", fontweight="bold")
+                          color="white" if left < 28 else "#222222", fontweight="bold")
             left += cnt
         ax_a.text(left + 0.8, y, f"{left} APIs", va="center", ha="left", fontsize=8.0, fontweight="bold", color="#222")
 
     ax_a.set_yticks(y_pos)
     ax_a.set_yticklabels([r[0] for r in ref_tabs], fontweight="bold", fontsize=7.8)
-    ax_a.set_xlim(0, 49)
-    ax_a.set_xlabel("Click-to-Insert & Autocomplete API Primitives (Total = 148)")
-    ax_a.set_title("A. Reference & IntelliSense (148 APIs, 28 Groups, 5 Docs Tabs)", loc="left", fontsize=10.0)
+    ax_a.set_xlim(0, 62)
+    ax_a.set_xlabel("Click-to-Insert & Autocomplete API Primitives (Total = 153)")
+    ax_a.set_title("A. Reference & IntelliSense (153 APIs, 30 Groups, 5 Docs Tabs)", loc="left", fontsize=10.0)
 
     # Panel B: Hardware-Free EEGSimulator 4-Channel 256 Hz Signal Synthesis (clean, no bbox overlay)
     ax_b = fig.add_subplot(gs[0, 1])
@@ -351,27 +349,30 @@ def make_fig2_ide_scaffolding_and_corpus(examples, cat_order):
     ax_b.set_title("B. Hardware-Free EEGSimulator 4-Channel 256 Hz Synthesis", loc="left", fontsize=10.0)
     ax_b.legend(loc="upper right", ncol=4, frameon=True, fontsize=7.2)
 
-    # Panel C: Executable LOC Across the 18 Catalogue Categories (N = 226 Sketches)
+    # Panel C: Executable LOC Across the 21 Catalogue Categories (N = 234 Sketches)
     ax_c = fig.add_subplot(gs[1, 0])
     cat_short = {
-        "Getting Started": "1. Getting Started (n=3)",
-        "Brain Wave Visualizations": "2. Brain Wave Viz (n=6)",
-        "PPG & Optical (fNIRS)": "3. PPG & fNIRS Studio (n=10)",
-        "Motion, IMU & Broadcast Sensors": "4. Motion & IMU Studio (n=11)",
-        "Multimodal (EEG + PPG + HR)": "5. Multimodal Studio (n=5)",
-        "Attention & Meditation": "6. Attention & Med. (n=2)",
-        "Particle Systems": "7. Particle Systems (n=3)",
-        "3D & Advanced": "8. 3D & WebGL (n=3)",
-        "Drawing & Interaction": "9. Drawing & Input (n=3)",
-        "Raw EEG Data": "10. Raw EEG & ERPs (n=3)",
-        "Noise & Generative": "11. Noise & Gen. Art (n=6)",
-        "Animation & Motion": "12. Animation & Cam (n=4)",
-        "Sound & Music": "13. Sound & Music (n=3)",
-        "BrainGames": "14. BrainGames Arcade (n=14)",
-        "EEGEdu Modules": "15. EEGEdu Modules (n=13)",
-        "Classic p5.eegedu": "16. Classic p5.eegedu (n=16)",
-        "2025 Neurotech Class Catalogue": "17. 2025 Neurotech (n=95)",
-        "2022 NeuroArt Class Gallery": "18. 2022 NeuroArt (n=26)",
+        "Start Here: One Simple Sketch per Sensor": "1. One-Sensor Starters (n=4)",
+        "Signal Quality & Diagnostics": "2. Signal Diagnostics (n=3)",
+        "Getting Started": "3. Getting Started (n=4)",
+        "Brain Wave Visualizations": "4. Brain Wave Viz (n=6)",
+        "Raw EEG Data": "5. Raw EEG & ERPs (n=3)",
+        "PPG & Optical (fNIRS)": "6. PPG & fNIRS Studio (n=10)",
+        "Motion, IMU & Broadcast Sensors": "7. Motion & IMU Studio (n=11)",
+        "Multimodal (EEG + PPG + HR)": "8. Multimodal Studio (n=5)",
+        "Attention & Meditation": "9. Attention & Med. (n=2)",
+        "Particle Systems": "10. Particle Systems (n=3)",
+        "3D & Advanced": "11. 3D & WebGL (n=3)",
+        "Drawing & Interaction": "12. Drawing & Input (n=3)",
+        "Noise & Generative": "13. Noise & Gen. Art (n=6)",
+        "Animation & Motion": "14. Animation & Cam (n=4)",
+        "Sound & Music": "15. Sound & Music (n=3)",
+        "BrainGames": "16. BrainGames Arcade (n=14)",
+        "EEGEdu Modules": "17. EEGEdu Modules (n=13)",
+        "Classic p5.eegedu": "18. Classic p5.eegedu (n=16)",
+        "2025 Neurotech Class Catalogue": "19. 2025 Neurotech NF (n=62)",
+        "2025 Neurotech ERP Assignments": "20. 2025 Neurotech ERP (n=33)",
+        "2022 NeuroArt Class Gallery": "21. 2022 NeuroArt (n=26)",
     }
     y_cats = np.arange(len(cat_order))[::-1]
     for idx, cat in enumerate(cat_order):
@@ -379,23 +380,23 @@ def make_fig2_ide_scaffolding_and_corpus(examples, cat_order):
         y = y_cats[idx]
         med_v = np.median(locs)
         min_v, max_v = np.min(locs), np.max(locs)
-        if cat in ("PPG & Optical (fNIRS)", "Motion, IMU & Broadcast Sensors", "Multimodal (EEG + PPG + HR)"):
+        if cat in ("PPG & Optical (fNIRS)", "Motion, IMU & Broadcast Sensors", "Multimodal (EEG + PPG + HR)", "Signal Quality & Diagnostics"):
             col = "#008080"
         elif cat in ("BrainGames", "EEGEdu Modules", "Classic p5.eegedu"):
             col = "#6a3d9a"
-        elif cat in ("2025 Neurotech Class Catalogue", "2022 NeuroArt Class Gallery"):
+        elif cat in ("2025 Neurotech Class Catalogue", "2025 Neurotech ERP Assignments", "2022 NeuroArt Class Gallery"):
             col = "#d95f02"
         else:
             col = "#2e75b6"
         ax_c.barh(y, med_v, height=0.66, color=col, alpha=0.82)
         ax_c.plot([min_v, max_v], [y, y], color="#222222", lw=1.2)
-        ax_c.text(max_v + 10.0, y, f"{int(np.floor(med_v + 0.5))} ({min_v}–{max_v})", va="center", ha="left", fontsize=6.5, fontweight="bold")
+        ax_c.text(max_v + 12.0, y, f"{int(np.floor(med_v + 0.5))} ({min_v}–{max_v})", va="center", ha="left", fontsize=6.0, fontweight="bold")
 
     ax_c.set_yticks(y_cats)
-    ax_c.set_yticklabels([cat_short.get(c, c) for c in cat_order], fontsize=7.0, fontweight="medium")
-    ax_c.set_xlim(0, 910)
+    ax_c.set_yticklabels([cat_short.get(c, c) for c in cat_order], fontsize=6.5, fontweight="medium")
+    ax_c.set_xlim(0, 1450)
     ax_c.set_xlabel("Executable Lines of Code (Bar = Median, Line = Min–Max Range)")
-    ax_c.set_title("C. Executable LOC Across All 18 Catalogue Categories (N = 226)", loc="left", fontsize=10.0)
+    ax_c.set_title(f"C. Executable LOC Across All {len(cat_order)} Catalogue Categories (N = {len(examples)})", loc="left", fontsize=10.0)
 
     # Panel D: Multimodal & EEG Feature Coverage Across All 226 Catalogue Sketches
     ax_d = fig.add_subplot(gs[1, 1])
@@ -1089,24 +1090,25 @@ def make_fig5_student_submissions(examples, muse_kb, legacy_muse_kb, dsp_bench, 
         "legacy_muse_kb": legacy_muse_kb,
         "bundle_reduction_factor": round(legacy_muse_kb / muse_kb, 1),
         "n_catalogue_sketches": int(len(all_cat_locs)),
-        "n_catalogue_categories": 18,
+        "n_catalogue_categories": 21,
         "cat_loc_median": int(np.median(all_cat_locs)),
         "cat_loc_iqr_low": int(np.percentile(all_cat_locs, 25)),
         "cat_loc_iqr_high": int(np.percentile(all_cat_locs, 75)),
         "cat_loc_min": int(all_cat_locs.min()),
         "cat_loc_max": int(all_cat_locs.max()),
+        "n_starter_diag": sum(1 for ex in examples if ex["category"] in ("Start Here: One Simple Sketch per Sensor", "Signal Quality & Diagnostics")),
         "n_ppg_sketches": sum(1 for ex in examples if ex["category"] == "PPG & Optical (fNIRS)"),
         "n_imu_sketches": sum(1 for ex in examples if ex["category"] == "Motion, IMU & Broadcast Sensors"),
         "n_multi_sketches": sum(1 for ex in examples if ex["category"] == "Multimodal (EEG + PPG + HR)"),
         "n_braingames": sum(1 for ex in examples if ex["category"] == "BrainGames"),
         "n_eegedu_modules": sum(1 for ex in examples if ex["category"] == "EEGEdu Modules"),
         "n_classic_eegedu": sum(1 for ex in examples if ex["category"] == "Classic p5.eegedu"),
-        "n_neurotech_2025": sum(1 for ex in examples if ex["category"] == "2025 Neurotech Class Catalogue"),
+        "n_neurotech_2025": sum(1 for ex in examples if ex["category"] in ("2025 Neurotech Class Catalogue", "2025 Neurotech ERP Assignments")),
         "n_neuroart_2022": sum(1 for ex in examples if ex["category"] == "2022 NeuroArt Class Gallery"),
         "n_builtin_examples": int(len(ex_locs)),
         "n_builtin_categories": 10,
-        "n_ref_apis": 148,
-        "n_ref_groups": 28,
+        "n_ref_apis": 153,
+        "n_ref_groups": 30,
         "n_ref_tabs": 5,
         "ex_loc_median": int(np.median(ex_locs)),
         "ex_loc_iqr_low": int(np.percentile(ex_locs, 25)),
@@ -1213,6 +1215,9 @@ def make_fig5_student_submissions(examples, muse_kb, legacy_muse_kb, dsp_bench, 
     summary.update(multimodal_bench)
 
     # Table 2 Subgroup LOC Quantiles
+    starter_diag_locs = np.array([ex["loc"] for ex in examples if ex["category"] in [
+        "Start Here: One Simple Sketch per Sensor", "Signal Quality & Diagnostics"
+    ]])
     studios_locs = np.array([ex["loc"] for ex in examples if ex["category"] in [
         "PPG & Optical (fNIRS)", "Motion, IMU & Broadcast Sensors", "Multimodal (EEG + PPG + HR)"
     ]])
@@ -1220,7 +1225,7 @@ def make_fig5_student_submissions(examples, muse_kb, legacy_muse_kb, dsp_bench, 
         "BrainGames", "EEGEdu Modules", "Classic p5.eegedu"
     ]])
     archival_locs = np.array([ex["loc"] for ex in examples if ex["category"] in [
-        "2025 Neurotech Class Catalogue", "2022 NeuroArt Class Gallery"
+        "2025 Neurotech Class Catalogue", "2025 Neurotech ERP Assignments", "2022 NeuroArt Class Gallery"
     ]])
 
     # Wilcoxon signed-rank test of Cohort 2 vs 85-LOC epochs.js template
@@ -1231,15 +1236,15 @@ def make_fig5_student_submissions(examples, muse_kb, legacy_muse_kb, dsp_bench, 
     imu_track_locs = np.array([ex["loc"] for ex in examples if ex["category"] == "Motion, IMU & Broadcast Sensors"])
     multi_track_locs = np.array([ex["loc"] for ex in examples if ex["category"] == "Multimodal (EEG + PPG + HR)"])
     braingames_track_locs = np.array([ex["loc"] for ex in examples if ex["category"] == "BrainGames"])
-    neurotech_track_locs = np.array([ex["loc"] for ex in examples if ex["category"] == "2025 Neurotech Class Catalogue"])
+    neurotech_track_locs = np.array([ex["loc"] for ex in examples if ex["category"] in ("2025 Neurotech Class Catalogue", "2025 Neurotech ERP Assignments")])
     neuroart_track_locs = np.array([ex["loc"] for ex in examples if ex["category"] == "2022 NeuroArt Class Gallery"])
 
     summary.update({
         # Reference Drawer Tab Counts
-        "n_ref_sensors": 41,
+        "n_ref_sensors": 53,
         "n_ref_p5": 38,
         "n_ref_input": 27,
-        "n_ref_eegdata": 26,
+        "n_ref_eegdata": 19,
         "n_ref_sound": 16,
 
         # Section 3.2 Individual Track Medians
@@ -1252,6 +1257,13 @@ def make_fig5_student_submissions(examples, muse_kb, legacy_muse_kb, dsp_bench, 
         "n_games_and_eegedu": len(games_locs),
         "n_archival_total": len(archival_locs),
         "n_additional_sketches": len(neurotech_track_locs) - n_stu,
+
+        # Table 2 Subgroup 0: One-Sensor Starters & Diagnostics (N = 7)
+        "starter_diag_loc_median": int(round(np.median(starter_diag_locs))),
+        "starter_diag_loc_iqr_low": int(round(np.percentile(starter_diag_locs, 25))),
+        "starter_diag_loc_iqr_high": int(round(np.percentile(starter_diag_locs, 75))),
+        "starter_diag_loc_min": int(starter_diag_locs.min()),
+        "starter_diag_loc_max": int(starter_diag_locs.max()),
 
         # Table 2 Subgroup 2: Studios (N = 26)
         "n_studios_group": len(studios_locs),
@@ -1309,6 +1321,12 @@ def make_fig5_student_submissions(examples, muse_kb, legacy_muse_kb, dsp_bench, 
         f"\\newcommand{{\\NeurotechLOCMedian}}{{{summary['neurotech_loc_median']}}}",
         f"\\newcommand{{\\NeuroArtLOCMedian}}{{{summary['neuroart_loc_median']}}}",
         f"\\newcommand{{\\NAdditionalSketches}}{{{summary['n_additional_sketches']}}}",
+        f"\\newcommand{{\\NStarterDiag}}{{{summary['n_starter_diag']}}}",
+        f"\\newcommand{{\\StarterDiagLOCMedian}}{{{summary['starter_diag_loc_median']}}}",
+        f"\\newcommand{{\\StarterDiagLOCIQRLow}}{{{summary['starter_diag_loc_iqr_low']}}}",
+        f"\\newcommand{{\\StarterDiagLOCIQRHigh}}{{{summary['starter_diag_loc_iqr_high']}}}",
+        f"\\newcommand{{\\StarterDiagLOCMin}}{{{summary['starter_diag_loc_min']}}}",
+        f"\\newcommand{{\\StarterDiagLOCMax}}{{{summary['starter_diag_loc_max']}}}",
         f"\\newcommand{{\\NStudiosGroup}}{{{summary['n_studios_group']}}}",
         f"\\newcommand{{\\StudiosLOCMedian}}{{{summary['studios_loc_median']}}}",
         f"\\newcommand{{\\StudiosLOCIQRLow}}{{{summary['studios_loc_iqr_low']}}}",

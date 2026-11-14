@@ -2,10 +2,10 @@
 """
 Quantitative replication and table verification script for paper2_brainimation.
 Audits:
-  1. Category counts and LOC quantiles across the 226 sketches in examples/manifest.json.
+  1. Category counts and LOC quantiles across the 234 sketches in examples/manifest.json.
   2. Student submission counts (N = 69: Cohort 1 N = 40, Cohort 2 N = 29; N_students = 30),
      Mann-Whitney U tests, and rank-biserial correlation r_rb.
-  3. Table 2 subgroup sums (36 + 26 + 43 + 121 == 226; 40 + 29 == 69) and LOC quantiles across all 9 rows.
+  3. Table 2 subgroup sums (7 + 37 + 26 + 43 + 121 == 234; 40 + 29 == 69) and LOC quantiles across all 10 rows.
   4. Student feature adoption percentages and counts across Cohort 1, Cohort 2, and combined.
   5. Wilcoxon signed-rank comparison of Cohort 2 ERP submissions against 85-LOC epochs.js.
   6. Exact byte size, KB size, and bundle reduction factor of muse-browser.js.
@@ -30,11 +30,12 @@ def main():
         stats = json.load(f)
 
     # 1. Verify Table 2 catalogue subgroup sums
-    n_core = stats["n_builtin_examples"]           # 36
+    n_starter_diag = stats["n_starter_diag"]        # 7
+    n_core = stats["n_builtin_examples"]            # 37
     n_studios = stats["n_ppg_sketches"] + stats["n_imu_sketches"] + stats["n_multi_sketches"]  # 10 + 11 + 5 = 26
     n_games_edu = stats["n_braingames"] + stats["n_eegedu_modules"] + stats["n_classic_eegedu"] # 14 + 13 + 16 = 43
     n_archival = stats["n_neurotech_2025"] + stats["n_neuroart_2022"]                   # 95 + 26 = 121
-    total_cat_sum = n_core + n_studios + n_games_edu + n_archival
+    total_cat_sum = n_starter_diag + n_core + n_studios + n_games_edu + n_archival
 
     # 2. Verify Student Cohort sums
     n_stu_sum = stats["n_stu_nf"] + stats["n_stu_erp"]
@@ -58,13 +59,19 @@ def main():
     n1, n2 = stats["n_unique_students"], stats["n_builtin_examples"]
     r_rb_check = round((2.0 * u_cluster) / (n1 * n2) - 1.0, 2)
 
-    # 6. Table 2 subgroup LOC quantiles checks across all 9 rows
+    # 6. Table 2 subgroup LOC quantiles checks across all 10 rows
     t2_rows = {
+        "starter_diag": {
+            "n": stats["n_starter_diag"], "med": stats["starter_diag_loc_median"],
+            "q1": stats["starter_diag_loc_iqr_low"], "q3": stats["starter_diag_loc_iqr_high"],
+            "min": stats["starter_diag_loc_min"], "max": stats["starter_diag_loc_max"],
+            "expected": (7, 25, 22, 120, 21, 135)
+        },
         "core_scaffolds": {
             "n": stats["n_builtin_examples"], "med": stats["ex_loc_median"],
             "q1": stats["ex_loc_iqr_low"], "q3": stats["ex_loc_iqr_high"],
             "min": stats["ex_loc_min"], "max": stats["ex_loc_max"],
-            "expected": (36, 32, 27, 36, 11, 111)
+            "expected": (37, 32, 27, 38, 11, 1244)
         },
         "studios": {
             "n": stats["n_studios_group"], "med": stats["studios_loc_median"],
@@ -88,7 +95,7 @@ def main():
             "n": stats["n_catalogue_sketches"], "med": stats["cat_loc_median"],
             "q1": stats["cat_loc_iqr_low"], "q3": stats["cat_loc_iqr_high"],
             "min": stats["cat_loc_min"], "max": stats["cat_loc_max"],
-            "expected": (226, 111, 38, 185, 11, 758)
+            "expected": (234, 110, 38, 183, 11, 1244)
         },
         "cohort1_nf": {
             "n": stats["n_stu_nf"], "med": stats["stu_nf_loc_median"],
@@ -153,22 +160,23 @@ def main():
 
     # 9. muse-browser.js size metrics check
     muse_file = os.path.join(BRAIN_DIR, "muse-browser.js")
-    muse_bytes = os.path.getsize(muse_file) if os.path.exists(muse_file) else 38899
+    muse_bytes = os.path.getsize(muse_file) if os.path.exists(muse_file) else 38319
     muse_size_check = {
         "file_bytes": muse_bytes,
         "reported_kb": stats["muse_browser_kb"],
         "legacy_muse_kb": stats["legacy_muse_kb"],
         "bundle_reduction_factor": stats["bundle_reduction_factor"],
         "exact_match": (
-            muse_bytes == 38899
-            and stats["muse_browser_kb"] == 38.0
+            muse_bytes == 38319
+            and stats["muse_browser_kb"] == 37.4
             and stats["legacy_muse_kb"] == 473.0
-            and stats["bundle_reduction_factor"] == 12.5
+            and stats["bundle_reduction_factor"] == 12.6
         )
     }
 
     results = {
         "catalogue_sum_check": {
+            "n_starter_diag": n_starter_diag,
             "n_core": n_core,
             "n_studios_ppg_imu_multi": n_studios,
             "n_games_and_eegedu": n_games_edu,

@@ -1,4 +1,12 @@
 Example_ID,Title,Category,Is_Core_Scaffold,Executable_LOC,Alpha,Beta,Theta,Delta,Gamma,Attention,Meditation,Raw_256Hz_Epoch,PPG_fNIRS,IMU_Motion,Audio_Synth,WebGL_3D
+simpleEEG,Simple EEG: 4 Channels (filtered),Start Here: One Simple Sketch per Sensor,0,22,0,0,0,0,0,0,0,1,0,0,0,0
+simplePPG,Simple PPG: Heartbeat Pulse,Start Here: One Simple Sketch per Sensor,0,25,0,0,0,0,0,0,0,0,1,0,0,0
+simpleAccelerometer,Simple Accelerometer: Head Tilt,Start Here: One Simple Sketch per Sensor,0,23,0,0,0,0,0,0,0,0,0,1,0,0
+simpleGyroscope,Simple Gyroscope: Head Rotation Speed,Start Here: One Simple Sketch per Sensor,0,21,0,0,0,0,0,0,0,0,0,1,0,0
+athenaPresetSweep,Athena Preset Sweep (auto-compare optics presets),Signal Quality & Diagnostics,0,129,0,0,0,0,0,0,0,0,0,0,0,0
+athenaOpticsChannelMap,Athena Raw Optics Channel Map (what is each channel?),Signal Quality & Diagnostics,0,110,0,0,0,0,0,0,0,0,0,0,0,0
+ppgSpectraNoiseFinder,PPG Raw Detector Spectra (Noise Source Finder),Signal Quality & Diagnostics,0,135,0,0,0,0,0,0,0,0,1,0,0,0
+museAthenaSpO2FusedEstimator,🧪 Muse S Athena Multi-Sensor SpO2 & rSO2 Calibrated Estimator (1st Dev),Getting Started,1,1244,1,1,0,0,1,0,0,0,1,1,0,0
 basic,Basic Animation,Getting Started,1,11,1,0,0,0,0,1,0,0,0,0,0,0
 basicShapes,Basic Shapes,Getting Started,1,19,1,1,1,0,0,0,0,0,0,0,0,0
 functionExample,Function Example,Getting Started,1,27,0,0,0,0,0,1,1,0,0,0,0,0
@@ -104,101 +112,101 @@ eegeduFunctionExample,Custom Function Triplet (Classic EEGEdu),Classic p5.eegedu
 eegeduGhostLines,Cascading Ghost Traces (Classic EEGEdu),Classic p5.eegedu,0,37,0,0,0,0,0,0,0,1,0,0,0,0
 eegeduPiWedges,Radial Band Wedges (Classic EEGEdu),Classic p5.eegedu,0,29,1,1,1,1,1,0,0,0,0,0,0,0
 eegeduSpectra,Overlapping FFT Spectra (Classic EEGEdu),Classic p5.eegedu,0,32,0,0,0,0,0,0,0,1,0,0,0,0
-neurotech2025AliciaOCatErp,Cat Oddball ERP Monitor (Alicia Osorio),2025 Neurotech Class Catalogue,0,255,0,0,0,0,0,0,0,1,0,1,0,0
 neurotech2025AliciaOHeelsRunner,Sunset Heels Runner (Alicia Osorio),2025 Neurotech Class Catalogue,0,255,1,1,1,0,1,0,0,0,0,0,0,0
 neurotech2025AmnaKJellyfishAquarium,Jellyfish Meditation Aquarium (Amna Khan),2025 Neurotech Class Catalogue,0,52,1,0,0,1,0,1,0,0,0,0,0,0
 neurotech2025AmnaKJellyfishSleepTrainer,Jellyfish Sleep Trainer & Bell Music (Amna Khan),2025 Neurotech Class Catalogue,0,121,1,0,0,1,0,1,0,0,0,0,1,0
-neurotech2025AmnaKEmotionalFaceErp,Happy vs. Sad Emotional Face ERP (Amna Khan),2025 Neurotech Class Catalogue,0,143,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025AmnaKNeuroTetris,NeuroTetris Mini-Game (Amna Khan),2025 Neurotech Class Catalogue,0,103,1,1,1,0,0,1,1,0,0,0,0,0
 neurotech2025AngelNMandalaWorkout,StairMaster Neural Mandala (Angel Nwaka),2025 Neurotech Class Catalogue,0,27,1,0,0,0,0,1,1,0,0,0,0,0
 neurotech2025AngelNMandalaSound,Neural Mandala & Harmonic Sound (Angel Nwaka),2025 Neurotech Class Catalogue,0,101,1,1,0,0,0,1,1,0,0,0,1,0
-neurotech2025AngelNMmnErp,Moonlight Mismatch Negativity ERP (Angel Nwaka),2025 Neurotech Class Catalogue,0,172,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025AyaanJZenBloodParticles,Zen vs. Stress Particle Field (Ayaan Jimale),2025 Neurotech Class Catalogue,0,38,1,1,0,0,1,1,1,0,0,0,0,0
-neurotech2025AyaanJP300OddballErp,4-Channel P300 Oddball ERP (Ayaan Jimale),2025 Neurotech Class Catalogue,0,145,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025AyaanJTargetParticles,Target Brain State Particle Trainer (Ayaan Jimale),2025 Neurotech Class Catalogue,0,55,1,1,0,0,1,1,1,0,0,0,0,0
 neurotech2025BaniSKaleidoscope,4-Band Neural Kaleidoscope (Bani Sekhon),2025 Neurotech Class Catalogue,0,120,1,1,1,1,0,0,1,0,0,0,0,0
 neurotech2025BaniSKaleidoscopeConnections,Pulsing Network Kaleidoscope (Bani Sekhon),2025 Neurotech Class Catalogue,0,136,1,1,1,1,0,0,1,0,0,0,0,0
-neurotech2025BaniSP300SimErp,Simulated P300 Oddball ERP (Bani Sekhon),2025 Neurotech Class Catalogue,0,142,0,0,0,0,0,0,0,0,0,0,0,0
-neurotech2025BaniSBaselineP300Erp,Baseline-Corrected P300 ERP (Bani Sekhon),2025 Neurotech Class Catalogue,0,130,0,0,0,0,0,0,0,0,0,0,0,0
 neurotech2025BaniSLilyGarden,Lily of the Valley & Butterfly Garden (Bani Sekhon),2025 Neurotech Class Catalogue,0,155,1,1,0,0,0,1,0,0,0,0,0,0
 neurotech2025CaitlynAMindGarden,Five-Band EEG Mind Garden (Caitlyn Archibald),2025 Neurotech Class Catalogue,0,86,0,0,0,0,0,0,0,0,0,0,0,0
 neurotech2025CaitlynASunflowerReward,Sunflower Neurofeedback Trainer (Caitlyn Archibald),2025 Neurotech Class Catalogue,0,137,1,0,1,0,0,1,1,0,0,0,0,0
-neurotech2025CaitlynAFaceObjectN170,N170 Faces vs. Star Objects ERP (Caitlyn Archibald),2025 Neurotech Class Catalogue,0,209,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025ChloeSAlphaBetaRing,Alpha/Beta Ratio Ring & Chime (Chloe Sorochan),2025 Neurotech Class Catalogue,0,50,1,1,0,0,0,0,0,0,0,0,1,0
-neurotech2025ChloeSStroopErp,Color-Word Stroop Oddball ERP (Chloe Sorochan),2025 Neurotech Class Catalogue,0,211,0,0,0,0,0,0,0,0,0,0,0,0
 neurotech2025EllaTSolarSystem,EEG Frequency Band Solar System (Ella Thorsen-Bell),2025 Neurotech Class Catalogue,0,68,1,1,1,1,1,1,0,0,0,0,0,0
-neurotech2025EllaTOddballErpMonitor,Oddball ERP & Stimulus Monitor (Ella Thorsen-Bell),2025 Neurotech Class Catalogue,0,156,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025EllaTSynthWaves,Harmonic Ocean Waves & Synth (Ella Thorsen-Bell),2025 Neurotech Class Catalogue,0,94,1,1,1,0,0,0,1,0,0,0,1,0
 neurotech2025EllaTEegPacMan,EEG Pac-Man Pellet Collector (Ella Thorsen-Bell),2025 Neurotech Class Catalogue,0,48,1,1,0,0,0,0,0,0,0,0,0,0
 neurotech2025GraceSOceanSky,Alpha Ocean Waves & Shifting Sky (Grace Shin),2025 Neurotech Class Catalogue,0,46,0,0,0,0,0,0,0,0,0,0,0,0
-neurotech2025GraceSP300Oddball,P300 Oddball ERP Averager (Grace Shin),2025 Neurotech Class Catalogue,0,156,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025GraceSCalmnessWaves,Calmness Bar & Ocean Neurofeedback (Grace Shin),2025 Neurotech Class Catalogue,0,60,1,1,1,0,0,0,1,0,0,0,0,0
 neurotech2025HamzaRNeuralFireflies,Neural Fireflies Swarm (Hamza Razzo),2025 Neurotech Class Catalogue,0,43,1,1,0,0,1,1,1,0,0,0,0,0
-neurotech2025HamzaRP300Paradigm,4-Channel P300 Oddball Display (Hamza Razzo),2025 Neurotech Class Catalogue,0,306,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025HamzaRBrainFlowFlappy,Brain Flow Adaptive Flappy Bird (Hamza Razzo),2025 Neurotech Class Catalogue,0,112,1,1,0,0,0,1,1,0,0,1,0,0
 neurotech2025HannahCBloomingMandala,Blooming Neural Mandala (Hannah Cooper),2025 Neurotech Class Catalogue,0,41,1,0,0,0,0,1,1,0,0,0,0,0
 neurotech2025HannahCAdaptiveSnake,Adaptive EEG Snake & Auto-Calibration (Hannah Cooper),2025 Neurotech Class Catalogue,0,227,1,1,0,0,0,1,1,0,0,0,0,0
-neurotech2025HannahCAnnulusOddballErp,Circle vs. Annulus Oddball ERP (Hannah Cooper),2025 Neurotech Class Catalogue,0,291,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025HardiPConnect3Math,Connect-3 Match Game & Alpha/Beta Tracker (Hardi Patel),2025 Neurotech Class Catalogue,0,276,1,1,0,0,0,0,0,0,0,1,0,0
-neurotech2025HardiPFaceObjectErp,Face vs. Object ERP with Timing Axis (Hardi Patel),2025 Neurotech Class Catalogue,0,153,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025HardiPIceCreamCatch,EEG Ice Cream Cone Catcher (Hardi Patel),2025 Neurotech Class Catalogue,0,203,1,1,0,0,0,0,0,0,0,0,0,0
 neurotech2025HardiPNeuroArtTracing,NeuroArt Star Template Tracing & Sound (Hardi Patel),2025 Neurotech Class Catalogue,0,84,1,1,0,0,0,0,0,0,0,1,1,0
-neurotech2025IvanLP300N400Detector,P300 & N400 Component Detector (Ivan Espino Lopez),2025 Neurotech Class Catalogue,0,218,0,0,0,0,0,0,0,1,0,0,0,0
-neurotech2025IvanLOddballHazardSim,P300 Oddball & Hazard Overlay Simulator (Ivan Espino Lopez),2025 Neurotech Class Catalogue,0,135,0,0,0,0,0,0,0,0,0,0,0,0
-neurotech2025IvanLThresholdErpDetector,P300/N400 Detector with Alpha/Beta Thresholds (Ivan Espino Lopez),2025 Neurotech Class Catalogue,0,267,1,1,0,0,0,0,0,1,0,0,0,0
 neurotech2025JakeGEegFlappyBird,Alpha-Controlled Flappy Bird (Jake Gannon),2025 Neurotech Class Catalogue,0,119,1,0,0,0,0,0,0,0,0,1,0,0
-neurotech2025JakeGMmnErpDisplay,Mismatch Negativity (MMN) ERP Display (Jake Gannon),2025 Neurotech Class Catalogue,0,221,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025JakeGAdaptiveFlappyBird,Adaptive Difficulty EEG Flappy Bird (Jake Gannon),2025 Neurotech Class Catalogue,0,160,1,1,0,0,0,0,0,0,0,1,0,0
 neurotech2025JiaGNeonRibbons,Expanding Alpha Neon Ribbons (Jia Guina),2025 Neurotech Class Catalogue,0,61,1,0,0,0,0,0,0,0,0,0,0,0
-neurotech2025JiaGFaceObjectErp,Face vs. Object ERP Averager (Jia Guina),2025 Neurotech Class Catalogue,0,117,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025JiaGAlphaStateRibbons,5-State Alpha Classifier Ribbons (Jia Guina),2025 Neurotech Class Catalogue,0,126,1,0,0,0,0,0,0,0,0,0,0,0
 neurotech2025JiaGParolStarLantern,Filipino Parol Star Lantern (Jia Guina),2025 Neurotech Class Catalogue,0,171,1,0,0,0,0,0,0,0,0,1,0,0
 neurotech2025KiaraRAlphaBetaParticles,Alpha/Beta Brain Particle Fountain (Kiara Ruda),2025 Neurotech Class Catalogue,0,37,1,1,1,0,1,0,0,0,0,0,0,0
-neurotech2025KiaraREmotionalOddballErp,Happy vs. Angry Emotional Oddball ERP (Kiara Ruda),2025 Neurotech Class Catalogue,0,220,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025KiaraRBciTargetParticles,Adaptive BCI Target Particle Game (Kiara Ruda),2025 Neurotech Class Catalogue,0,116,1,1,1,0,1,1,0,0,0,0,0,0
 neurotech2025KiaraRNeuroWeather,NeuroWeather Storm & Sun Simulator (Kiara Ruda),2025 Neurotech Class Catalogue,0,165,1,1,1,0,0,0,0,0,0,0,0,0
 neurotech2025KoraBEmotionPalette,Emotion Palette Abstract Painter (Kora Budzyk),2025 Neurotech Class Catalogue,0,60,1,1,1,0,0,1,0,0,0,1,0,0
 neurotech2025KoraBEegTetris,Brain-State Controlled Tetris (Kora Budzyk),2025 Neurotech Class Catalogue,0,250,1,0,1,0,0,1,0,0,0,0,0,0
-neurotech2025KoraBP300OddballErp,P300 Oddball & ERP Averager (Kora Budzyk),2025 Neurotech Class Catalogue,0,187,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025KyleCAttentionRain,Beta Velocity Rainstorm & Attention Meter (Kyle Cordez),2025 Neurotech Class Catalogue,0,91,0,1,0,0,0,1,0,0,0,1,0,0
-neurotech2025KyleCAuditoryN1Erp,Auditory N1 High vs. Low Tone ERP (Kyle Cordez),2025 Neurotech Class Catalogue,0,149,0,0,0,0,0,1,0,1,0,0,1,0
 neurotech2025KyleCStarFlowJourney,Journey Through the Stars Flow Game (Kyle Cordez),2025 Neurotech Class Catalogue,0,98,1,1,0,0,0,0,0,0,0,0,0,0
-neurotech2025MarinayaSN170FaceObject,4-Channel N170 Faces vs. Objects ERP (Marinaya Saigh),2025 Neurotech Class Catalogue,0,172,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025MarinayaSCalmBloomParticles,Calm Bloom vs. Stress Particle Trainer (Marinaya Saigh),2025 Neurotech Class Catalogue,0,74,1,1,1,0,1,1,1,0,0,0,0,0
 neurotech2025MohamedJCalmSpectrumParticles,Blue-to-Red Calmness Spectrum Particles (Mohamed Jomha),2025 Neurotech Class Catalogue,0,39,1,1,1,0,1,0,0,0,0,0,0,0
-neurotech2025MohamedJP300OddballCsv,P300 Oddball ERP with CSV Export (Mohamed Jomha),2025 Neurotech Class Catalogue,0,234,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025MohamedJPitchDingTrainer,Pitch-Scaled Audio Ding Calmness Trainer (Mohamed Jomha),2025 Neurotech Class Catalogue,0,103,1,1,0,0,1,0,0,0,0,1,1,0
 neurotech2025NatashaCMeditationGarden,Meditation Garden with Fireflies (Natasha Chemello),2025 Neurotech Class Catalogue,0,121,0,0,0,0,0,1,1,0,0,0,0,0
-neurotech2025NatashaCN400SemanticErp,N400 Semantic Word Pair ERP (Natasha Chemello),2025 Neurotech Class Catalogue,0,177,0,0,0,0,0,0,0,1,0,1,0,0
 neurotech2025NatashaCSmoothedGardenTrainer,Smoothed Alpha/Theta Garden Trainer (Natasha Chemello),2025 Neurotech Class Catalogue,0,155,1,0,1,0,0,1,1,0,0,0,0,0
 neurotech2025NatashaCWolfIslandRun,Wolf Island Run: Aurora Platformer (Natasha Chemello),2025 Neurotech Class Catalogue,0,414,1,1,1,0,0,1,1,0,0,0,0,0
 neurotech2025PortiaWAlphaPulseFlowers,Alpha Wave Pulsing Meadow Flowers (Portia Wainwright),2025 Neurotech Class Catalogue,0,38,1,0,0,0,0,0,0,0,0,0,0,0
 neurotech2025PortiaWMandalaCalmMonitor,Alpha/Theta Mandala & Calmness Monitor (Portia Wainwright),2025 Neurotech Class Catalogue,0,202,1,1,1,0,0,0,0,0,0,1,1,0
-neurotech2025PortiaWTwoCategoryErp,Two-Category Oddball ERP Plotter (Portia Wainwright),2025 Neurotech Class Catalogue,0,158,0,0,0,0,0,0,0,0,0,0,0,0
 neurotech2025RaissaSContrastBrainNetwork,High-Contrast Brain Particle Network (Raissa Shariff),2025 Neurotech Class Catalogue,0,76,1,1,1,0,0,1,1,0,0,0,0,0
-neurotech2025RaissaSFourStateErpAverager,4-Brain-State Stratified ERP Averager (Raissa Shariff),2025 Neurotech Class Catalogue,0,150,0,0,0,0,0,1,1,1,0,0,0,0
 neurotech2025RaissaSFourStateFlowGame,4-State Geometry & Flow Speed Game (Raissa Shariff),2025 Neurotech Class Catalogue,0,182,0,0,0,0,0,1,1,0,0,0,0,0
 neurotech2025RanaRCaterpillarRace,Five-Band Caterpillar Race (Rana Radiansyah),2025 Neurotech Class Catalogue,0,112,0,0,0,0,0,0,0,0,0,1,0,0
-neurotech2025RanaRN170FaceObjectErp,Multi-Channel N170 Face vs. Object ERP (Rana Radiansyah),2025 Neurotech Class Catalogue,0,150,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025RanaRCaterpillarDominantWave,1-Second Averaged Caterpillar Wave Visualizer (Rana Radiansyah),2025 Neurotech Class Catalogue,0,113,1,1,1,1,1,0,0,0,0,0,0,0
 neurotech2025RanaRPainterlyEegCanvas,Living Painterly EEG Canvas & Sound (Rana Radiansyah),2025 Neurotech Class Catalogue,0,176,1,1,1,1,1,1,1,0,0,0,1,0
 neurotech2025RyanPFourLaneWaveMonitor,4-Lane Wave Monitor & Target Trainer (Ryan Park),2025 Neurotech Class Catalogue,0,225,1,1,1,1,0,1,1,0,0,0,0,0
 neurotech2025RyanPMultiStateClassifier,Multi-State Classifier & 4-Lane Neurofeedback (Ryan Park),2025 Neurotech Class Catalogue,0,377,1,1,1,1,0,1,1,0,0,0,0,0
-neurotech2025RyanPClosedLoopMmnErp,Attention-Adaptive Closed-Loop MMN ERP (Ryan Park),2025 Neurotech Class Catalogue,0,224,0,0,0,0,0,1,0,1,0,0,0,0
 neurotech2025SamirJWaveAffectMonitor,4-Lane Wave & Stress/Relax Affect HUD (Samir Jaber),2025 Neurotech Class Catalogue,0,127,1,1,1,1,0,0,0,0,0,0,0,0
-neurotech2025SamirJP300RareBeepErp,P300 Oddball ERP with Rare Trial Audio Beep (Samir Jaber),2025 Neurotech Class Catalogue,0,285,0,0,0,0,0,0,0,1,0,0,1,0
 neurotech2025SamirJTargetStateTrainer,Adaptive Alpha/Theta Target State Trainer (Samir Jaber),2025 Neurotech Class Catalogue,0,128,1,1,1,1,0,0,0,0,0,0,0,0
-neurotech2025SarahBN400WordPairErp,N400 Semantic Match vs. Mismatch ERP (Sarah Badran),2025 Neurotech Class Catalogue,0,176,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025SarahBAdaptiveFlowTrainer,Adaptive Flow Window Neurofeedback (Sarah Badran),2025 Neurotech Class Catalogue,0,149,1,1,0,0,1,1,1,0,0,0,1,0
-neurotech2025ToriAN170DarkErp,Dark-Mode Neon N170 Face ERP (Tori Anderson),2025 Neurotech Class Catalogue,0,162,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025ToriABrainwaveFlowerGarden,Smoothed Brainwave Flower Garden (Tori Anderson),2025 Neurotech Class Catalogue,0,174,1,1,1,1,1,1,1,0,0,0,0,0
 neurotech2025ToriALilypadFrogPond,Lilypad Frog Pond & Bug Catcher (Tori Anderson),2025 Neurotech Class Catalogue,0,195,0,0,0,0,0,0,0,0,0,0,0,0
 neurotech2025YanLMandalaSnakeGame,Breathing Mandala & Fruit Snake Game (Yan Luo),2025 Neurotech Class Catalogue,0,101,0,1,0,0,0,1,0,0,0,0,0,0
-neurotech2025YanLFaceObjectErpDemo,Continuous Face vs. Object ERP Averager (Yan Luo),2025 Neurotech Class Catalogue,0,189,0,0,0,0,0,0,0,1,0,0,0,0
 neurotech2025YanLOceanRainfallSplash,Alpha/Theta Ocean Rainfall & Adaptive Ripples (Yan Luo),2025 Neurotech Class Catalogue,0,173,1,1,1,0,0,0,0,0,0,0,0,0
 neurotech2025ZainabSGalaxyCalmExplosion,Expanding Galaxy: Blue Calm vs. Red Supernova (Zainab Samiuddin),2025 Neurotech Class Catalogue,0,155,1,1,1,0,0,1,1,0,0,0,0,0
 neurotech2025ZainabSAdaptiveGalaxySparkles,Adaptive Difficulty Cosmic Nebula Trainer (Zainab Samiuddin),2025 Neurotech Class Catalogue,0,189,1,1,1,0,0,1,1,0,0,0,0,0
-neurotech2025ZainabSMultiChannelFaceErp,Multi-Channel Face vs. Object ERP Plotter (Zainab Samiuddin),2025 Neurotech Class Catalogue,0,164,0,0,0,0,0,0,0,1,0,1,0,0
+neurotech2025AliciaOCatErp,Cat Oddball ERP Monitor (Alicia Osorio),2025 Neurotech ERP Assignments,0,255,0,0,0,0,0,0,0,1,0,1,0,0
+neurotech2025AmnaKEmotionalFaceErp,Happy vs. Sad Emotional Face ERP (Amna Khan),2025 Neurotech ERP Assignments,0,143,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025AngelNMmnErp,Moonlight Mismatch Negativity ERP (Angel Nwaka),2025 Neurotech ERP Assignments,0,172,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025AyaanJP300OddballErp,4-Channel P300 Oddball ERP (Ayaan Jimale),2025 Neurotech ERP Assignments,0,145,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025BaniSP300SimErp,Simulated P300 Oddball ERP (Bani Sekhon),2025 Neurotech ERP Assignments,0,142,0,0,0,0,0,0,0,0,0,0,0,0
+neurotech2025BaniSBaselineP300Erp,Baseline-Corrected P300 ERP (Bani Sekhon),2025 Neurotech ERP Assignments,0,130,0,0,0,0,0,0,0,0,0,0,0,0
+neurotech2025CaitlynAFaceObjectN170,N170 Faces vs. Star Objects ERP (Caitlyn Archibald),2025 Neurotech ERP Assignments,0,209,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025ChloeSStroopErp,Color-Word Stroop Oddball ERP (Chloe Sorochan),2025 Neurotech ERP Assignments,0,211,0,0,0,0,0,0,0,0,0,0,0,0
+neurotech2025EllaTOddballErpMonitor,Oddball ERP & Stimulus Monitor (Ella Thorsen-Bell),2025 Neurotech ERP Assignments,0,156,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025GraceSP300Oddball,P300 Oddball ERP Averager (Grace Shin),2025 Neurotech ERP Assignments,0,156,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025HamzaRP300Paradigm,4-Channel P300 Oddball Display (Hamza Razzo),2025 Neurotech ERP Assignments,0,306,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025HannahCAnnulusOddballErp,Circle vs. Annulus Oddball ERP (Hannah Cooper),2025 Neurotech ERP Assignments,0,291,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025HardiPFaceObjectErp,Face vs. Object ERP with Timing Axis (Hardi Patel),2025 Neurotech ERP Assignments,0,153,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025IvanLP300N400Detector,P300 & N400 Component Detector (Ivan Espino Lopez),2025 Neurotech ERP Assignments,0,218,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025IvanLOddballHazardSim,P300 Oddball & Hazard Overlay Simulator (Ivan Espino Lopez),2025 Neurotech ERP Assignments,0,135,0,0,0,0,0,0,0,0,0,0,0,0
+neurotech2025IvanLThresholdErpDetector,P300/N400 Detector with Alpha/Beta Thresholds (Ivan Espino Lopez),2025 Neurotech ERP Assignments,0,267,1,1,0,0,0,0,0,1,0,0,0,0
+neurotech2025JakeGMmnErpDisplay,Mismatch Negativity (MMN) ERP Display (Jake Gannon),2025 Neurotech ERP Assignments,0,221,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025JiaGFaceObjectErp,Face vs. Object ERP Averager (Jia Guina),2025 Neurotech ERP Assignments,0,117,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025KiaraREmotionalOddballErp,Happy vs. Angry Emotional Oddball ERP (Kiara Ruda),2025 Neurotech ERP Assignments,0,220,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025KoraBP300OddballErp,P300 Oddball & ERP Averager (Kora Budzyk),2025 Neurotech ERP Assignments,0,187,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025KyleCAuditoryN1Erp,Auditory N1 High vs. Low Tone ERP (Kyle Cordez),2025 Neurotech ERP Assignments,0,149,0,0,0,0,0,1,0,1,0,0,1,0
+neurotech2025MarinayaSN170FaceObject,4-Channel N170 Faces vs. Objects ERP (Marinaya Saigh),2025 Neurotech ERP Assignments,0,172,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025MohamedJP300OddballCsv,P300 Oddball ERP with CSV Export (Mohamed Jomha),2025 Neurotech ERP Assignments,0,234,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025NatashaCN400SemanticErp,N400 Semantic Word Pair ERP (Natasha Chemello),2025 Neurotech ERP Assignments,0,177,0,0,0,0,0,0,0,1,0,1,0,0
+neurotech2025PortiaWTwoCategoryErp,Two-Category Oddball ERP Plotter (Portia Wainwright),2025 Neurotech ERP Assignments,0,158,0,0,0,0,0,0,0,0,0,0,0,0
+neurotech2025RaissaSFourStateErpAverager,4-Brain-State Stratified ERP Averager (Raissa Shariff),2025 Neurotech ERP Assignments,0,150,0,0,0,0,0,1,1,1,0,0,0,0
+neurotech2025RanaRN170FaceObjectErp,Multi-Channel N170 Face vs. Object ERP (Rana Radiansyah),2025 Neurotech ERP Assignments,0,150,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025RyanPClosedLoopMmnErp,Attention-Adaptive Closed-Loop MMN ERP (Ryan Park),2025 Neurotech ERP Assignments,0,224,0,0,0,0,0,1,0,1,0,0,0,0
+neurotech2025SamirJP300RareBeepErp,P300 Oddball ERP with Rare Trial Audio Beep (Samir Jaber),2025 Neurotech ERP Assignments,0,285,0,0,0,0,0,0,0,1,0,0,1,0
+neurotech2025SarahBN400WordPairErp,N400 Semantic Match vs. Mismatch ERP (Sarah Badran),2025 Neurotech ERP Assignments,0,176,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025ToriAN170DarkErp,Dark-Mode Neon N170 Face ERP (Tori Anderson),2025 Neurotech ERP Assignments,0,162,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025YanLFaceObjectErpDemo,Continuous Face vs. Object ERP Averager (Yan Luo),2025 Neurotech ERP Assignments,0,189,0,0,0,0,0,0,0,1,0,0,0,0
+neurotech2025ZainabSMultiChannelFaceErp,Multi-Channel Face vs. Object ERP Plotter (Zainab Samiuddin),2025 Neurotech ERP Assignments,0,164,0,0,0,0,0,0,0,1,0,1,0,0
 studentAhmedFTelekinesis,Telekinesis (Faiyaz Ahmed),2022 NeuroArt Class Gallery,0,108,0,0,0,1,0,0,0,0,0,0,0,0
 studentAhmedSFireworks,Fireworks-VF (Sharmin Ahmed),2022 NeuroArt Class Gallery,0,42,1,1,1,1,1,0,0,0,0,0,0,0
 studentArmstrongFractalTree,Fractal Tree Blossom (Aislinn Armstrong),2022 NeuroArt Class Gallery,0,38,1,1,1,1,1,0,0,0,0,0,0,0

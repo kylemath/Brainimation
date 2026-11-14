@@ -1,11 +1,12 @@
 {
   "catalogue_sum_check": {
-    "n_core": 36,
+    "n_starter_diag": 7,
+    "n_core": 37,
     "n_studios_ppg_imu_multi": 26,
     "n_games_and_eegedu": 43,
     "n_archival_2022_2025": 121,
-    "sum_subgroups": 226,
-    "manifest_total": 226,
+    "sum_subgroups": 234,
+    "manifest_total": 234,
     "exact_match": true
   },
   "student_cohort_sum_check": {
@@ -21,20 +22,36 @@
   },
   "table2_loc_quantiles_check": {
     "subgroups": {
+      "starter_diag": {
+        "n": 7,
+        "med": 25,
+        "q1": 22,
+        "q3": 120,
+        "min": 21,
+        "max": 135,
+        "expected": [
+          7,
+          25,
+          22,
+          120,
+          21,
+          135
+        ]
+      },
       "core_scaffolds": {
-        "n": 36,
+        "n": 37,
         "med": 32,
         "q1": 27,
-        "q3": 36,
+        "q3": 38,
         "min": 11,
-        "max": 111,
+        "max": 1244,
         "expected": [
-          36,
+          37,
           32,
           27,
-          36,
+          38,
           11,
-          111
+          1244
         ]
       },
       "studios": {
@@ -86,19 +103,19 @@
         ]
       },
       "full_catalogue": {
-        "n": 226,
-        "med": 111,
+        "n": 234,
+        "med": 110,
         "q1": 38,
-        "q3": 185,
+        "q3": 183,
         "min": 11,
-        "max": 758,
+        "max": 1244,
         "expected": [
-          226,
-          111,
+          234,
+          110,
           38,
-          185,
+          183,
           11,
-          758
+          1244
         ]
       },
       "cohort1_nf": {
@@ -167,6 +184,7 @@
       }
     },
     "subgroup_pass": {
+      "starter_diag": true,
       "core_scaffolds": true,
       "studios": true,
       "games_and_eegedu": true,
@@ -204,10 +222,10 @@
     "exact_match": true
   },
   "muse_browser_size_check": {
-    "file_bytes": 38899,
-    "reported_kb": 38.0,
+    "file_bytes": 38319,
+    "reported_kb": 37.4,
     "legacy_muse_kb": 473.0,
-    "bundle_reduction_factor": 12.5,
+    "bundle_reduction_factor": 12.6,
     "exact_match": true
   },
   "signal_processing_metrics_check": {
@@ -253,9 +271,9 @@
   },
   "nonparametric_effect_size_check": {
     "u_cluster": 1074.0,
-    "max_possible_u": 1080,
-    "r_rb_reported": 0.99,
-    "r_rb_recomputed": 0.99,
+    "max_possible_u": 1110,
+    "r_rb_reported": 0.94,
+    "r_rb_recomputed": 0.94,
     "exact_match": true
   }
 }
