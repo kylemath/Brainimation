@@ -1,22 +1,54 @@
-\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
-\contentsline {subsection}{\numberline {1.1}Motivation}{3}{subsection.1.1}%
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Classroom \& Research Motivation}{4}{subsection.1.1}%
+\contentsline {subsubsection}{\numberline {1.1.1}Closed-Loop BCIs \& Neurofeedback}{4}{subsubsection.1.1.1}%
+\contentsline {subsubsection}{\numberline {1.1.2}Headbands vs.\ Pre-Built Dashboards}{4}{subsubsection.1.1.2}%
 \contentsline {subsection}{\numberline {1.2}Constructionist Design \& Setup Barriers}{4}{subsection.1.2}%
-\contentsline {subsection}{\numberline {1.3}BrainImation Overview}{4}{subsection.1.3}%
-\contentsline {section}{\numberline {2}Browser Connectivity \& Simulation}{5}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Multi-Gen Muse Client (\texttt {muse-browser.js})}{5}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Shared \texttt {eegData} \& Built-In Simulator}{6}{subsection.2.2}%
-\contentsline {section}{\numberline {3}Coding Supports \& Visual Catalogue}{7}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Editor, Reference Drawer \& Sharing}{7}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}234-Sketch Visual Catalogue (21\ Categories)}{8}{subsection.3.2}%
-\contentsline {section}{\numberline {4}Core Teaching Modules \& Benchmarks}{9}{section.4}%
-\contentsline {subsection}{\numberline {4.1}FM Audio Sonification (\texttt {brainSynth.js})}{9}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Online 4-Ch ERP \& Smoothing (\texttt {epochs.js})}{10}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Optical fNIRS \& Skin Regression}{12}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}3D Head Motion \& NLMS Filtering}{13}{subsection.4.4}%
-\contentsline {section}{\numberline {5}Classroom Evaluation ($N = 69$ Projects)}{15}{section.5}%
-\contentsline {subsection}{\numberline {5.1}Course Context \& Workflow}{15}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}Code Complexity \& Expansion}{15}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}Feature Adoption}{16}{subsection.5.3}%
-\contentsline {section}{\numberline {6}Discussion}{16}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Pedagogical \& Research Synthesis}{16}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Technical \& Methodological Limitations}{16}{subsection.6.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}Constructionist Design Goals}{4}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}Eliminating Desktop Dependencies}{4}{subsubsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.3}BrainImation Overview \& Minimal Example}{5}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}Browser-Native Hardware \& Simulator}{5}{subsubsection.1.3.1}%
+\contentsline {subsubsection}{\numberline {1.3.2}11-Line Neurofeedback (\texttt {basic.js})}{5}{subsubsection.1.3.2}%
+\contentsline {section}{\numberline {2}Browser Hardware \& Simulation}{6}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Multi-Generation Muse Client (\texttt {muse-browser.js})}{6}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Shared \texttt {eegData} \& Simulator}{7}{subsection.2.2}%
+\contentsline {section}{\numberline {3}IDE Supports \& Visual Catalogue}{8}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Autocomplete \& Reference Drawer}{8}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}234-Sketch Visual Catalogue}{9}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Core Teaching Modules}{11}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Audio Sonification (\texttt {brainSynth.js})}{11}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}EEG-to-FM Parameter Mapping}{11}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}Simulated Relaxed vs.\ Engaged Spectral Sidebands}{12}{subsubsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.2}Online 4-Channel ERP Averaging (\texttt {epochs.js}) and Control Smoothing}{12}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Forehead Reference Montage and Textbook Polarity Simulation}{12}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Epoch Extraction \& Blink Rejection}{12}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}$\sqrt {K}$ Scaling, SME, \& Hysteresis}{13}{subsubsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.3}Optical PPG/fNIRS Regression}{14}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Beer--Lambert Contrast \& Depth}{14}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}Short-Channel Skin Regression}{15}{subsubsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.4}Head Motion \& NLMS Filtering}{15}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}6-DOF Kinematics Integration}{15}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}6-Tap NLMS Motion Filter}{15}{subsubsection.4.4.2}%
+\contentsline {section}{\numberline {5}Classroom Evaluation}{17}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Course Context \& Workflow}{17}{subsection.5.1}%
+\contentsline {subsubsection}{\numberline {5.1.1}Participant Pool \& Ethics}{17}{subsubsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.2}Lab-to-Home-to-Lab Cycle}{17}{subsubsection.5.1.2}%
+\contentsline {subsubsection}{\numberline {5.1.3}Two-Cohort Exam Structure}{17}{subsubsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.2}Code Complexity \& Scaffold Expansion}{18}{subsection.5.2}%
+\contentsline {subsubsection}{\numberline {5.2.1}Executable LOC Metric \& Clustering}{18}{subsubsection.5.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2}Cohort 1 \& Cohort 2 Exemplars}{18}{subsubsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.3}Template Expansion Test}{18}{subsubsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.3}Disaggregated Feature Adoption}{18}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Signal Conditioning}{18}{subsubsection.5.3.1}%
+\contentsline {subsubsection}{\numberline {5.3.2}Cohort 1 Frequency-Band Usage}{18}{subsubsection.5.3.2}%
+\contentsline {subsubsection}{\numberline {5.3.3}Cohort 2 Buffer Usage}{18}{subsubsection.5.3.3}%
+\contentsline {subsubsection}{\numberline {5.3.4}Archival Preservation}{19}{subsubsection.5.3.4}%
+\contentsline {section}{\numberline {6}Discussion}{19}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Pedagogical \& Research Synthesis}{19}{subsection.6.1}%
+\contentsline {subsubsection}{\numberline {6.1.1}From Dashboards to Creative Coding}{19}{subsubsection.6.1.1}%
+\contentsline {subsubsection}{\numberline {6.1.2}Zero-Install Lab \& Off-Lab Workflow}{19}{subsubsection.6.1.2}%
+\contentsline {subsection}{\numberline {6.2}Technical \& Methodological Limitations}{19}{subsection.6.2}%
+\contentsline {subsubsection}{\numberline {6.2.1}Synthetic Benchmarks vs.\ Clinical Validation}{19}{subsubsection.6.2.1}%
+\contentsline {subsubsection}{\numberline {6.2.2}WebBluetooth \& 60~Hz Jitter}{19}{subsubsection.6.2.2}%
+\contentsline {subsubsection}{\numberline {6.2.3}Dry-Sensor Artifacts \& NLMS Bounds}{20}{subsubsection.6.2.3}%
+\contentsline {subsubsection}{\numberline {6.2.4}Browser Compatibility}{20}{subsubsection.6.2.4}%
+\contentsline {subsubsection}{\numberline {6.2.5}Classroom Evaluation Scope}{20}{subsubsection.6.2.5}%
