@@ -6,7 +6,7 @@ Springer Nature / Psychonomic Society
 
 Dear Drs. Buchanan and Matzke,
 
-Please find enclosed our manuscript entitled **"BrainImation: Bringing Brain Waves to Life in the Browser with Affordable InteraXon Muse Headbands"** by Kyle E. Mathewson, Tamari Shalamberidze, and Claire J. Scavuzzo, submitted for consideration as an Original Article in *Behavior Research Methods*.
+Please find enclosed our manuscript entitled **"BrainImation: Bringing Brain Waves to Life in the Browser with Affordable Muse Headbands"** by Kyle E. Mathewson, Tamari Shalamberidze, and Claire J. Scavuzzo, submitted for consideration as an Original Article in *Behavior Research Methods*.
 
 Rapid prototyping and classroom instruction of closed-loop neurofeedback protocols, event-related potential (ERP) paradigms, and multimodal physiological displays with portable headbands typically require installing operating-system Bluetooth utilities, network streaming layers (`LabStreamingLayer`), and desktop programming environments. BrainImation (`https://kylemath.github.io/Brainimation/`) eliminates this setup barrier for neuroscience and psychology educators, students, and researchers by running entirely in a single webpage. A self-contained `37.4 KB` WebBluetooth client (`muse-browser.js`, `12.6x` smaller than legacy bundles) connects four generations of InteraXon Muse headbands—Muse 2016, Muse 2, Classic Muse S, and Muse S Athena (`p1042` 16-channel optical streaming with `730 nm + 850 nm` Modified Beer–Lambert forehead oxygenation)—directly to `p5.js` graphics and `p5.sound` audio, paired with a hardware-free multi-rate signal simulator (`EEGSimulator`) that populates the same `window.eegData` API for off-lab prototyping and classroom use.
 

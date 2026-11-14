@@ -1,4 +1,4 @@
-# BrainImation: Bringing Brain Waves to Life in the Browser with Affordable InteraXon Muse Headbands
+# BrainImation: Bringing Brain Waves to Life in the Browser with Affordable Muse Headbands
 
 **Kyle E. Mathewson**$^{a,b,*}$, **Tamari Shalamberidze**$^{b}$, **Claire J. Scavuzzo**$^{a}$  
 $^a$Department of Psychology, Faculty of Science, University of Alberta, Edmonton, AB, T6G 2E9, Canada  
