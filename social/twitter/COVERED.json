@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "note": "Dedup list for the Twitter-thread automation. Read social/twitter/AGENT_INSTRUCTIONS.md before adding an entry. Do not remove past entries.",
+  "threads": [
+    {
+      "date": "2026-11-12",
+      "timezone": "America/Edmonton",
+      "id": "colorfulGrid",
+      "title": "Animated Grid",
+      "category": "Animation & Motion",
+      "angle": "Attention speeds the wave, theta shifts hue, alpha lifts brightness, and meditation sizes each cell. Clip is the built-in simulator. Includes the course provenance.",
+      "features": [
+        "eeg-band-mapping",
+        "attention-meditation-scores",
+        "simulator-clip",
+        "course-provenance",
+        "zero-install-overview"
+      ],
+      "path": "social/twitter/2026-11-12-animated-grid"
+    }
+  ]
+}
