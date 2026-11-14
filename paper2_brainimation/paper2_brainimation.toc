@@ -7,19 +7,19 @@
 \contentsline {subsubsection}{\numberline {1.2.2}Eliminating Desktop Dependencies}{4}{subsubsection.1.2.2}%
 \contentsline {subsection}{\numberline {1.3}BrainImation Overview \& Minimal Example}{5}{subsection.1.3}%
 \contentsline {subsubsection}{\numberline {1.3.1}Browser-Native Hardware \& Simulator}{5}{subsubsection.1.3.1}%
-\contentsline {subsubsection}{\numberline {1.3.2}11-Line Neurofeedback (\texttt {basic.js})}{5}{subsubsection.1.3.2}%
+\contentsline {subsubsection}{\numberline {1.3.2}11-Line Neurofeedback}{5}{subsubsection.1.3.2}%
 \contentsline {section}{\numberline {2}Browser Hardware \& Simulation}{6}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Multi-Generation Muse Client (\texttt {muse-browser.js})}{6}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Shared \texttt {eegData} \& Simulator}{7}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.1}Multi-Generation Muse Client}{6}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Shared Signal State \& Simulator}{7}{subsection.2.2}%
 \contentsline {section}{\numberline {3}IDE Supports \& Visual Catalogue}{8}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Autocomplete \& Reference Drawer}{8}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}234-Sketch Visual Catalogue}{9}{subsection.3.2}%
 \contentsline {section}{\numberline {4}Core Teaching Modules}{11}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Audio Sonification (\texttt {brainSynth.js})}{11}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.1}Audio Sonification}{11}{subsection.4.1}%
 \contentsline {subsubsection}{\numberline {4.1.1}EEG-to-FM Parameter Mapping}{11}{subsubsection.4.1.1}%
-\contentsline {subsubsection}{\numberline {4.1.2}Simulated Relaxed vs.\ Engaged Spectral Sidebands}{12}{subsubsection.4.1.2}%
-\contentsline {subsection}{\numberline {4.2}Online 4-Channel ERP Averaging (\texttt {epochs.js}) and Control Smoothing}{12}{subsection.4.2}%
-\contentsline {subsubsection}{\numberline {4.2.1}Forehead Reference Montage and Textbook Polarity Simulation}{12}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}Relaxed vs.\ Engaged Spectra}{12}{subsubsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.2}Online ERP Averaging}{12}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Forehead Reference \& Polarity}{12}{subsubsection.4.2.1}%
 \contentsline {subsubsection}{\numberline {4.2.2}Epoch Extraction \& Blink Rejection}{12}{subsubsection.4.2.2}%
 \contentsline {subsubsection}{\numberline {4.2.3}$\sqrt {K}$ Scaling, SME, \& Hysteresis}{13}{subsubsection.4.2.3}%
 \contentsline {subsection}{\numberline {4.3}Optical PPG/fNIRS Regression}{14}{subsection.4.3}%
@@ -40,7 +40,7 @@
 \contentsline {subsection}{\numberline {5.3}Disaggregated Feature Adoption}{18}{subsection.5.3}%
 \contentsline {subsubsection}{\numberline {5.3.1}Signal Conditioning}{18}{subsubsection.5.3.1}%
 \contentsline {subsubsection}{\numberline {5.3.2}Cohort 1 Frequency-Band Usage}{18}{subsubsection.5.3.2}%
-\contentsline {subsubsection}{\numberline {5.3.3}Cohort 2 Buffer Usage}{18}{subsubsection.5.3.3}%
+\contentsline {subsubsection}{\numberline {5.3.3}Cohort 2 Buffer Usage}{19}{subsubsection.5.3.3}%
 \contentsline {subsubsection}{\numberline {5.3.4}Archival Preservation}{19}{subsubsection.5.3.4}%
 \contentsline {section}{\numberline {6}Discussion}{19}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Pedagogical \& Research Synthesis}{19}{subsection.6.1}%
