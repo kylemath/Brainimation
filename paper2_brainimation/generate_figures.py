@@ -21,7 +21,7 @@ import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from matplotlib.patches import FancyBboxPatch
+from matplotlib.patches import FancyBboxPatch, Rectangle
 from PIL import Image
 
 plt.rcParams.update({
@@ -256,6 +256,360 @@ def make_fig1_ide_architecture(examples, cat_order, muse_kb, reduction_factor):
     print("Saved Paper 2 Fig 1 (Multimodal Architecture & 18-Category Catalogue Table)")
 
 
+def make_fig1_equal_boxes(examples, cat_order, muse_kb, reduction_factor):
+    """Paper 3 Fig 1. Five equal boxes, full screenshot centred on the blue box, one-line table.
+
+    Writes figures/fig1_equal_boxes.pdf. Does not overwrite Kyle's
+    fig1_brainimation_ide_architecture.pdf. Box text, titles, and table
+    labels are his wording.
+    """
+    boxes = [
+        ("#1f4e78",
+         f"1. Multi-Gen BLE Client\n   (muse-browser.js, {muse_kb:.1f} KB)\n\n"
+         "• Classic Two-Phase Lazy GATT\n"
+         "  (Muse 2016 / Muse 2 / Muse S)\n"
+         "• Muse S Athena (273e0013):\n"
+         "  14-bit EEG, 20-bit 16-ch PPG,\n"
+         "  52 Hz IMU, DRL/REF, Battery\n"
+         "• Live p1042 / p50 PPG Toggle"),
+        ("#008080",
+         "2. Multimodal Signal Engine\n   (window.eegData + Sim)\n\n"
+         "• 256 Hz EEG + 60/50Hz Notch + FFT\n"
+         "• 64 Hz PPG, HR, SpO₂, 730/850nm\n"
+         "  MBLL Δ[HbO₂]/Δ[HHb] + 8/20mm\n"
+         "  Short-Channel Skin Regression\n"
+         "• 52 Hz 6-DOF IMU Kinematics +\n"
+         "  6-Tap NLMS Motion Filter"),
+        ("#2e75b6",
+         "3. Browser IDE & Catalogue\n   (Monaco + 153-API Ref)\n\n"
+         "• Resizable Visual Catalogue\n"
+         "  (234 Cards, 21 Categories)\n"
+         "• 5-Tab Reference Drawer (+ AI Tab):\n"
+         "  P5, Input, Sound, EEG, IMU/PPG\n"
+         "• In-Canvas About Guide &\n"
+         "  Zoom-Style Mobile Fullscreen"),
+        ("#d95f02",
+         "4. Dynamic Introspection\n   (bindP5Functions + BGShared)\n\n"
+         "• Auto-binds p5.js 2D/WebGL\n"
+         "  & p5.sound to window\n"
+         "• Forwards 15 Lifecycle/DOM hooks\n"
+         "• BGShared Arcade CRT Engine\n"
+         "• CSV Exporter & SoundTester"),
+        ("#6a3d9a",
+         "5. Live Output Modalities\n   (234 Catalogue Sketches)\n\n"
+         "• 44 Starters, Diag & Core\n"
+         "• 26 PPG/fNIRS, IMU & Multi\n"
+         "• 14 Closed-Loop BrainGames\n"
+         "• 29 EEGEdu & p5.eegedu Ports\n"
+         "• 121 Student Archive Sketches"),
+    ]
+
+    # Equal boxes. The screenshot is the full older screen, as tall as the boxes.
+    FONT = 14.0
+    TITLE_FONT = 15.0
+    PAD_X, PAD_Y = 0.10, 0.07
+    gap_x = 0.18
+    margin_x = 0.22
+    shot_full = Image.open(os.path.join(BRAIN_DIR, "screenshot.png"))
+    shot = shot_full
+    img_w = 2.10
+    img_h = img_w * shot.size[1] / shot.size[0]
+
+    probe = plt.figure(figsize=(2, 2), dpi=180)
+    probe_ax = probe.add_axes([0, 0, 1, 1])
+    probe_ax.axis("off")
+
+    def text_size(text, fontsize, weight, linespacing=None):
+        extra = {}
+        if linespacing is not None:
+            extra["linespacing"] = linespacing
+        artist = probe_ax.text(
+            0, 0, text, fontsize=fontsize, fontweight=weight,
+            ha="left", va="bottom", **extra)
+        probe.canvas.draw()
+        bb = artist.get_window_extent()
+        artist.remove()
+        return bb.width / 180.0, bb.height / 180.0
+
+    def wrap_to_inches(text, fontsize, weight, max_w):
+        words = text.split()
+        lines, cur = [], ""
+        for word in words:
+            trial = word if not cur else cur + " " + word
+            if text_size(trial, fontsize, weight)[0] <= max_w or not cur:
+                cur = trial
+            else:
+                lines.append(cur)
+                cur = word
+        if cur:
+            lines.append(cur)
+        return lines
+
+    def wrap_keeping_breaks(text, max_w):
+        """Wrap only lines that are wider than max_w. Wording stays the same."""
+        out = []
+        for line in text.split("\n"):
+            if line.strip() == "" or text_size(line, FONT, "medium")[0] <= max_w:
+                out.append(line)
+                continue
+            lead = line[:len(line) - len(line.lstrip(" "))]
+            words = line[len(lead):].split()
+            cur = lead
+            wrapped = []
+            for word in words:
+                trial = (lead + word) if cur == lead else cur + " " + word
+                if text_size(trial, FONT, "medium")[0] <= max_w or cur == lead:
+                    cur = trial
+                else:
+                    wrapped.append(cur)
+                    cur = lead + word
+            if cur.strip():
+                wrapped.append(cur)
+            out.extend(wrapped)
+        return "\n".join(out)
+
+    box_text = [text for _, text in boxes]
+    natural = []
+    for text in box_text:
+        tw, th = text_size(text, FONT, "medium", linespacing=1.12)
+        natural.append((tw + 2 * PAD_X, th + 2 * PAD_Y))
+    print("natural inches", ["%.2f x %.2f" % s for s in natural])
+    # One shared width, about half an inch under the widest original box.
+    # Every box then uses the tallest wrapped text, so the lengths match.
+    BOX_W = max(s[0] for s in natural) - 0.50
+    inner = BOX_W - 2 * PAD_X
+    original_text = list(box_text)
+    for i, text in enumerate(original_text):
+        box_text[i] = wrap_keeping_breaks(text, inner)
+    text_heights = []
+    for text in box_text:
+        tw, th = text_size(text, FONT, "medium", linespacing=1.12)
+        text_heights.append(th + 2 * PAD_Y)
+        print("  wrapped text %.2f x %.2f" % (tw + 2 * PAD_X, th + 2 * PAD_Y))
+    BOX_H = max(text_heights)
+    box_sizes = [(BOX_W, BOX_H) for _ in box_text]
+    print("shared box %.2f x %.2f" % (BOX_W, BOX_H))
+
+    # Keep the table at the width it had before the boxes were narrowed.
+    row1_natural = sum(s[0] for s in natural[:3]) + 2 * gap_x
+    FW_TABLE = margin_x + row1_natural + margin_x
+
+    # Full older screenshot, as tall as the equal boxes, centred on the blue box.
+    x3 = margin_x + box_sizes[0][0] + gap_x + box_sizes[1][0] + gap_x
+    w3 = box_sizes[2][0]
+    img_h = BOX_H
+    img_w = img_h * shot_full.size[0] / shot_full.size[1]
+    shot = shot_full
+    print("B image %.2f x %.2f in, no crop" % (img_w, img_h))
+
+    row1_w = sum(s[0] for s in box_sizes[:3]) + 2 * gap_x
+    row2_boxes_w = box_sizes[3][0] + gap_x + box_sizes[4][0]
+    row2_w = row2_boxes_w + gap_x + img_w
+    # Stay on the table's width so the table type does not change.
+    FW = FW_TABLE
+    top = 0.16
+    title_a_h = 0.72
+    gap_after_a = 0.14
+    b_title = "B. BrainImation Live Browser IDE & Visual Catalogue"
+    gap_after_b = 0.22
+    bottom = 0.14
+
+    # Table C: original wording, one line per row. Font is the largest
+    # size that keeps every cell on that one line inside the table width.
+    headers = [
+        "Catalogue Category / Track",
+        "N",
+        "Med.",
+        "Representative Sketches",
+        "Primary Physiological & API Modalities",
+    ]
+    raw_rows = [
+        ["1–2. One-Sensor Starters & Diag.", "7", "25", "simpleEEG, simplePPG, athenaPresetSweep", "Minimal starters & Athena 16-ch diagnostics"],
+        ["3–5. Intro, Bands & Raw EEG", "13", "32", "basic, bandOrbitz, epochs, SpO2Fused", "eegData bands, 256 Hz ERPs, fused SpO₂"],
+        ["6. PPG & Optical (fNIRS Studio)", "10", "200", "fNIRSBeerLambert, ppgShortChannel...", "64 Hz 660/730/850nm, HbO₂/HHb, 8/20mm OLS"],
+        ["7. Motion, IMU & Broadcast", "11", "215", "imuStackedKinematics, imuHeadMove...", "52 Hz Accel/Gyro, 2nd-order pos., NLMS filter"],
+        ["8. Multimodal (EEG + PPG + HR)", "5", "117", "multiNeurovascularCoupling, HEP", "Neurovascular lag, PPG-peak locked HEP"],
+        ["9–15. Attention, 3D & Sound", "24", "34", "mandala, 3dTorus, perlinNoise, brainSynth", "WEBGL 3D, particles, webcam, Chowning FM"],
+        ["16. BrainGames Arcade Suite", "14", "514", "gameGolfShooter, gameArchery, FPS", "14 closed-loop BCI arcade games (BGShared)"],
+        ["17–18. EEGEdu & p5.eegedu", "29", "44", "eegeduFlock3D, Oddball, eegeduEpochs", "Per-channel PSD, SSVEP/ERP CSV export"],
+        ["19–20. 2025 Neurotech Class", "95", "149", "EegFlappyBird, EegTetris, CatErp", "Curated PSYCH 403 BCI games & 4-ch ERPs"],
+        ["21. 2022 NeuroArt Class Gallery", "26", "43", "studentBrainTyphoon, Terrain3D", "Inaugural 2022 undergraduate neuro-art gallery"],
+    ]
+    title_c = "C. Unified 21-Category Visual Catalogue (234 Interactive Sketches with Thumbnail Cards)"
+    PAD_CELL_X, PAD_CELL_Y = 0.05, 0.045
+    REF_PT = 10.0
+    table_w = FW - 0.56
+    probe = plt.figure(figsize=(2, 2), dpi=180)
+    probe_ax = probe.add_axes([0, 0, 1, 1])
+    probe_ax.axis("off")
+
+    def text_size(text, fontsize, weight, linespacing=None):
+        extra = {}
+        if linespacing is not None:
+            extra["linespacing"] = linespacing
+        artist = probe_ax.text(
+            0, 0, text, fontsize=fontsize, fontweight=weight,
+            ha="left", va="bottom", **extra)
+        probe.canvas.draw()
+        bb = artist.get_window_extent()
+        artist.remove()
+        return bb.width / 180.0, bb.height / 180.0
+
+    def wrap_to_inches(text, fontsize, weight, max_w):
+        words = text.split()
+        lines, cur = [], ""
+        for word in words:
+            trial = word if not cur else cur + " " + word
+            if text_size(trial, fontsize, weight)[0] <= max_w or not cur:
+                cur = trial
+            else:
+                lines.append(cur)
+                cur = word
+        if cur:
+            lines.append(cur)
+        return lines
+
+    # B title is centred on the blue box and uses that box's width,
+    # so it stays on two lines instead of three.
+    b_title_w = w3
+    b_lines = wrap_to_inches(b_title, TITLE_FONT, "bold", b_title_w)
+    while len(b_lines) > 2 and b_title_w < FW:
+        b_title_w += 0.1
+        b_lines = wrap_to_inches(b_title, TITLE_FONT, "bold", b_title_w)
+    b_title_wrapped = "\n".join(b_lines)
+    _, b_title_h = text_size(b_title_wrapped, TITLE_FONT, "bold", linespacing=1.12)
+    gap_rows = b_title_h + 0.12
+    print("B title (%d lines, %.2f in wide): %s" % (len(b_lines), b_title_w, b_lines))
+
+    col_text_w = []
+    for c in range(5):
+        samples = [(headers[c], "bold")] + [(row[c], "medium") for row in raw_rows]
+        col_text_w.append(max(text_size(text, REF_PT, weight)[0] for text, weight in samples))
+    usable = table_w - 2 * PAD_CELL_X * 5
+    TABLE_FONT = REF_PT * usable / sum(col_text_w)
+    col_w = [w * TABLE_FONT / REF_PT + 2 * PAD_CELL_X for w in col_text_w]
+    # Keep the columns inside the table if rounding drifts.
+    col_w = [w * table_w / sum(col_w) for w in col_w]
+    _, line_h = text_size("Ag", TABLE_FONT, "bold")
+    row_h = line_h + 2 * PAD_CELL_Y
+    table_body_h = (1 + len(raw_rows)) * row_h
+    _, title_c_text_h = text_size(title_c, TITLE_FONT, "bold")
+    title_c_h = title_c_text_h + 0.08
+    table_h = title_c_h + table_body_h
+    plt.close(probe)
+    print("table font %.2f pt, row height %.2f in" % (TABLE_FONT, row_h))
+    row1_h = max(s[1] for s in box_sizes[:3])
+    row2_h = max(box_sizes[3][1], box_sizes[4][1], img_h)
+    FH = (top + title_a_h + gap_after_a + row1_h + gap_rows + row2_h
+          + gap_after_b + table_h + bottom)
+    left = margin_x
+
+    fig = plt.figure(figsize=(FW, FH), dpi=140)
+
+    def ax_in(x, y, w, h):
+        return fig.add_axes([x / FW, y / FH, w / FW, h / FH])
+
+    def draw_box(x, y, w, h, color, text):
+        ax = ax_in(x, y, w, h)
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.axis("off")
+        ax.add_patch(FancyBboxPatch(
+            (0.0, 0.0), 1.0, 1.0,
+            boxstyle="round,pad=0.004,rounding_size=0.04",
+            facecolor=color, edgecolor="none",
+            mutation_aspect=h / w,
+        ))
+        ax.text(0.5, 0.5, text, color="white", ha="center", va="center",
+                fontsize=FONT, linespacing=1.12, fontweight="medium")
+
+    # Three boxes, then boxes 4 and 5 with the screenshot after box 5.
+    y_title = FH - top
+    fig.text(left / FW, y_title / FH,
+             "A. BrainImation Multimodal Client-Side Architecture:\n"
+             "Muse S Athena + Classic BLE Client, PPG/fNIRS, 6-DOF IMU & Visual Catalogue",
+             ha="left", va="top", fontsize=TITLE_FONT, fontweight="bold")
+
+    y_top = y_title - title_a_h - gap_after_a - row1_h
+    x = left
+    for i in range(3):
+        w, h = box_sizes[i]
+        draw_box(x, y_top + (row1_h - h), w, h, boxes[i][0], box_text[i])
+        x += w + gap_x
+
+    y_img = bottom + table_h + gap_after_b
+    w4, h4 = box_sizes[3]
+    w5, h5 = box_sizes[4]
+    # Tops of boxes 4 and 5 line up with the top of the smaller screenshot.
+    y_row2_top = y_img + row2_h
+    y4 = y_row2_top - h4
+    y5 = y_row2_top - h5
+    y_img_draw = y_row2_top - img_h
+    draw_box(left, y4, w4, h4, boxes[3][0], box_text[3])
+    draw_box(left + w4 + gap_x, y5, w5, h5, boxes[4][0], box_text[4])
+    # Centred on the blue box, shifted right only if it would cover box 5.
+    x_b = x3 + (w3 - img_w) / 2
+    box5_right = left + w4 + gap_x + w5
+    if x_b < box5_right + 0.08:
+        x_b = box5_right + 0.08
+
+    fig.text((x_b + img_w / 2) / FW, (y_img_draw + img_h + 0.04) / FH,
+             b_title_wrapped,
+             ha="center", va="bottom", fontsize=TITLE_FONT, fontweight="bold",
+             linespacing=1.12)
+    ax_b = ax_in(x_b, y_img_draw, img_w, img_h)
+    ax_b.imshow(shot)
+    ax_b.set_xticks([])
+    ax_b.set_yticks([])
+    for sp in ax_b.spines.values():
+        sp.set_visible(True)
+        sp.set_color("#cccccc")
+
+    # One line per row. Columns are only as wide as their own text at TABLE_FONT.
+    y_block_top = bottom + table_h
+    fig.text(0.28 / FW, y_block_top / FH, title_c,
+             ha="left", va="top", fontsize=TITLE_FONT, fontweight="bold")
+    ax_c = ax_in(0.28, bottom, table_w, table_body_h)
+    ax_c.set_xlim(0, table_w)
+    ax_c.set_ylim(0, table_body_h)
+    ax_c.axis("off")
+    y_row = table_body_h
+    for r in range(1 + len(raw_rows)):
+        y_row -= row_h
+        x_cell = 0.0
+        for c in range(5):
+            if r == 0:
+                face = "#1f4e78"
+            elif r in (5, 6, 7):
+                face = "#e8f4f8"
+            elif r in (8, 9, 10):
+                face = "#f3eefc"
+            else:
+                face = "#ffffff" if r % 2 == 1 else "#f8f9fa"
+            ax_c.add_patch(Rectangle(
+                (x_cell, y_row), col_w[c], row_h,
+                facecolor=face, edgecolor="#d0d7de", linewidth=0.6, clip_on=False,
+            ))
+            if r == 0:
+                text, weight, color = headers[c], "bold", "white"
+            else:
+                text, weight, color = raw_rows[r - 1][c], "medium", "black"
+            if c in (1, 2):
+                ax_c.text(x_cell + col_w[c] / 2, y_row + row_h / 2, text,
+                          ha="center", va="center", fontsize=TABLE_FONT,
+                          fontweight=weight, color=color, clip_on=False)
+            else:
+                ax_c.text(x_cell + PAD_CELL_X, y_row + row_h / 2, text,
+                          ha="left", va="center", fontsize=TABLE_FONT,
+                          fontweight=weight, color=color, clip_on=False)
+            x_cell += col_w[c]
+
+    fig.savefig(os.path.join(OUT_DIR, "fig1_equal_boxes.png"), facecolor="white", dpi=180)
+    fig.savefig(os.path.join(OUT_DIR, "fig1_equal_boxes.pdf"), facecolor="white", dpi=180)
+    plt.close(fig)
+    print("Saved Paper 3 Fig 1 (equal boxes)")
+
+
 def make_fig2_ide_scaffolding_and_corpus(examples, cat_order):
     """Fig 2: Pedagogical IDE Scaffolding (153-API Reference Database, Simulator Synthesis, 21-Category LOC & Multimodal Coverage)."""
     fig = plt.figure(figsize=(14.0, 8.6))
@@ -266,7 +620,7 @@ def make_fig2_ide_scaffolding_and_corpus(examples, cat_order):
     ref_tabs = [
         ("Sensors / IMU & PPG\n(7 groups, 53 APIs)", [
             ("PPG/Optics", 11, "#005a4e"), ("Orient/Kin.", 10, "#008080"),
-            ("Short-Ch fNIRS", 7, "#20a39e"), ("Accel", 7, "#48bf91"),
+            ("fNIRS", 7, "#20a39e"), ("Accel", 7, "#48bf91"),
             ("Gyro", 7, "#76d7c4"), ("Telem/DRL", 6, "#a3e4d7"),
             ("NLMS", 5, "#c8f0e8")
         ]),
@@ -299,8 +653,10 @@ def make_fig2_ide_scaffolding_and_corpus(examples, cat_order):
         for sub_lbl, cnt, col in subcats:
             ax_a.barh(y, cnt, left=left, height=0.58, color=col, edgecolor="white", lw=0.8)
             if cnt >= 6:
+                # Width-6 Mouse bars cannot hold 6 pt "Mouse Ev." / "Mouse Var".
+                size = 5.0 if sub_lbl.startswith("Mouse") else 6.0
                 ax_a.text(left + cnt / 2, y, f"{sub_lbl}\n({cnt})",
-                          ha="center", va="center", fontsize=6.0,
+                          ha="center", va="center", fontsize=size, linespacing=0.9,
                           color="white" if left < 28 else "#222222", fontweight="bold")
             left += cnt
         ax_a.text(left + 0.8, y, f"{left} APIs", va="center", ha="left", fontsize=8.0, fontweight="bold", color="#222")
@@ -1797,7 +2153,10 @@ if __name__ == "__main__":
     reduction_factor = legacy_muse_kb / muse_kb
 
     examples, cat_order = analyze_builtin_examples()
-    make_fig1_ide_architecture(examples, cat_order, muse_kb, reduction_factor)
+    # Kyle's original Figure 1 (fig1_brainimation_ide_architecture), used by paper2.
+    # Switched off so a run makes only the paper3 Figure 1 below. Remove the # to make it again.
+    # make_fig1_ide_architecture(examples, cat_order, muse_kb, reduction_factor)
+    make_fig1_equal_boxes(examples, cat_order, muse_kb, reduction_factor)
     make_fig2_ide_scaffolding_and_corpus(examples, cat_order)
     dsp_bench = make_fig3_sonification_and_erp_engine()
     multimodal_bench = make_fig4_multimodal_athena_ppg_imu()

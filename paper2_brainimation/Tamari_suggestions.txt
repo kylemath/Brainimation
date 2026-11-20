@@ -1,0 +1,8 @@
+Suggestions from my 17 November email that are not in this paper3 edit.
+
+- Frequency bands. Theta is still 4–8 Hz, and alpha is still 8–12 Hz, so both include 8 Hz. I had suggested something like theta 4–7 Hz and alpha 8–12 Hz. I could not change this in the text because the code would still have the same ranges and would not reflect it accurately, so I left the bands as they were. 
+
+- AI tutor. The manuscript now says any student can open the tab by pasting their own API key, and the word "optional" is gone. What is not done is a switch in BrainImation for an instructor to turn that tab off. 
+
+- About the 1/f separation method, I asked if it follows a method like FOOOF or BOSC, and whether we should cite FOOOF. But when checking the code closely, it does not really follow any of those directly, so I did not include the citation. Can add if you think we should. 
+
